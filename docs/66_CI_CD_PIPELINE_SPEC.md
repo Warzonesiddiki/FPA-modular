@@ -1,0 +1,9 @@
+# 66 — CI/CD PIPELINE SPECIFICATION
+
+1. **CI (`.github/workflows/ci.yml`, windows-latest):** checkout → Python 3.12 + Node 22 setup (cache by lockfiles) → `pip install -e .[dev]` + `npm ci` → `python scripts/check.py` (ruff, mypy, pytest, coverage gates, money-AST, token/schema/docs parity, secret+telemetry scans) → acceptance double-run (doc 14 §3) → UI build → migration-fixture tests (61) → artefact: test + acceptance reports (retention 90d). Any red stage blocks merge (branch protection: required checks, no admin bypass — the attempt-#2 "fixes sat unpushed while CI red" failure is a process defect, treated as P1).
+2. **CD (tag `vX.Y.Z`):** CI must be green on the tagged commit → `scripts/build.py` (installer + SBOM + payload audit) → checksum file → draft GitHub release with changelog section; publishing is a human click (owner) after doc 16 §4 checklist evidence is attached.
+3. **Secrets:** none needed beyond GITHUB_TOKEN; code-signing secret (when OQ-07 decided) as repo secret, referenced by name only.
+
+
+## Exact gate list in scripts/check.py (order; first failure stops; all must exist — a missing script is a failure, not a skip)
+1 ruff (app, tests, tools) · 2 mypy strict packages (doc 15) · 3 pytest unit+contract+integration · 4 coverage gates (doc 14 §5) · 5 money-AST scan · 6 schema↔doc-02 equality · 7 OpenAPI↔doc-05/90 diff · 8 UI lint+tsc+vitest+token-check · 9 docs link/ID verify (00–91 cross-refs, EXC/ERR/screen ids) · 10 secret scan · 11 telemetry/network scan · 12 fixture-catalog completeness (doc 89 ↔ tests/fixtures). Acceptance (doc 14 §3) runs as its own CI job in parallel; perf (doc 67) nightly + on release branches. CI minutes budget and cache keys are recorded in evidence on first green run; a CI that is red on main for >24h is an S2 process defect owned by the integrator (doc 85).

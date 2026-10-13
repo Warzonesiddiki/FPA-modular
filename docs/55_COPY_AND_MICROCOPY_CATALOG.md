@@ -1,0 +1,38 @@
+# 55 — COPY & MICROCOPY CATALOG
+
+> Single reviewed source for user-facing strings; screens reference keys (`copy.ts` per screen), never inline variants. Rules: plain language (13), "potential exception" never error/fraud for findings, every error = what + next action (22), no exclamation marks in errors, no "please" more than once per screen.
+
+Rule plain names (S08/exports; rule ids shown secondarily): EXC-001 "Possible duplicate posting" · 002 "Posted again in a later import" · 003 "Import totals don't match" · 004 "Voucher doesn't balance" · 005 "Posted into a locked month" · 006 "One vendor dominates this cost" · 007 "Suspense balance ageing" · 008 "Unusually large one-off entry" · 009 "Unusual poster or timing" · 010 "Possible cut-off issue" · 011 "Accrual not reversed" · 012 "Unexpected credit in expenses" · 013 "Spending spike vs recent months" · 014 "Vendor using a new account" · 015 "Expected recurring charge missing" · 016 "Accrual pattern broken" · 017 "Spend with no budget" · 018 "Material budget variance" · 019 "Budget overrun growing" · 020 "Many round-amount entries" · 021 "Possible split to stay under approval limit" · 022 "In-and-out same amount" · 023 "Single-line large voucher" · 024 "Dormant account active again".
+Key strings (verbatim): empty-import "No files yet — drop this month's exports to begin." · commit-success "Committed {n} rows. Trial balance: {status}." · waive-prompt "Waiving means you accept this for now. It will come back after {days} days if it still applies." · lock-confirm "Lock {period}? Imports and edits will stop. You can unlock later with a reason — it leaves a trail." · ai-off "AI drafting is off. Everything else works without it." · checks-fail "Some numbers don't tie yet, so the board deck is blocked. The Excel pack lists every check."
+Catalog maintenance: new strings land here via PR review with the feature; quarterly wording audit (AUD-F) checks UI against this file mechanically (string extraction diff).
+
+## Extended strings (verbatim; keys in copy.ts)
+Import: `import.drop` "Drop files here, or browse" · `import.mapping.auto` "Your saved mapping from {month} is applied — check it before you commit." · `import.quarantine.title` "{n} rows held back" · `import.quarantine.sub` "Nothing was deleted. Each row below says why and what to do." · `import.commit.done` "Committed {n} rows for {period}." · `import.tb.fail` "Debits and credits differ by {amount}. See Trial Balance for the vouchers."
+Statements/BvA: `bva.material.only` "Material only" · `bva.no.budget` "No budget at this level — variance is the full actual." · `bva.bridge.nodrivers` "Driver data isn't imported for this line, so no bridge is shown." · `stmt.movement` "Movement view — opening balances aren't loaded, so this shows changes, not a full balance sheet."
+Forecast: `fc.accuracy` "Last 3 months, this method was within {mape}% on average." · `fc.lowhist` "Only {n} months of history — treat this forecast with extra care." · `fc.locked` "Locked {date}. Locked forecasts never change; refresh creates a new one."
+Exports: `exp.checks.pass` "All checks passed." · `exp.blocked` "The board deck is blocked until the failed checks pass. The Excel pack is still available and lists them." · `exp.done` "{kind} generated for {period}."
+Close: `close.blockers` "{n} things still block sign-off." · `close.signoff.done` "Signed off by {name} on {date}." · `period.locked` "{period} is locked. Unlocking needs a reason and leaves a trail."
+Settings/AI: `ai.test.ok` "Connected. Drafting is ready." · `ai.key.safe` "Your key is stored in this computer's secure keychain — never in the project file." · `settings.impact.materiality` "Raising this means fewer, larger variances are flagged as material."
+
+## Per-screen mandatory strings (each screen's copy.ts contains at least these keys; AUD-F diffs extraction)
+| Screen | Keys (title / primary action / empty state) |
+|---|---|
+| S01 | "Month-end overview" / "Continue close" / "Start by importing this month's files." |
+| S02 | "Projects" / "New project" / "No projects yet — create one or explore the sample company." |
+| S03 | "Import" / "Commit import" / "Drop this month's exports to begin." |
+| S04 | "Mapping profiles" / "Save as new version" / "Profiles appear after your first import." |
+| S05 | "Trial balance" / "View imbalances" / "Commit a GL import to see the trial balance." |
+| S06 | "Statements" / "Export" / "No committed data for this period yet." |
+| S07 | "Budget vs actual" / "Approve commentary" / "Import a budget to compare against actuals." |
+| S08 | "Potential exceptions" / "Run checks" / "No potential exceptions — this period looks clean. Checks last ran {when}." |
+| S09 | "Forecast" / "Run forecast" / "Commit at least one month of actuals to forecast." |
+| S10 | "Scenarios" / "Save scenario" / "Lock a forecast first, then build scenarios on it." |
+| S11 | "Exports" / "Generate board pack" / "Generate your first pack once statements are ready." |
+| S12 | "Master data" / "Add" / "Nothing here yet." |
+| S13 | "Settings" / "Save changes" / — |
+| S14 | "Audit trail" / "Verify audit trail" / "Actions you take will appear here." |
+| S15 | "Help" / "Start the walkthrough" / — |
+| S16 | "Close" / "Sign off close" / "Tasks appear when a period is being closed." |
+| S17 | "Planning" / "Save plan" / "Import drivers or enter a plan to begin." |
+| S18 | "Reconcile" / "Run reconciliation" / "Import a sub-ledger extract to reconcile." |
+| S19 | "Alerts" / "Acknowledge" / "No alerts. We'll flag material changes here." |

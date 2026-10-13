@@ -1,0 +1,27 @@
+# 21 — SCREEN SPECIFICATION (DETAILED, S01–S19)
+
+> Extends doc 13: per screen — route, purpose, data shown (fields), actions, validations, states, drill paths, acceptance. Global rules (5 states, copy, tokens, keyboard, period header) from doc 13 apply to every row and are not repeated.
+
+| ID / route | Key fields & actions | Screen-specific rules & acceptance |
+|---|---|---|
+| S01 `/dashboard` | KPI tiles (Revenue, EBITDA, Net, Cash + Δ vs budget/PY), close checklist (7 stages w/ state + blocker links), top-5 variances table, findings by severity & owner bars, forecast accuracy chip, DQ score, alerts preview, unassigned count | Every tile/table drills (tile→S07 filtered; finding bar→S08 filtered; stage→owning screen). Empty project → walkthrough CTA only. Acceptance: values equal dashboard API fixture; blockers deep-link correctly. |
+| S02 `/projects` | Project cards (name, currency, FY, last period, lock state), New (wizard w/ COA template choice, doc 28), Open, Backup, Restore, Delete (typed confirm), Sample card | Restore runs integrity verify first, failure lists reasons. Acceptance: create→open round-trip E2E. |
+| S03 `/import` | Wizard doc 13; file table (name, kind, period, hash), profile summary, mapping grid (source col → canonical, confidence chip, transform select), validation summary (in/valid/quarantined by reason), quarantine table w/ fix actions, control-total inputs, overlap warning, Commit | Commit disabled until mapping complete + control totals pass (or declared-absent acknowledged). Kill-browser mid-commit → batch still staged on return. Acceptance: malformed corpus E2E counts match expected.json. |
+| S04 `/mapping` | Profile list w/ version, editor, default toggle, usage (batches used) | Saving creates new version; old batches keep their version. Acceptance: month-2 auto-apply test. |
+| S05 `/trial-balance` | Entity balance table, Δ drill to account→voucher, waive-with-note, history of waivers | Analysis screens banner-link here while unbalanced-unwaived. |
+| S06 `/statements` | PL/BS/CF tabs; Actual/Budget/Forecast/PY columns per doc 03; month/YTD; ₹/₹000; line drill → DrillDrawer | Movement-BS labelling; zero-activity template lines shown greyed with "no activity". |
+| S07 `/bva` | Filters (entity, cc, account, material-only), variance table (doc 03 §5 cols + favourable words), bridge chart or explicit unavailable note, commentary editor (draft/approve, AI button state per doc 11) | % n/a on zero budget with footnote; contribution sums 100% tooltip check. |
+| S08 `/exceptions` | Filters + saved views, FindingCard list (rule name in plain words, amount, age, owner avatar-name, due, severity chip w/ text), bulk assign, transition menu per state machine (23), not_run panel, owner action-list export | Waive forces reason+expiry modal; corrected requires reference note. Acceptance: all 24 rule names present in filter from catalog API — none hard-coded in UI. |
+| S09 `/forecast` | Group×method matrix w/ MAPE/bias chips, history+forecast chart (actual solid/forecast dashed + lock marker), Run/Lock, FVA table, driver editor link (S17) | No lock without accuracy panel viewed (scroll-gate not required; accuracy always visible above fold). |
+| S10 `/scenarios` | Scenario list, delta editor (driver/%/absolute w/ order note), compare table/chart, sensitivity tab (1/2-var), goal-seek tab (target KPI, driver, result/no-solution) | Sandbox overlay clearly badged "unsaved what-if"; save→scenario. |
+| S11 `/exports` | Snapshot summary, check list (9 checks doc 09 §4 + forecast-balance check), Generate board pack / individual, history w/ hash + download | PPT/PDF buttons disabled with reason when checks fail; Excel always available w/ Cover flag. |
+| S12 `/master` | Tabs per master type; account editor (type, statement line, tags, owner), import masters, inactive toggle | Code uniqueness inline error; referenced masters can't delete (deactivate offered). |
+| S13 `/settings` | Thresholds grouped by rule w/ one-line impact + reset-to-defaults, currency/FY display, AI panel (enable, provider, model, key→keyring, test), data location, backup/restore, About | Every change shows impact text pre-save + writes audit; AI test never logs key. |
+| S14 `/audit` | Filters (entity type, actor, date), expandable before/after diff, Verify chain button + result, finding history tab | Tampered fixture (test build) shows break instructions. |
+| S15 `/help` | Walkthrough checklist (live ticks from real state), topics (mirrors doc 18), diagnostics download, version | Walkthrough on sample completes in E2E. |
+| S16 `/close` | Close calendar (period tasks, business days), task list (owner/due/deps/evidence/status per doc 30), blockers panel, sign-off button + record | Sign-off disabled while blockers open unless override+note (audited). |
+| S17 `/planning` | Tabs: Drivers, Headcount, Capex, Debt, Working Capital, 13-Week Cash — grids w/ import/manual, formulas shown per doc 29, totals feed forecast | Every grid cell auditable (source: import/manual/formula). |
+| S18 `/reconcile` | Recon list (bank/AR/AP/payroll), matched/unmatched both sides, tolerance, sign-off | Unmatched counts tie to imported subledger counts. |
+| S19 `/alerts` | Alert list (KPI/findings/bias), acknowledge/dismiss, rules config link (S13) | Dedupe: same key+period shows once w/ "seen N runs". |
+
+**Responsive:** desktop-first ≥1280px designed; 1024px usable (tables scroll w/ sticky first col); no mobile target in v1 (stated, not accidental).
