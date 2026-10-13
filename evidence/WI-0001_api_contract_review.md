@@ -1,4 +1,6 @@
-# WI-0001 — API contract hardening (IN PROGRESS)
+# WI-0001 — API contract hardening (historical checkpoint before DEC-016)
+
+> The 73-code checks below describe commit 8e40345 and are retained as executed history. Current continuation, 76-code/job schemas, tests and remaining work: `evidence/WI-0001_job_contract_2026-10-14.md` and TASKBOARD. Do not run the historical inline verifier against a newer contract and treat that as a current gate.
 
 This is a partial review and verification record, **not** a completion or M0 gate verdict. Baseline read: docs 05, 90, 63, 22, 02 in full; connector/security/state/job owners docs 26 §8, 12 §1/§5/§8, 23 and 64; doc 07 §7. Product code remains frozen.
 

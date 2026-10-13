@@ -17,13 +17,15 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 - **DEC-016** (auto): shared API protocol and job-schema ownership fixed in docs before implementation; details doc 17 §4. No owner approval needed.
 
 ## Current position
-- Milestone: **M0** (gate open) · In progress: **WI-0001** · Last session: 2026-10-13 UTC; baseline `6cc5776`, 9 tests pass. Three housekeeping commits completed, including DEC-014; plan **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10. No WI done; WI-0001 error/lock sub-scope verified, remaining endpoint/job/schema/auth expansion recorded in its evidence §4. Resume WI-0001 `docs/05_API_CONTRACT.md`.
+- Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-14. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
+- DEC-016 shared protocol + job transport/schema sub-scope verified: **120 document tests + 9 unchanged product tests = 129 passing**; 207 definitions, 18 job kinds, 76 errors. App code frozen; no API runtime or M0 gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_job_contract_2026-10-14.md` §4.
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-015 error/lock sub-scope verified; full endpoint/job/auth rewrite remains. See handover and evidence. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-016 shared protocol + job schema/transport sub-scope: 129 tests pass; full remaining endpoint expansion incomplete. Evidence: WI-0001_job_contract_2026-10-14.md; latest handover below. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -322,3 +324,12 @@ NEXT: continue WI-0001 using evidence §4: expand method/path inventory; resolve
 STATUS: in_progress
 CONTRACT: docs 05 §1.2–1.4 / 12 §1.1: explicit local token + project context, root callback only with state/PKCE; doc 22: 76 known errors; doc 64: every job has a closed, typed result; money is a decimal string. Schema attachment + paired doc tests permitted by DEC-016; no product imports.
 BASELINE: `python -m pytest -q` → 9 passed in 0.12s. Thirty-item request is not a waiver of M0 or its cold audit.
+
+TESTS RUN: `python -m pytest tests/docs/test_api_job_contract.py -q --tb=short` → **120 passed**; `python -m pytest -q --tb=short` → **129 passed** (9 frozen nucleus + 120 docs). `git diff --check` clean. Plan generator repeat byte-identical, 267 WIs. Fresh isolated install of tests/docs/requirements.txt also passes all 120 docs tests (Linux/Python 3.11, not Windows certification). Evidence includes actual failing-before-fix runs and limitations.
+MUTATIONS: numeric Money → oracle fails; percent maximum 101 → boundary rejection fails; remove kind/result discriminator → wrong-kind rejection fails. Isolated schema copies; three caught by the same oracle. Additional negative controls for conservation, rule partition, board pack, timestamp ordering.
+EDGES: document-only zero/negative money, exponents 0/2/3, null-denominator reasons, empty/single/250k counts (not perf), missing/skipped data, all kind/state combinations, hostile text/unsafe paths, invalid dates/periods and duplicate partition: PASS. Runtime locking/idempotency/waiver/locale/month-2/security/escaping: pending later implementation; no runtime claim. Full per-line checklist in evidence §3.
+SPEC CHECKS: docs 22/05 exactly 76 codes + retry flags; doc 64 all 18 typed results/stages and cancel guards; docs 12/26 no secret-field shapes or resolver network and honest no_change/count semantics. HTTP auth/ownership, clock injection, persistence and redaction still require runtime tests.
+FILES TOUCHED: docs 05/07/12/17/19/22/23/26/60/63/64/81/90/CHANGELOG, schema attachment, tests/docs test + pinned requirements, generator/WORK_PLAN, TASKBOARD and two evidence files (cumulative DEC-016 scope). No app or original tests modified.
+DEVIATIONS: DEC-016 authorises the document schema and paired tests within WI-0001, with docs-first commit 674dfb8. Follow-up contradictions corrected in owning docs; no product feature, formula, bar or gate changed. This is a partial docs checkpoint, not a WI completion commit.
+DECISIONS TAKEN: DEC-016 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra registration only before a real tenant pilot.
+NEXT: evidence/WI-0001_job_contract_2026-10-14.md §4. Still **WI-0001 in_progress; 0/30 complete**, M0 open. Historical DEC-015/73-code evidence above is not the current verifier.
