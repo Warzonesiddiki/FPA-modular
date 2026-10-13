@@ -10,4 +10,4 @@ One analyst. One tool. The whole month-end: import messy ERP exports → validat
 5. **`docs/RESEARCH_AND_LESSONS.md`** — evidence from the four previous repos + market check.
 
 ## Status
-Planning complete; **no product code yet — by design.** Next step: owner approves `MASTER_PLAN.md` §12, then Wave 0 (spec docs 01–18) is dispatched. Regenerate the manifest/prompts with `python tools/generate_agent_packets.py` (edit the generator, never the outputs).
+**Current phase: DOCUMENTATION ONLY (owner direction).** Docs 00–91 baselined (DEC-006); Wave 1a/1b code (core/store/imports/calc, 9 tests green) is frozen until the owner re-opens build waves. Start at `docs/00_INDEX.md` §10 for live status. Manifest/prompts regenerate via `python tools/generate_agent_packets.py` (edit the generator, never the outputs).

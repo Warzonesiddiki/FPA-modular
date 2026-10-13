@@ -1,6 +1,6 @@
 # 13 — UI/UX SPECIFICATION
 
-> Owner of: screens S01–S15, components, copy, accessibility. Audience: non-technical FP&A analyst (P7). UI formats decimal strings from the API — it never computes money (doc 04; `decimal.js` is display-only: grouping/rounding for display exactly as API strings dictate).
+> Owner of: global UX rules, components, copy and accessibility for all screens; per-screen ownership: S01–S15 here + doc 21, S16–S19 in doc 21 (same global rules apply). Audience: non-technical FP&A analyst (P7). UI formats decimal strings from the API — it never computes money (doc 04; `decimal.js` is display-only: grouping/rounding for display exactly as API strings dictate).
 
 ## 1. Global rules
 - **Five states per screen, all designed + tested:** loading (skeleton), empty (plain-language "nothing here yet + what to do"), error (ErrorBanner with code-free message + hint + Retry when retryable), success, partial (e.g., some rules not_run — shown, never hidden).
