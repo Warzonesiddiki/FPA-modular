@@ -21,12 +21,13 @@ Corpus: sample-data coherent corpus + answer_key (**36 plants, 13 controls**, do
 | Stability | Two consecutive runs produce identical finding keys + amounts |
 | Coverage | 28/28 rules wired and executed (not_run only with documented missing-input reason) |
 | ERP shape parity | committing each `sample-data/erp_shapes/` file of the golden period yields the same gl_rows as the CSV shape (doc 42 §4); the F&O shape's 3 `Tax`-layer rows are quarantined `OUT_OF_SCOPE_LAYER`; the trial-balance tie-out file reports zero differences |
+| Connector parity (DEC-013) | with `tools/mock_d365.py` serving the corpus, `POST /connector/pull {2025-P07, [gl, ap, tb, masters]}` for **each** product ends `staged` with the preset auto-applied; committing yields gl_rows identical (ids, amounts, dimensions, vendor after enrichment) to the file import of the same shape and to the CSV shape; F&O `Tax`-layer rows quarantined; TB tie-out zero; a second pull returns `no_change` with no new batch; faults `429`, `503`, `truncate`, `count-drift`, `missing-entity` produce ERR-115/115/118/118/114 with zero batches and no snapshot file left behind; security assertions of doc 12 §8 (allow-list, redaction, keyring-only) pass |
 | Statements | Golden PL/BS/CF tie to oracles to the minor unit; TB balanced |
 | Cross-artifact | Golden period: API == Excel == PPT == PDF on 100% of compared figures |
 Verdict written to `evidence/acceptance_report.{json,md}` with corpus hash. FAIL = release blocked, report says why per plant (the attempt-#4 report format is the template — it was excellent; its numbers were the problem).
 
 ## 4. Performance NFRs (reference profile: 4-core/16GB Windows, SSD; measured in tests/perf, budgets asserted)
-250k-row GL: parse+stage ≤ 120s · commit ≤ 60s · full 28-rule run incl. suggestions ≤ 60s · statements+BvA ≤ 5s · Excel pack (12 sheets incl. 250k-row DrillData) ≤ 60s · PPT ≤ 20s · UI interactive (filter/sort 10k table rows) ≤ 1s perceived (virtualised). Regression > 10% on any budget fails CI; absolute breach fails release.
+250k-row GL: connector pull from the local mock (paged 10k, incl. snapshot write) ≤ 300s with ≤ 1 page of rows resident in memory · parse+stage ≤ 120s · commit ≤ 60s · full 28-rule run incl. suggestions ≤ 60s · statements+BvA ≤ 5s · Excel pack (12 sheets incl. 250k-row DrillData) ≤ 60s · PPT ≤ 20s · UI interactive (filter/sort 10k table rows) ≤ 1s perceived (virtualised). Regression > 10% on any budget fails CI; absolute breach fails release.
 
 ## 5. Coverage & static gates (`scripts/check.py`, one command, honest exit)
 ruff clean · mypy strict on core/calc/rules/forecast · pytest pass · coverage: core/calc/rules ≥ 95% lines, overall ≥ 85% · UI: eslint + tsc + vitest + token check + axe · money-AST check (no `float(` in money paths, no money arithmetic outside money.py patterns) · docs link/ID check · secret + telemetry scan (doc 12). No `--skip` flags exist.

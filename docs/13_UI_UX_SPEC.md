@@ -14,9 +14,9 @@
 ## 2. Screens
 | ID | Screen | Purpose & key elements | API |
 |---|---|---|---|
-| S01 | Dashboard | Close-progress checklist (import→TB→statements→exceptions→forecast→exports with real stage states), KPI tiles, top-5 variances, findings by severity/owner, forecast-accuracy badge, unassigned queue alert | GET dashboard |
+| S01 | Dashboard | Close-progress checklist (import→TB→statements→exceptions→forecast→exports with real stage states), KPI tiles, top-5 variances, findings by severity/owner, forecast-accuracy badge, unassigned queue alert; when a Dynamics 365 connection exists: header chip "Dynamics 365 · <company> · last pulled <date>" + **Refresh this month** button (runs `connector-pull` visibly; BC shows "N entries changed since last pull" first) | GET dashboard, connector |
 | S02 | Projects | List/create/open, sample-project card ("fictional data, safe to explore"), backup/restore/delete | projects |
-| S03 | Import wizard | 5 steps: Files → Preview&Profile → Map → Validate (quarantine table with fix actions) → Commit (control totals, TB result). Progress + resumable; overlap warnings before commit | imports |
+| S03 | Import wizard | Step 0 **Source**: *Files* or *Dynamics 365* (card shows connection state; not connected → link to S13 Connections; connected → period, company, sources gl/ap/tb/budget/masters checkboxes, *Pull*) — a pull lands at step 2 with the preset already applied; then 5 steps: Files → Preview&Profile → Map → Validate (quarantine table with fix actions) → Commit (control totals, TB result). Progress + resumable; overlap warnings before commit; "no change since <date>" ends the wizard without a batch | imports, connector |
 | S04 | Mapping studio | Profile list, column mapping editor with confidence chips, canonical-field glossary tooltips, version history, set-default | mapping-profiles |
 | S05 | Trial balance | Per-entity balance table, imbalance drill to voucher, waive-with-note flow (audited) | statements/drill |
 | S06 | Statements | PL/BS/CF tabs, month/YTD toggle, ₹/₹'000 display toggle, drill on every line, "movement statement" labelling when no opening BS | statements |
@@ -26,7 +26,7 @@
 | S10 | Scenarios | Create from locked run (driver/% deltas), compare table + Δ vs base, assumptions summary | scenarios |
 | S11 | Export centre | Generate Excel/PPT/PDF, **rectification journal for the ERP (doc 26 §7 formats)**, checks panel (doc 09 §4, failures explained + blocked states), report history with hashes + re-download | exports/reports |
 | S12 | Master data (owners) | Entities/accounts/cost-centres/vendors/owners CRUD, account→owner assignment, suspense/accrual tags, threshold & rule-parameter settings link | master/settings |
-| S13 | Settings | Tolerances/thresholds (with "what this changes" help), AI configuration (off by default; key in keyring; test-connection), backup/restore, About (version, disclaimer, data location) | settings |
+| S13 | Settings | Tolerances/thresholds (with "what this changes" help), AI configuration (off by default; key in keyring; test-connection), **Connections** tab (Dynamics 365: product, host, tenant id, client id, auth mode, Sign in / Test connection / company picker / entity-check result / profile editor / Disconnect; "Connect to the demo ledger (local)" on the sample project; what-we-read and what-we-never-do copy), backup/restore, About (version, disclaimer, data location) | settings, connector |
 | S14 | Audit trail | Filterable audit list, chain Verify with result banner, finding-history view | audit |
 | S15 | Help | Guided first-month-end walkthrough (checklist deep-linking to screens), searchable help topics mirroring doc 18, diagnostics bundle download (redacted, doc 12 §5) | — (static + logs) |
 
@@ -37,4 +37,4 @@ DataTable (sortable, filterable, paginated, keyboard-navigable), VarianceBadge, 
 Long operations show JobToast (stage, %, cancel); completion states survive navigation (job registry in uiStore). Success feedback names the artefact ("Excel pack generated — Checks 9/9 passed") and offers the next step ("Open Exports").
 
 ## 5. First-run experience
-Launch → S02 with sample project preloaded → S15 walkthrough banner "Run your first month-end (≈10 minutes with sample data)" stepping through S03→S11 on sample data. No login, no account, no network prompt — ever.
+Launch → S02 with sample project preloaded → S15 walkthrough banner "Run your first month-end (≈10 minutes with sample data)" stepping through S03→S11 on sample data; the walkthrough's import step offers both routes — drop the sample files, or *Connect to the demo ledger (local)* and pull 2025-P07 from the bundled mock (no credentials, no internet). No login, no account, no network prompt — ever; the only sign-in the product ever shows is the optional Microsoft one the analyst starts themselves in S13 → Connections.

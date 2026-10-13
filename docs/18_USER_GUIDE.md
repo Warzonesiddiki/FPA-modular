@@ -4,14 +4,16 @@
 
 ## 1. Your first 10 minutes (sample data)
 1. Open the app → **Projects** → open **Sample Company** (fictional data, safe to explore — nothing you do here affects real work).
-2. Follow the banner **"Run your first month-end"**. It walks you: Import → Checks → Statements → Variances → Exceptions → Forecast → Exports.
+2. Follow the banner **"Run your first month-end"**. It walks you: Import → Checks → Statements → Variances → Exceptions → Forecast → Exports. At the Import step you can drop the sample files **or** click **Connect to the demo ledger (local)** and **Pull this month** — that is exactly what the Dynamics 365 connection does with your real ledger, demonstrated on a pretend one that runs on your own computer.
 3. On each screen, try clicking a number — everything drills down to the vouchers and the exact file and row behind it. That drill is your safety net in every review meeting.
 
 ## 2. Starting a real project
 Projects → **New project** → name it (e.g., "Acme — FY27"), pick your currency and financial-year start month → Create. Keep each company's work in its own project folder. **Back up by copying the whole project folder** (Settings → Backup does this for you and checks the copy).
 
+**Connect Dynamics 365 once (optional, recommended).** Settings → **Connections** → pick *Finance / F&O* or *Business Central*, paste the environment URL and the two IDs your IT administrator gives you (see §8), click **Sign in with Microsoft** (your normal Microsoft login opens in your browser — the app never sees your password), then **Test connection**: it lists the companies you can read and confirms it found every table it needs. Pick your company. Done — from now on the monthly import is one click. The connection is **read-only**: the app can never post, change or delete anything in Dynamics 365, it never connects in the background, and your sign-in is kept in Windows Credential Manager, not in the project file. If IT prefers no personal sign-in, they can give you an *application* ID and secret instead (same screen, "Application" mode).
+
 ## 3. The monthly routine (the whole job, in order)
-1. **Import (S03).** Drop this month's files: GL export, budget, any sub-ledgers. Pick the period and file type for each. If you imported last month, your column mapping is already applied — just eyeball it. Fix anything under **Validate**: quarantined rows are listed with the reason in plain words and what to do (e.g., "Account code not in your chart of accounts — add it or fix the file"). Nothing is ever silently skipped: the counts always add up (rows in = rows loaded + rows quarantined).
+1. **Import (S03).** Connected to Dynamics 365? Choose **Dynamics 365 → Pull this month** (or **Refresh this month** on the dashboard): the app reads the period's GL, vendor transactions and trial balance straight from your company and lands them in the same Validate step as a file — nothing is committed until you say so. Pull again any time: if nothing changed in Dynamics 365 it tells you so; if it did, the new pull replaces the old one and shows you the difference first. Not connected, or need something the connection doesn't cover (e.g. budgets in Business Central)? Drop this month's files: GL export, budget, any sub-ledgers. Pick the period and file type for each. If you imported last month, your column mapping is already applied — just eyeball it. Fix anything under **Validate**: quarantined rows are listed with the reason in plain words and what to do (e.g., "Account code not in your chart of accounts — add it or fix the file"). Nothing is ever silently skipped: the counts always add up (rows in = rows loaded + rows quarantined).
 2. **Trial balance (S05).** The month unlocks when debits equal credits per company. If not, click the imbalance to see the vouchers causing it. Fix in your ERP and re-import the corrected file (re-import replaces — it never double-counts), or record a waiver note if you consciously proceed.
 3. **Statements (S06).** Review P&L / Balance Sheet / Cash Flow. Toggle month/YTD and ₹/₹'000. Click any line to drill.
 4. **Variances (S07).** Budget vs Actual, with favourable/adverse in words. Material variances (your thresholds — changeable in Settings) are highlighted. Add your explanation in the commentary box; if AI is switched on in Settings, **Draft with AI** proposes wording from these exact numbers — edit it, then Approve. Only approved commentary appears in exports.
@@ -23,7 +25,7 @@ Projects → **New project** → name it (e.g., "Acme — FY27"), pick your curr
 9. **Lock the period** (header → Lock) when done. Locked periods can't be silently changed; unlocking leaves an audit trail (S14).
 
 ## 4. Making next month faster (the point of the tool)
-Mapping profiles, thresholds, owners, and methods are all remembered. A normal month 2+ should be: drop files → confirm → review exceptions → refresh forecast → export. If you're re-doing setup, something's wrong — check Help.
+Mapping profiles, thresholds, owners, and methods are all remembered. A normal month 2+ should be: pull from Dynamics 365 (or drop files) → confirm → review exceptions → refresh forecast → export. If you're re-doing setup, something's wrong — check Help.
 
 ## 5. Settings worth knowing
 Thresholds (what counts as "material", spike limits, approval limit for split-detection) — Settings explains each in one line and what changing it does. AI: off unless you add your own provider key; when off, nothing leaves your laptop (nothing leaves it anyway except those AI calls you explicitly enable). Data location: shown in Settings → About — that's the folder to back up.
@@ -38,6 +40,19 @@ Thresholds (what counts as "material", spike limits, approval limit for split-de
 | Excel generated but PPT blocked | A check failed (Checks sheet in Excel names it). The deck is blocked on purpose so a wrong number never reaches the board. |
 | Audit verification failed | Don't work in that project. Restore your latest backup (Settings) and contact support with a diagnostics bundle (Help → Download diagnostics — it contains no financial values). |
 | SmartScreen warning on install (pilot builds) | Click "More info → Run anyway" only if you received the installer directly from your project owner. |
+| "Microsoft sign-in didn't complete" (with an AADSTS code) | Your administrator hasn't finished the one-time setup (§8), or consent is needed. Send them the exact text shown — it names the missing permission. The file import works meanwhile. |
+| "Your Microsoft sign-in has expired" | Normal after a long gap or a password change. Click **Sign in again** — nothing else changes. |
+| "{n} entities or fields weren't found in your Dynamics 365" | Your Dynamics 365 names a table or column differently (customisations do this). Pick the replacement from the list, or ask your administrator which entity holds it; the choice is saved once. |
+| "Dynamics 365 is busy and kept asking us to wait" | Throttling. Try again in a few minutes, pull one source at a time, or pull outside business hours. |
+| "Dynamics 365 changed while we were reading it" | Someone was posting during the pull; nothing was imported. Pull again in a moment. |
 
 ## 7. Words we use
-**Potential exception** — something worth a human look; not an accusation. **Quarantine** — rows held back with a reason, never deleted. **Snapshot** — the exact data your exports were generated from, stamped on every file. **Locked period** — closed month; changes only via audited unlock.
+**Pull** — reading this month straight from Dynamics 365 into the Validate step; it never changes anything in Dynamics 365. **Potential exception** — something worth a human look; not an accusation. **Quarantine** — rows held back with a reason, never deleted. **Snapshot** — the exact data your exports were generated from, stamped on every file. **Locked period** — closed month; changes only via audited unlock.
+
+## 8. For your IT administrator — the one-time Dynamics 365 setup (≈15 minutes)
+This is the full list; the detailed version with exact menu names is doc 26 §8.9.
+1. In **Microsoft Entra ID → App registrations**, create a *public client* (mobile/desktop) registration with redirect URI `http://localhost`. Give the analyst the **Application (client) ID** and **Directory (tenant) ID**.
+2. Add the API permission for the product — *Dynamics ERP* (Finance / F&O) or *Dynamics 365 Business Central* (delegated) — and grant admin consent if your tenant requires it. Access is further limited by the analyst's own security role / permission set in the product; a **read-only or reporting role is enough** — the app only reads.
+3. Only if you prefer a service identity instead of the analyst's sign-in: add a client secret or certificate and register the application inside the product (F&O: *System administration → Microsoft Entra ID applications*; Business Central: *Microsoft Entra Applications*) with a read-only role. The analyst pastes the secret once; it is stored in Windows Credential Manager.
+4. Nothing to open on the firewall beyond what Office already uses: the app talks only to `login.microsoftonline.com` and your Dynamics 365 host, over HTTPS, only when the analyst clicks.
+The app never posts, edits or deletes anything in Dynamics 365, never connects in the background, and sends no telemetry.

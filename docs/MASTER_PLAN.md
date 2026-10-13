@@ -30,7 +30,7 @@ Competitors (Anaplan, Pigment, Datarails, Cube, Vena, Planful) are cloud, per-se
 ## 2. Product definition
 
 ### 2.1 The job (the monthly rhythm — this is the product)
-1. Drop in the month's exports (GL, budget, sub-ledgers: CSV/XLSX from Dynamics 365 / Tally / SAP / QuickBooks / any ERP — file import is the guaranteed path; **no live ERP connectors in v1**).
+1. Get the month in: **one click from Dynamics 365** (read-only connector, F&O or Business Central, signed in once — DEC-013, doc 26 §8) or drop in the month's exports (GL, budget, sub-ledgers: CSV/XLSX from Dynamics 365 / Tally / SAP / QuickBooks / any ERP). Both land in the same pipeline; the file import is the guaranteed fallback for anything a tenant does not expose. No other live connectors in v1; the app never writes to the ERP.
 2. Tool profiles, suggests mappings (saved profile auto-applies next month), validates, quarantines bad rows *with reasons*, checks control totals and trial balance.
 3. Tool produces P&L / BS / CF, budget-vs-actual at the lowest shared grain, variance bridge, KPI set.
 4. Tool runs 28 exception rules, assigns each finding an owner, a due date **and a suggested fix** (reverse / reclass / re-post at the corrected amount / accrue…, doc 07 §7); analyst works an inbox (explain / apply the fix as an adjustment / queue it for the ERP journal file / waive-with-reason).
@@ -43,7 +43,7 @@ Competitors (Anaplan, Pigment, Datarails, Cube, Vena, Planful) are cloud, per-se
 - **Secondary:** accounting owners who receive findings; CFO/MD who reads the pack (never operates the tool).
 
 ### 2.3 Non-goals / anti-goals (v1)
-No cloud, no login/multi-user, no ERP write-back, no live connectors, no consolidation/eliminations/FX translation (data model must not *block* it later), no statutory audit opinion (advisory disclaimer ships in-app), single reporting currency per project. **Anti-goal:** a tool that produces a number nobody can trace — worse than no tool.
+No cloud, no login/multi-user, no ERP write-back (the Dynamics 365 connector is read-only), no live connectors other than Dynamics 365 and none that run in the background, no consolidation/eliminations/FX translation (data model must not *block* it later), no statutory audit opinion (advisory disclaimer ships in-app), single reporting currency per project. **Anti-goal:** a tool that produces a number nobody can trace — worse than no tool.
 
 ### 2.4 Success metrics (numbers, not adjectives)
 Month-end on the golden sample company: **≤ 30 min analyst time** (excluding owner responses); acceptance bars in §9 all green; 250k GL rows import+rules within the NFR budgets in doc 14; zero float-money defects; every exported figure ties across Excel/PPT/API in the cross-artifact test.
@@ -57,13 +57,13 @@ ui/ (React+TS) ──HTTP 127.0.0.1──▶ app/api (FastAPI, thin)
                                       │
                                app/services/month_end.py   ← THE spine
                                       │
-   imports ─▶ store (SQLite) ─▶ calc ─▶ rules (28) + suggestions ─▶ forecast ─▶ exports (Excel/PPT/PDF/ERP journal)
+   connectors (D365 → snapshot file) ─▶ imports ─▶ store (SQLite) ─▶ calc ─▶ rules (28) + suggestions ─▶ forecast ─▶ exports (Excel/PPT/PDF/ERP journal)
                                       │
                                app/ai (optional, guarded, off by default)
 ```
 - **One owner per concern** (attempt #2's B14, kept): `core/money.py` is the only money math; `store/schema.sql` the only schema; `calc/` the only statement logic; exports consume calc objects, never re-compute.
 - **Deterministic core, AI at the edge:** AI receives only aggregated, verified figures; guardrails reject any AI text containing a number not in its input payload.
-- **Offline-first:** binds 127.0.0.1 only; zero telemetry; works with network cable pulled (tested).
+- **Offline-first:** binds 127.0.0.1 only; zero telemetry; works with network cable pulled (tested). The only outbound edges are user-initiated and allow-listed: AI drafting (off by default) and the Dynamics 365 pull (`login.microsoftonline.com` + the configured Dynamics host; tokens in the OS keyring; never in the background).
 
 ## 4. Stack (my call — stated plainly, override in doc 04 ADR if you disagree)
 | Layer | Choice | Why |
@@ -72,7 +72,9 @@ ui/ (React+TS) ──HTTP 127.0.0.1──▶ app/api (FastAPI, thin)
 | Store | SQLite (WAL), money as INTEGER minor units | One engine, one file per project, backup = copy file. (Attempt #4's DuckDB+SQLite duality and attempt #2's Rust are dropped for v1.) |
 | UI | React 19 + TypeScript + Vite, zustand, echarts, decimal.js *display-only* | Attempt-proven; UI formats decimal strings, never computes. |
 | Packaging | PyInstaller + Inno Setup (Windows first) | Double-click installer, no dev tooling on analyst's machine. macOS is Phase 3, not v1 (K1 fix). |
-Tech budget: **≤ 12 libraries**, pinned, licence-checked (doc 12).
+| Connector | `msal` + `httpx` (ADR-010) against F&O OData v4 / BC API v2.0; `tools/mock_d365.py` for tests and the offline demo | Microsoft-maintained auth; the connector is a *file producer* (ADR-009) so the pipeline has one code path. |
+
+Tech budget: **≤ 12 libraries** (10 used), pinned, licence-checked (doc 12).
 
 ## 5. The three contracts that must never diverge again (K3 fix)
 1. **Data dictionary ↔ schema:** `docs/02` lists every table/column; `app/store/schema.sql` implements it 1:1; a schema-equality test enforces it.
@@ -89,7 +91,7 @@ The original plan deployed 500 accountable work packets across creator, tester a
 | Artefact | Role |
 |---|---|
 | `AGENT_PROMPT.md` (repo root) | The one prompt the builder follows: session protocol, work-item loop, spec-gap rules (class A/B/C), non-negotiables, self-verification protocol, handover format, forbidden list. |
-| `docs/WORK_PLAN.md` + `.csv` | 250 work items in build order, grouped in milestones M0–M6, each with mission, dependencies (resolved to WI ids), inputs/outputs, acceptance criteria, paired test and the spec sections it must read. Generated by `tools/generate_work_plan.py`; never hand-edited. |
+| `docs/WORK_PLAN.md` + `.csv` | 266 work items in build order, grouped in milestones M0–M6, each with mission, dependencies (resolved to WI ids), inputs/outputs, acceptance criteria, paired test and the spec sections it must read. Generated by `tools/generate_work_plan.py`; never hand-edited. |
 | `TASKBOARD.md` | The live ledger: status per item, handover evidence, owner questions, current position. The builder's memory across sessions. |
 | `docs/17` §3/§4 | Open questions with labelled defaults; decision log. |
 | `evidence/` | Test outputs, acceptance reports, milestone audits. |
@@ -108,7 +110,7 @@ The original plan deployed 500 accountable work packets across creator, tester a
 | **M0 — Spec hardening** | docs 05, 21, 44, 03, 55, 31, 20 deepened; pass-3 audit P0/P1 doc defects closed | `scripts/docs_check.py` clean; DEC-007/008/009 accepted (DEC-010) |
 | **M1 — Core & truth** | core/*, store (schema v2 = doc 02 columns), corpus generator + answer key + malformed corpus, oracle fixtures, acceptance harness (runs, red) | Schema equality; corpus byte-identical; TB balances; answer key 32/18/10; harness 0/32 by design; core coverage ≥ 95 % |
 | **M2 — Engine** | imports/*, calc/*, rules/* (28 + engine + suggestions), forecast/*, planning/*, adjustments | **Acceptance green: recall 36/36, controls 0/13, High 19/19, suggestion exactness, extras justified, two runs identical, 28/28 wired**; oracles green |
-| **M3 — Services/API/CLI/AI** | services/*, api/*, cli, ai/*, desktop shell | OpenAPI == doc 05/90; AI-off = zero network; month-end golden run via CLI |
+| **M3 — Connector, services/API/CLI/AI** | connectors/* (auth, transport, OData, profiles, snapshot) + mock_d365, services/*, api/*, cli, ai/*, desktop shell | OpenAPI == doc 05/90; AI-off and connector-off = zero network; connector parity bar (mock pull == file == CSV, both products); month-end golden run via CLI |
 | **M4 — UI** | client, tokens, components, 19 screens | 5-state + a11y + keyboard; token check; UI number == API fixture |
 | **M5 — Exports** | Excel/PPT/PDF, report builder | Cross-artifact tie-out 100 % on golden period; second-seed audit dataset |
 | **M6 — Ship** | scripts, packaging, CI, user guide, docs gate | Fresh-machine install → sample month-end → pack out; perf budgets; release checklist signed |

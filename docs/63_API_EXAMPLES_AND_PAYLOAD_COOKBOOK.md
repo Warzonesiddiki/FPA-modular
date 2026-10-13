@@ -16,3 +16,23 @@
 **Exports** `POST /projects/{id}/exports {"kind":"pptx","period_id":"2026-P01"}` → job failed ERR-060 with `details.checks[{name:"cf_tie",expected:"…",actual:"…"}]` when blocked.
 **Pagination:** `GET …/drill?drill_key=…&limit=100&cursor=…` → `{"items":[…],"next_cursor":"…"}` (`null` = end).
 Idempotency replay: same `Idempotency-Key` on commit/exports returns the original job/result, no duplicate artefacts.
+
+**Dynamics 365 connector — configure, sign in, test, pull** (doc 05 connector routes, doc 26 §8)
+```json
+PUT /projects/{id}/connector
+{"kind":"d365fo","base_url":"https://meridian-prod.operations.dynamics.com","tenant_id":"3f1a…","client_id":"9b7e…","auth_mode":"delegated","company":"IN01"}
+→ 200 {"enabled":true,"kind":"d365fo","base_url":"https://meridian-prod.operations.dynamics.com","tenant_id":"3f1a…","client_id":"9b7e…","auth_mode":"delegated","company":"IN01","state":"configured","profile":{"version":1}}
+POST /projects/{id}/connector/sign-in → 200 {"authorize_url":"https://login.microsoftonline.com/3f1a…/oauth2/v2.0/authorize?…","port":51873}
+   (system browser opens; Microsoft redirects to http://localhost:51873/connector/callback?code=…&state=… ; the API exchanges the code, stores the MSAL cache in the keyring and renders con.callback.page)
+POST /projects/{id}/connector/test → 200 {"companies":[{"id":"IN01","name":"Meridian Trading Mumbai"},{"id":"IN02","name":"Meridian Trading Bengaluru"}],"entity_check":{"ok":false,"checked_at":"2026-10-14T09:12:04+05:30","missing":[{"source":"ap","entity":"VendorTransactions","candidates":["VendorTransactionsV2","VendTransBiEntities"]}]}}
+PUT /projects/{id}/connector/profile {"version":2,"kind":"d365fo","sources":{"ap":{"entity":"VendorTransactionsV2","filter":"TransactionDate ge {start} and TransactionDate le {end}","sort_key":"RecId","fields":{"VendorAccount":"Vendor account","Voucher":"Voucher","TransactionDate":"Date","Invoice":"Invoice","AccountingCurrencyAmount":"Amount","CurrencyCode":"Currency","Txt":"Description"}}, "…":"unchanged sources omitted"}} → 200 {"version":2,"entity_check":{"ok":true,"missing":[]}}
+POST /projects/{id}/connector/pull {"period_id":"2025-P07","sources":["gl","ap","tb"]} → 202 {"job_id":"job_…"}
+GET /jobs/{id} → {"status":"running","stage":"con.pull.progress","progress":{"source":"gl","page":3,"pages":5,"rows":30000,"count":48213}}
+GET /jobs/{id} → {"status":"done","result":{"pull_id":"pul_7c0d12e4aa91","status":"staged","snapshot_sha256":"5e1c…","batches":[{"batch_id":"bat_a91f…","source_kind":"gl","rows_in":48213,"quarantined":3},{"batch_id":"bat_b02e…","source_kind":"subledger","rows_in":1120,"quarantined":0}],"row_counts":{"gl":{"expected":48213,"received":48213,"pages":5,"retries":1},"ap":{"expected":1120,"received":1120,"pages":1,"retries":0},"tb":{"expected":0,"received":0,"pages":0,"retries":0,"note":"no standard F&O trial-balance entity — use the file export"}}}}
+   (the 3 quarantined rows are the Tax-layer rows: OUT_OF_SCOPE_LAYER; commit is the normal POST /imports/{batch_id}/commit)
+POST /projects/{id}/connector/pull {"period_id":"2025-P07","sources":["gl","ap"]} (nothing changed) → job done {"pull_id":"pul_…","status":"no_change","snapshot_sha256":"5e1c…","batches":[],"row_counts":{…}}
+Failure shapes (job failed): {"code":"FP&A-ERR-115","message":"Dynamics 365 is busy and kept asking us to wait.","hint":"Try again in a few minutes; pulling outside business hours is faster","retryable":true,"details":{"source":"gl","page":4,"attempts":5,"last_status":429}}
+                             {"code":"FP&A-ERR-118","message":"Dynamics 365 changed while we were reading it, so nothing was imported.","retryable":true,"details":{"source":"gl","expected":48213,"received":48219,"re_pulled":true}}
+POST /projects/{id}/connector/disconnect → 200 {"state":"disconnected"}
+```
+A response body of any connector route containing a token-shaped string (`eyJ…`, `Bearer `) fails the contract test.

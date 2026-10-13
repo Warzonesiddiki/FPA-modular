@@ -2,7 +2,7 @@
 
 1. **Datasets:** PERF-250K = corpus generator flag `--scale 250k` (doc 42), PERF-1M rows import cap test, PERF-UI-10K table fixture. Datasets generated, hash-stamped, never hand-tuned to pass.
 2. **Protocol:** reference profile (36) recorded in evidence (CPU/RAM/disk/OS); warm-up run discarded; 3 measured runs, median reported; budgets assert on median, and any single run > 1.5× budget is investigated. Cold vs warm cache labelled.
-3. **Scenarios:** parse+stage, commit, TB, full rule run, statements+BvA, Excel pack, PPT, dashboard API, drill on largest account, UI filter/sort, 12-period soak (memory growth < 10% period-over-period after P03).
+3. **Scenarios:** parse+stage, commit, TB, full rule run, statements+BvA, Excel pack, PPT, dashboard API, drill on largest account, UI filter/sort, 12-period soak (memory growth < 10% period-over-period after P03), **connector pull** (PERF-250K served by `tools/mock_d365.py` on loopback with 10k pages and one injected 429 per 20 pages: end-to-end ≤ 300 s, peak RSS delta ≤ one page of rows, NFR-17; measured separately from parse+stage so a network-layer regression is attributable).
 4. **Regression triage:** >10% median regression = CI fail (14 §4): bisect by work item, profile the hotspot (py-spy/cProfile artefacts in evidence), fix or owner-accepted DEC with new budget — budgets never edited silently in the same PR as a regression.
 
 ## 5. Feasibility spike (M1, before budgets are believed — brutal-audit B8)

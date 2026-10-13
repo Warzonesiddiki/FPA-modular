@@ -6,9 +6,9 @@
 
 ## 0. The mission (why this exists)
 
-Build **FP&A Month-End Copilot** — the best all-in-one tool for one FP&A analyst at a mid-size company: import messy ERP exports (Dynamics 365 first-class, any ERP via presets) → validated, balanced books → statements, budget-vs-actual and KPIs → 28 exception rules with an owner inbox, **a suggested fix on every finding** and a rectification journal file for the ERP → rolling forecast, scenarios, budgets and planning → board-ready Excel + PowerPoint + PDF — **offline, local-only, every number drillable to the source file and row**. AI is optional, off by default, and never computes a number.
+Build **FP&A Month-End Copilot** — the best all-in-one tool for one FP&A analyst at a mid-size company: pull the month straight from Dynamics 365 (read-only connector, DEC-013) or import messy ERP exports (Dynamics 365 first-class, any ERP via presets) → validated, balanced books → statements, budget-vs-actual and KPIs → 28 exception rules with an owner inbox, **a suggested fix on every finding** and a rectification journal file for the ERP → rolling forecast, scenarios, budgets and planning → board-ready Excel + PowerPoint + PDF — **offline, local-only, every number drillable to the source file and row**. AI is optional, off by default, and never computes a number.
 
-**North star (DEC-010):** the owner is this analyst. Today the ledger is exported from Dynamics 365 to Excel and *everything* — trial balance, variances, budgets, forecast, the board deck, and the reading of the ledger for wrong or abnormal entries with the correcting entry worked out by hand — happens in Excel and PowerPoint. The product is finished only when **no FP&A task needs another tool**. Whenever you notice a step that would still send the analyst back to Excel or PowerPoint, that is a product gap: add it to `docs/17` §5 backlog with a one-line design, or if it is small and in scope, decide it (§4-A) and build it.
+**North star (DEC-010):** the owner is this analyst. Today the ledger is exported from Dynamics 365 to Excel and *everything* — trial balance, variances, budgets, forecast, the board deck, and the reading of the ledger for wrong or abnormal entries with the correcting entry worked out by hand — happens in Excel and PowerPoint. Even the export step goes: the tool pulls the month from Dynamics 365 itself (doc 26 §8) and the file route stays as the fallback. The product is finished only when **no FP&A task needs another tool**. Whenever you notice a step that would still send the analyst back to Excel or PowerPoint, that is a product gap: add it to `docs/17` §5 backlog with a one-line design, or if it is small and in scope, decide it (§4-A) and build it.
 
 Four previous attempts died of the same five killers (`docs/MASTER_PLAN.md` §1): scope before a working spine, incoherent sample data, contracts that diverged (catalogue ≠ answer key ≠ code), unverifiable code, and "done" without evidence. Every rule below exists to kill one of those.
 
@@ -73,7 +73,7 @@ What you never do: pick a behaviour in code and move on; "temporarily" hard-code
 1. **Money** is integer minor units / `Decimal`, through `app/core/money.py` only. A `float` touching money anywhere is a defect. AI never computes, approves or posts money.
 2. **Traceability:** every number an analyst sees drills to source transactions and the file + row they came from.
 3. **Nothing silently discarded:** every rejected row, skipped sheet, quarantined record and not-run rule is counted and explained in plain language.
-4. **Atomic, idempotent imports:** all-or-nothing; re-importing the same file never duplicates.
+4. **Atomic, idempotent imports:** all-or-nothing; re-importing the same file never duplicates. The Dynamics 365 connector is a *file producer* (ADR-009): it writes a snapshot workbook and hands it to this same pipeline — it never writes staging or `gl_rows`, never calls the ERP in the background, never writes *to* the ERP, and keeps tokens only in the OS keyring (`docs/26` §8, `docs/12` §1(d)).
 5. **Deterministic:** same input → same output. Inject clocks and seeds; never read them inside calculations.
 6. **Plain language for a non-technical analyst.** Findings are "potential exceptions", never "errors" or "fraud". Every error says what happened and what to do next (`docs/22`).
 7. **Colour is never the only signal.**
@@ -141,7 +141,7 @@ DECISIONS TAKEN: none | <DEC ids (auto)> · OWNER-ONLY ITEMS: none | <OQ ids tha
 
 ## 10. Forbidden
 
-Inventing a contract · stub/TODO/mock presented as done · weakening a test, bar, threshold or lint rule · `float` on money · editing generated files by hand · refactor sprees outside the item · telemetry or any network call outside `app/ai/client.py` · copying code from the previous attempt repos without a provenance note and licence check (`docs/12` §6) · committing real financial data · claiming tests you did not run · changing a spec to match code · starting a milestone whose predecessor's gate is open.
+Inventing a contract · stub/TODO/mock presented as done · weakening a test, bar, threshold or lint rule · `float` on money · editing generated files by hand · refactor sprees outside the item · telemetry or any network call outside `app/ai/client.py` and `app/connectors/transport.py` (allow-listed hosts only, user-initiated jobs only) · copying code from the previous attempt repos without a provenance note and licence check (`docs/12` §6) · committing real financial data · claiming tests you did not run · changing a spec to match code · starting a milestone whose predecessor's gate is open.
 
 ---
 

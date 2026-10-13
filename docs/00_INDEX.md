@@ -12,10 +12,10 @@ FP&A Month-End Copilot (working name) — offline, local-only desktop app that l
 | Anyone verifying a claim | `34` (streams), `14` (bars), `evidence/` |
 
 ## §3 Owner's 10-minute brief
-Problem, product, wedge and success metrics: `01_PRD` §§1–6 and `32` §Positioning. Decisions: none waiting — the owner delegated them (DEC-010 in `17` §4; DEC-008/009 accepted, OQ-11…14 closed). `TASKBOARD.md` → *Owner attention* lists what was decided and where. Status: §10 below and the gate table in `86` §1.
+Problem, product, wedge and success metrics: `01_PRD` §§1–6 and `32` §Positioning. Decisions: none waiting — the owner delegated them (DEC-010 in `17` §4; DEC-008/009 accepted, OQ-11…16 closed; DEC-013 made the Dynamics 365 direct connector a v1 capability — the only thing the owner's IT must do is the 15-minute Entra app registration in `18` §8). `TASKBOARD.md` → *Owner attention* lists what was decided and where. Status: §10 below and the gate table in `86` §1.
 
 ## §4 Document map
-Numbered specs 01–91 (§7 lists them), plus `MASTER_PLAN.md` (plan of record), `WORK_PLAN.md` + `WORK_PLAN.csv` (generated build sequence — 250 work items, milestones M0–M6), `RESEARCH_AND_LESSONS.md`, `CHANGELOG.md`. Root files: `AGENT_PROMPT.md` (the builder's prompt), `TASKBOARD.md` (live ledger), `tools/generate_work_plan.py` (generator of the plan). Retired by DEC-007 and deleted: `agent-prompts/`, `FILE_MANIFEST.*`, `DEPENDENCY_GRAPH.*`, `tools/generate_agent_packets.py`.
+Numbered specs 01–91 (§7 lists them), plus `MASTER_PLAN.md` (plan of record), `WORK_PLAN.md` + `WORK_PLAN.csv` (generated build sequence — 266 work items, milestones M0–M6), `RESEARCH_AND_LESSONS.md`, `CHANGELOG.md`. Root files: `AGENT_PROMPT.md` (the builder's prompt), `TASKBOARD.md` (live ledger), `tools/generate_work_plan.py` (generator of the plan). Retired by DEC-007 and deleted: `agent-prompts/`, `FILE_MANIFEST.*`, `DEPENDENCY_GRAPH.*`, `tools/generate_agent_packets.py`.
 
 ## §5 Source-of-truth matrix (who wins on conflict)
 | Fact | Owner |
@@ -30,6 +30,7 @@ Numbered specs 01–91 (§7 lists them), plus `MASTER_PLAN.md` (plan of record),
 | Finding key format & severity | `07` §1–§2 |
 | Suggested fix per rule (kinds, lines, confidence) & verification loop | `07` §7 (templates) · `44` (data-dependent derivations) |
 | ERP export shapes, presets, write-back journal formats | `26` §5 / §7 (D365 F&O + BC first-class, DEC-012) · `06` (transforms, quarantine reasons, enrichment, TB tie-out) |
+| Dynamics 365 direct connector (pull, auth, profiles, mock, setup) | `26` §8 (DEC-013) · `12` §1(d)/§5/§8 (security envelope) · `05` connector routes · `22` ERR-110…118 · `23` §11 · `62` `connector.*` · `19` C2 (FR-CON) |
 | States & transitions | `23` |
 | Error codes / UI copy | `22` / `55` |
 | Settings keys | `62` |
@@ -50,4 +51,4 @@ One agent, one prompt. The builder reads `AGENT_PROMPT.md`, takes the next start
 `31_GLOSSARY` is the terminology source; `55` owns exact UI strings; `27` owns number/date/currency formats; period ids are always `<fiscal_year>-P<nn>` (doc 02 §2).
 
 ## §10 Current phase (keep this section updated — the builder cites it)
-**Phase 0 → M0 (spec hardening), 2026-10-14.** Execution model changed to a single builder (DEC-007). Audit pass 3 found P0 contract defects in the previously "approved" doc set; the ones fixable in one pass are fixed (see CHANGELOG), the rest are the seven M0 work items of `docs/WORK_PLAN.md`. **No new product code until the M0 gate closes** (`scripts/docs_check.py` clean; DEC-007/008/009 are accepted under DEC-010 auto-decision mode, so the gate is the docs check alone). Same day, DEC-011 (28 rules, suggested fix on every finding, ERP rectification journal) and DEC-012 (Dynamics 365 first-class import shapes) widened the spec; the work plan is 250 items. Existing code (core/money, calendar, errors, schema v1, 9 tests) is frozen and marked `exists-unverified` in `TASKBOARD.md`; it is re-verified against its acceptance lines in M1.
+**Phase 0 → M0 (spec hardening), 2026-10-14.** Execution model changed to a single builder (DEC-007). Audit pass 3 found P0 contract defects in the previously "approved" doc set; the ones fixable in one pass are fixed (see CHANGELOG), the rest are the seven M0 work items of `docs/WORK_PLAN.md`. **No new product code until the M0 gate closes** (`scripts/docs_check.py` clean; DEC-007/008/009 are accepted under DEC-010 auto-decision mode, so the gate is the docs check alone). Same day, DEC-011 (28 rules, suggested fix on every finding, ERP rectification journal), DEC-012 (Dynamics 365 first-class import shapes) and DEC-013 (direct Dynamics 365 connector in v1, `26` §8) widened the spec; the work plan is regenerated from `tools/generate_work_plan.py` (item count in `TASKBOARD.md`). Existing code (core/money, calendar, errors, schema v1, 9 tests) is frozen and marked `exists-unverified` in `TASKBOARD.md`; it is re-verified against its acceptance lines in M1.

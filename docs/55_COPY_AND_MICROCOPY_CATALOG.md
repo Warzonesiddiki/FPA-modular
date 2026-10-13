@@ -15,13 +15,14 @@ Forecast: `fc.accuracy` "Last 3 months, this method was within {mape}% on averag
 Exports: `exp.checks.pass` "All checks passed." · `exp.blocked` "The board deck is blocked until the failed checks pass. The Excel pack is still available and lists them." · `exp.done` "{kind} generated for {period}."
 Close: `close.blockers` "{n} things still block sign-off." · `close.signoff.done` "Signed off by {name} on {date}." · `period.locked` "{period} is locked. Unlocking needs a reason and leaves a trail."
 Settings/AI: `ai.test.ok` "Connected. Drafting is ready." · `ai.key.safe` "Your key is stored in this computer's secure keychain — never in the project file." · `settings.impact.materiality` "Raising this means fewer, larger variances are flagged as material."
+Dynamics 365 connector (doc 26 §8): `con.title` "Connections" · `con.source.files` "Files" · `con.source.d365` "Dynamics 365" · `con.not.configured` "Not connected. Set up Dynamics 365 once in Settings → Connections and this month becomes one click." · `con.signin` "Sign in with Microsoft" · `con.signin.waiting` "Waiting for Microsoft… finish signing in in your browser, then come back here." · `con.signin.done` "Signed in as {user}." · `con.test` "Test connection" · `con.test.ok` "Connected. You can read {n} companies. All entities found." · `con.test.missing` "{n} entities or fields weren't found in your Dynamics 365. Pick replacements below or ask your administrator." · `con.company.pick` "Which company is this project?" · `con.pull` "Pull this month" · `con.refresh` "Refresh this month" · `con.pull.progress` "{source}: page {n} of {total} · {rows} of {count} rows" · `con.pull.staged` "Pulled {rows} rows from Dynamics 365 for {period}. Review and commit — nothing is final yet." · `con.pull.nochange` "No changes in Dynamics 365 since your last pull on {date}." · `con.pull.changed` "{n} entries changed in Dynamics 365 since {date}." · `con.pull.supersede` "This replaces the {rows} rows you committed on {date} for {period} ({delta} difference). Continue?" · `con.what.read` "What we read: general ledger entries, vendor transactions, trial balance, budgets and master data for the company you choose — read-only." · `con.what.never` "What we never do: post, change or delete anything in Dynamics 365; connect in the background; store your password or token in the project file." · `con.secret.safe` "Stored in Windows Credential Manager — never in the project file." · `con.disconnect` "Disconnect" · `con.disconnect.confirm` "This forgets your Microsoft sign-in on this computer. Your settings and pull history stay. Disconnect?" · `con.demo` "Connect to the demo ledger (local)" · `con.demo.note` "The demo ledger runs on this computer only — nothing leaves it." · `con.callback.page` "You're signed in. You can close this tab and return to the app."
 
 ## Per-screen mandatory strings (each screen's copy.ts contains at least these keys; AUD-F diffs extraction)
 | Screen | Keys (title / primary action / empty state) |
 |---|---|
-| S01 | "Month-end overview" / "Continue close" / "Start by importing this month's files." |
+| S01 | "Month-end overview" / "Continue close" (+ "Refresh this month" when connected) / "Start by importing this month's files — or pull them from Dynamics 365." |
 | S02 | "Projects" / "New project" / "No projects yet — create one or explore the sample company." |
-| S03 | "Import" / "Commit import" / "Drop this month's exports to begin." |
+| S03 | "Import" / "Commit import" / "Drop this month's exports to begin — or pull them from Dynamics 365." |
 | S04 | "Mapping profiles" / "Save as new version" / "Profiles appear after your first import." |
 | S05 | "Trial balance" / "View imbalances" / "Commit a GL import to see the trial balance." |
 | S06 | "Statements" / "Export" / "No committed data for this period yet." |
@@ -31,7 +32,7 @@ Settings/AI: `ai.test.ok` "Connected. Drafting is ready." · `ai.key.safe` "Your
 | S10 | "Scenarios" / "Save scenario" / "Lock a forecast first, then build scenarios on it." |
 | S11 | "Exports" / "Generate board pack" / "Generate your first pack once statements are ready." |
 | S12 | "Master data" / "Add" / "Nothing here yet." |
-| S13 | "Settings" / "Save changes" / — |
+| S13 | "Settings" / "Save changes" / — (Connections tab empty state: "Not connected. Set up Dynamics 365 once and this month becomes one click.") |
 | S14 | "Audit trail" / "Verify audit trail" / "Actions you take will appear here." |
 | S15 | "Help" / "Start the walkthrough" / — |
 | S16 | "Close" / "Sign off close" / "Tasks appear when a period is being closed." |

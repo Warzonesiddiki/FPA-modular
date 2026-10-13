@@ -9,7 +9,9 @@ python -m venv .venv && .venv\Scripts\activate && pip install -e ".[dev]"
 cd ui && npm ci && cd ..
 python scripts/check.py        # baseline must be green before you change anything
 python -m app.cli run-month-end --sample   # golden run on sample project
+python -m app.cli pull --sample --period 2025-P07 --mock   # Dynamics 365 connector against the local mock (starts tools/mock_d365.py, no tenant, no internet)
 ```
+To exercise the connector by hand: `python tools/mock_d365.py --port 8765` then point the sample project at `http://127.0.0.1:8765` via *Connect to the demo ledger (local)* in S13. No developer ever needs a real tenant to run every connector test; a real-tenant smoke is a pilot activity (doc 83) with the owner's own identity, never with shared credentials in the repo or CI.
 ## Daily flow
 Commit `WI-####: <path>` (the builder) / branch `feat-<slug>` (humans) → spec-first if behaviour changes (doc 17 §6) → tests → `scripts/check.py` → PR with template (87): WI/FR ids, spec sections, tests+output, evidence. Reviews: the self-verification block (doc 34 §1) for the builder; one human reviewer for humans. Main protected: check + acceptance green, no direct pushes.
 ## Repo hygiene

@@ -46,6 +46,7 @@
 | 68 | `68_COMPATIBILITY_MATRIX` | Windows builds, Excel/PowerPoint/LibreOffice versions, file-format variants tested. "Works with Excel" is currently untested scope. | P2 |
 | 69 | `69_EXPRESSION_GRAMMAR_SPEC` (KPI/report builder) | 19J mentions a safe grammar; no EBNF, function list, or error model. Security-relevant (25) — must be formal. | P1 |
 | 70 | `70_FILE_AND_FOLDER_STRUCTURE_SPEC` | Project folder/app data layout, naming, cleanup, what is safe to delete/share. Partially in 04 §5 only. | P1 |
+| — | *Dynamics 365 direct connector* (DEC-013, 2026-10-14) | Deliberately **not** a new numbered doc: the normative spec is doc 26 §8 (products, auth, profiles, pull protocol, security, mock, IT setup) with its contract pieces in their owning docs — 05 (routes), 90 (schemas), 63 (examples), 02 (tables), 12/25 (security), 22 (ERR-110…118), 23 §11 (states), 62 (`connector.*`), 64 (job), 65 (logs), 19 C2 (FR-CON), 14 §3 (parity bar), 89 §4b (fixtures), 18 §8 (admin setup). A separate doc would duplicate owners. | done |
 
 ## D. Quality, audit & governance
 | # | Proposed doc | Why | P |

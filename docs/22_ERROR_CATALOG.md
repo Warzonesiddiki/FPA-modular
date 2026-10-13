@@ -3,7 +3,7 @@
 > Implemented in `app/core/errors.py` (one constructor per code; the module's test asserts the set of codes in this table equals the set in code — doc 14 §4 contract parity). API shape in doc 05 §1 (`FP&A-ERR-###`). Rule: code + plain message + hint + retryable. New errors are appended **here first** (P2), then in code, same commit. UI never shows a code to the analyst (codes appear in logs/diagnostics). Message text in code must equal this table (parametrised parts in `{}`).
 
 ## 1. Numbering
-`00x` general · `01x` project/period · `02x` import · `03x` statements/analysis · `04x` findings & adjustments · `05x` master data · `06x` exports/reports/licence · `07x` AI · `08x` close/recon/year-end · `09x` system · `10x` planning/forecast. Codes are never reused; retired codes stay in the table marked *(retired, DEC-nnn)*.
+`00x` general · `01x` project/period · `02x` import · `03x` statements/analysis · `04x` findings & adjustments · `05x` master data · `06x` exports/reports/licence · `07x` AI · `08x` close/recon/year-end · `09x` system · `10x` planning/forecast · `11x` Dynamics 365 connector (DEC-013, doc 26 §8). Codes are never reused; retired codes stay in the table marked *(retired, DEC-nnn)*.
 
 ## 2. Catalogue
 | Code | Trigger | Message (analyst wording) | Hint | Retry |
@@ -72,6 +72,15 @@
 | ERR-107 | Scenario base run not locked | "Scenarios need a locked forecast run as their base." | Lock the run first | no |
 | ERR-108 | Sensitivity / goal-seek parameters invalid | "The {param} range isn't valid." | Check the range, step and target | no |
 | ERR-109 | Driver formula references an unknown driver | "The formula for {line} uses '{driver}', which doesn't exist." | Add the driver or fix the formula | no |
+| ERR-110 | Connector not configured / disabled | "Dynamics 365 isn't connected for this project." | Set it up once in Settings → Connections, or import the exported files instead | no |
+| ERR-111 | Sign-in failed or consent required (Entra `AADSTS` code in details) | "Microsoft sign-in didn't complete." ({aadsts_code}: {aadsts_text}) | Try again; if it mentions consent or permissions, send the exact text to your administrator | yes |
+| ERR-112 | Token refresh failed / session expired | "Your Microsoft sign-in has expired." | Click Sign in again — your settings are unchanged | yes |
+| ERR-113 | Host not allowed, not https, or TLS verification failed | "This address can't be used: {reason}." | Use your Dynamics 365 URL (operations.dynamics.com / api.businesscentral.dynamics.com) starting with https:// | no |
+| ERR-114 | Entity or field missing in the tenant (entity check) | "{n} entities or fields weren't found in your Dynamics 365." (list) | Pick replacements in the connection profile, or ask your administrator which entity holds them | no |
+| ERR-115 | Throttled / unavailable after 5 attempts (429/503/timeouts) | "Dynamics 365 is busy and kept asking us to wait." | Try again in a few minutes; pulling outside business hours is faster | yes |
+| ERR-116 | Pull exceeds `import.max_rows` | "This period has {count} rows — more than the {max} this app pulls at once." | Pull one source at a time, split the period, or use the file export | no |
+| ERR-117 | Company / legal entity not found or no access | "We can't read company '{company}' with this sign-in." | Pick a company from the list in Test connection, or ask your administrator for access | no |
+| ERR-118 | Row count changed during the pull (after one automatic retry) | "Dynamics 365 changed while we were reading it, so nothing was imported." | Try again in a moment — a posting was probably in progress | yes |
 
 ## 3. Rules
 - Job failures surface the same catalogue via `/jobs/{id}.error`.
