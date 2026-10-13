@@ -15,4 +15,4 @@ Master instruction for every auditor: `agent-prompts/00_MASTER_AGENT_PROMPT.md` 
 | AUD-105…114 | J Docs completeness & traceability closure | 10 |
 | AUD-115…124 | K Security review of code (auth/token, crypto, SQL, paths, secrets, deps) | 10 |
 | AUD-125…132 | L Release readiness (install/upgrade/backup/restore/drill on clean VMs) | 8 |
-**Total audit assignments: 132. Army total: 220 creators + 220 testers + 132 auditors = 572 prompt-addressable assignments** (integrators draw from AUD pool leads).
+**Total audit assignments: 132. Army total: 270 creators + 270 testers + 132 auditors = 672 prompt-addressable assignments** (integrators draw from AUD pool leads).

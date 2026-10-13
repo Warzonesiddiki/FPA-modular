@@ -1,7 +1,7 @@
 # 33 — AGENT EXECUTION HANDBOOK (how the 500 agents build this without becoming attempt #5)
 
 ## 1. Roles & prompt files
-- **Creator** (184+ packets): gets `agent-prompts/00_MASTER_AGENT_PROMPT.md` + one `agent-prompts/PKT-####-*.md`. Builds one file + paired test.
+- **Creator** (270 packets): gets `agent-prompts/00_MASTER_AGENT_PROMPT.md` + one `agent-prompts/PKT-####-*.md`. Builds one file + paired test.
 - **Tester** (one per packet): gets `00_MASTER_AGENT_PROMPT.md` + `agent-prompts/testers/TST-####-*.md` (generated mirror). Has never seen the creator's reasoning; re-runs acceptance, mutation-checks (stub → tests must fail), verifies no other file changed (diff scope), signs/rejects.
 - **Auditor** (~130 assignments): gets `34_AUDIT_PLAYBOOK.md` + one audit packet (AUD-### in `agent-prompts/INDEX.md`): recompute, rule-boundary hunting, contract parity, adversarial, UX tabletop, truth audit.
 - **Integrator** (human/lead agent, 1–3): owns waves, taskboard, merges, gates. Only role allowed to edit shared files (manifest generator, CI, index docs).
