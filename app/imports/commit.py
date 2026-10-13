@@ -12,9 +12,9 @@ def commit_batch(conn, *, project_id: str, period_id: str, source_kind: str, fil
     with transaction(conn):
         prev = conn.execute("SELECT batch_id FROM import_batches WHERE project_id=? AND period_id=? AND source_kind=? AND file_sha256=? AND status='committed'",
                             (project_id, period_id, source_kind, fh)).fetchone()
-        if prev:  # idempotent re-import: supersede, replace rows
-            conn.execute("UPDATE import_batches SET status='superseded' WHERE batch_id=?", (prev[0],))
-            conn.execute("DELETE FROM gl_rows WHERE batch_id=?", (prev[0],))
+        if prev:  # idempotent re-import: same deterministic batch_id -> replace its rows atomically
+            conn.execute("DELETE FROM gl_rows WHERE batch_id=?", (bid,))
+            conn.execute("DELETE FROM import_rows_raw WHERE batch_id=?", (bid,))
         conn.execute(
             "INSERT OR REPLACE INTO import_batches(batch_id,project_id,period_id,source_kind,file_name,file_sha256,status,row_count_in,row_count_valid,row_count_quarantined,committed_at)"
             " VALUES (?,?,?,?,?,?, 'committed',?,?,?, datetime('now'))",
