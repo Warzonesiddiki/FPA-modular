@@ -5,7 +5,7 @@ One analyst. One tool. The whole month-end: import messy ERP exports → validat
 ## Start here
 1. **`docs/MASTER_PLAN.md`** — the complete plan: lessons from attempts 1–4, product definition, architecture, 500-agent execution model, waves, gates, audit plan.
 2. **`docs/00_INDEX.md`** — document map and source-of-truth matrix.
-3. **`docs/FILE_MANIFEST.md`** — every file to be generated (184 packets), also `FILE_MANIFEST.csv`.
+3. **`docs/FILE_MANIFEST.md`** — every file to be generated (220 creator packets + 220 tester prompts + 132 audit packets = 572 assignments), also `FILE_MANIFEST.csv`.
 4. **`agent-prompts/`** — hand any agent `00_MASTER_AGENT_PROMPT.md` + one `PKT-####-*.md` file. Nothing else is needed.
 5. **`docs/RESEARCH_AND_LESSONS.md`** — evidence from the four previous repos + market check.
 

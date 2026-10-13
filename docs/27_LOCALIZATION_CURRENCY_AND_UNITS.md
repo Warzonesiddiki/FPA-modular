@@ -1,0 +1,8 @@
+# 27 — LOCALIZATION, CURRENCY, NUMBER & DATE CONVENTIONS
+
+1. **Currency:** one reporting currency per project (ISO code + symbol + minor-unit exponent: INR/USD/EUR/GBP/AED 2, JPY 0, KWD 3 — exponent stored per project; money.py is exponent-aware; the ₹ examples in docs assume exponent 2). No FX conversion in v1; foreign-currency source amounts must be pre-converted in the export (stated in import UI) — original-currency columns may be carried as reference text.
+2. **Number display:** grouping per locale setting (`en-IN` lakh/crore grouping vs `en-US` thousand grouping — analyst-selectable per project; storage/API unaffected, decimal strings canonical `1234567.89`). Negatives: parentheses in statements/exports, minus in data grids (setting). Scale views: units / thousands / millions (label always on the axis/header — never silent scaling).
+3. **Dates:** storage ISO; display format per project setting (`DD-MMM-YYYY` default — unambiguous); import date parsing only against declared formats (doc 06).
+4. **Language:** v1 UI en (strings externalised in per-screen constants, i18n-ready structure, doc 15 §3); a second locale is a translation-file + terminology-review task, no code change. Financial terminology glossary (doc 31) fixes translations of: variance, accrual, suspense, waiver, materiality.
+5. **Fiscal calendars:** monthly (FY start any month); 4-4-5/4-5-4 reserved (calendar_type field exists; engine support Phase 2 with period tables generated accordingly — reserved, not silently broken: selecting it in v1 is impossible in UI).
+6. **Rounding display:** half-up everywhere; ₹'000 views use largest-remainder (doc 03 §3); percentages 1dp in decks, 2dp in grids.

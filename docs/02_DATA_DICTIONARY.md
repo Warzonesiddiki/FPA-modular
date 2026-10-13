@@ -70,3 +70,17 @@ Design point: 250k gl_rows/project/year, 5M lifetime. Indexes: gl_rows(period_id
 
 ## 4. Example row (gl_rows)
 `{"gl_row_id":"9f2c…","period_id":"2026-P01","voucher_no":"VCH-2026-0001","posting_date":"2026-04-03","account_id":"ACC-5100","amount_minor":-12500050,"source_file":"gl_apr.xlsx","source_row":142}` → ₹125,000.50 credit (expense accrual reversal, sign per §1).
+
+## 5. Expansion tables (docs 19/29/30 — same conventions §1; schema.sql must include all)
+- **close_tasks**: task_id PK · project_id · period_id · template_key · title · owner_id NULL · due_offset_days INT · depends_on NULL · kind (`system|attest|manual`) · status (doc 23 §7) · completed_by/at · note.
+- **close_signoffs**: signoff_id PK · project_id · period_id · signer · attestation_text · snapshot_json · at.
+- **planning_drivers**: driver_row_id PK · project_id · period_id · entity_id · driver_id · account_id NULL · value_decimal TEXT · source (`import|manual|scenario`) · scenario_id NULL · version.
+- **headcount_plans**: plan_id PK · project_id · period_id · cost_centre_id · opening_hc INT · joiners INT · leavers INT · avg_cost_minor INT · increment_pct TEXT · bonus_pct TEXT.
+- **capex_assets**: asset_id PK · project_id · class_label · cost_minor INT · addition_period · useful_life_months INT · method (`slm|wdv`) · residual_pct TEXT · disposal_period NULL · proceeds_minor NULL.
+- **debt_schedules**: facility_id PK · project_id · label · opening_minor INT · rate_pct TEXT · kind (`fixed|floating`) — movements in **debt_movements**(facility_id, period_id, kind `draw|repay`, amount_minor).
+- **wc_assumptions**: project_id · entity_id · dso_days/dpo_days/dio_days TEXT · effective_period. PK(project_id, entity_id, effective_period).
+- **cash13_inputs**: input_id PK · project_id · week_start DATE · kind (`ar_due|ap_due|payroll|debt|capex|tax|other_in|other_out`) · amount_minor · party_label NULL · source_ref.
+- **recon_runs**: recon_id PK · project_id · period_id · kind (`bank|ar|ap|payroll`) · tolerance_minor INT · status (doc 23 §8) · signed_by/at. **recon_matches**: recon_id FK · side (`subledger|gl`) · ref_id · amount_minor · matched_group NULL · score TEXT.
+- **alerts**: alert_id PK · project_id · alert_key · period_id · kind (`kpi|finding|bias|close`) · severity · message · status (doc 23 §9) · seen_count INT · created_at/last_seen.
+- **report_definitions**: def_id PK · project_id · name · blocks_json (statement/bva/kpi blocks, grain, period mode) · version · created_by.
+All expansion tables carry created_at/updated_at/version and audit-on-mutation per §1.

@@ -189,6 +189,20 @@ DOCS=[("00_INDEX","Master index, reading order by role, source-of-truth matrix")
 for num, desc in DOCS:
     add(f"docs/{num}.md","docs",desc+". Zero TBD/placeholder: every claim is a number, a name, or an example.","docs/00_INDEX (after 00)","research + prior docs","complete doc","Docs-verify: all cross-refs/links resolve; every FR/rule/endpoint ID referenced exists","-","Write as if an agent who never met the user must build from this alone.")
 
+# ---------------------------------------------------------------- expansion (docs 19/29/30, all-in-one completeness)
+add("app/calc/quality_score.py","calc","Data-quality score per doc 29 S9: deductions table, never a bare number.","docs/29 S9, calc/statements","period data","score + deductions[]","Fixture deduction arithmetic exact; score without reasons impossible by type","tests/unit/test_quality_score.py")
+add("app/imports/reconcile.py","imports","Subledger-to-GL reconciliation per doc 19I: match scoring amount/date/reference, unmatched both sides, tolerance.","docs/19I, docs/06","subledger rows + gl_rows","recon run + matches","Fixture: matched/unmatched counts tie both sides; tolerance boundary +-1 minor unit","tests/unit/test_reconcile.py")
+for slug2, nm in [("drivers","Driver planning registry + computation (29 S2)"),("headcount","Headcount plan -> personnel cost (29 S3)"),("capex","Capex + depreciation schedule SLM/WDV (29 S4)"),("debt","Debt schedule + interest on avg balance (29 S5)"),("working_capital","WC from DSO/DPO/DIO targets (29 S6)"),("cash13","13-week cash forecast, calendar weeks (29 S6)"),("sensitivity","One/two-variable sensitivity tables (19H)"),("goal_seek","Goal seek by bisection on deterministic model, no-solution honest (19H)")]:
+    add(f"app/planning/{slug2}.py","planning",nm+". Pure, Decimal, versioned inputs, every output traceable to inputs.","docs/29, docs/08, core/money","planning inputs + actuals/forecast","computed series + provenance","Doc 29 oracle for the module reproduced exactly; invalid input -> AppError with hint, never silent clamp","tests/unit/test_plan_"+slug2+".py")
+add("app/planning/integrate.py","planning","Integrated 3-statement forecast articulation check per doc 29 S7: imbalance named, never plugged.","docs/29 S7, calc/statements","PL/BS/CF forecast series","balance verdict + broken link","Oracle 29 S7 passes; planted imbalance detected and named","tests/unit/test_plan_integrate.py")
+add("app/services/close_service.py","services","Close management per doc 30: task instantiation, system-verified completion, blockers, sign-off.","docs/30, docs/23","project, period","close state DTO","System tasks derive from real states (test flips each source state); sign-off guard ERR-080","tests/unit/test_close_service.py")
+add("app/services/alerts.py","services","Alert engine per doc 19K: KPI/finding/bias alerts, dedupe by key+period, 90-day retention.","docs/19K, docs/08 S6","snapshots","alerts","Duplicate run creates zero duplicate alerts; retention purge tested with injected clock","tests/unit/test_alerts.py")
+add("app/exports/report_builder.py","exports","Saved report definitions -> Excel/PDF rendering identical to fixed packs (doc 19J). Safe KPI expression grammar evaluator lives here for custom KPIs.","docs/19J, docs/09","report definition + snapshot","workbook/pdf","Definition round-trip; expression grammar rejects code-like input; numbers tie to calc fixtures","tests/unit/test_report_builder.py")
+for sid, slug3, desc in [("S16","close","Close management screen per doc 21/30"),("S17","planning","Planning studio: drivers/headcount/capex/debt/WC/13-week tabs per docs 21/29"),("S18","reconcile","Reconciliation screen per docs 19I/21"),("S19","alerts","Alert centre per docs 19K/21")]:
+    add(f"ui/src/pages/{sid}-{slug3}/index.tsx","ui",f"{sid} {desc}. Five states, doc 21 acceptance, no money computed in UI.","docs/21 "+sid+", docs/13","API DTOs","rendered screen","Component tests all 5 states + axe","ui/src/pages/"+sid+"-"+slug3+"/index.test.tsx")
+for num2 in ["19_DETAILED_FUNCTIONAL_SPEC","20_TRACEABILITY_MATRIX","21_SCREEN_SPEC_DETAILED","22_ERROR_CATALOG","23_STATE_MACHINES_AND_WORKFLOWS","24_DATA_FLOWS_ERD_AND_SEQUENCES","25_THREAT_MODEL","26_INTEGRATIONS_AND_ERP_FIELD_GUIDES","27_LOCALIZATION_CURRENCY_AND_UNITS","28_MASTER_DATA_COA_AND_TEMPLATES","29_BUDGETING_PLANNING_AND_KPI_SPEC","30_CLOSE_MANAGEMENT_SPEC","31_GLOSSARY","32_COMPETITIVE_PARITY_AND_POSITIONING","33_AGENT_EXECUTION_HANDBOOK","34_AUDIT_PLAYBOOK","35_OPERATIONS_SUPPORT_AND_SLA","36_NFR_CATALOG"]:
+    add(f"docs/{num2}.md","docs",f"Expansion spec {num2}: complete, cross-referenced, zero placeholders; already authored by lead - agent REVISES only via integrator instruction, else verifies links/IDs.","docs/00_INDEX, docs/"+num2.split('_')[0],"existing doc","verified doc","Docs-verify: all IDs referenced exist; no TBD; consistent with docs 01-18","-","This doc exists; packet = verification/hardening pass, report gaps as BLOCKED-style findings, do not rewrite unilaterally.")
+
 def slug(p): return re.sub(r'[^a-z0-9]+','-',p.lower()).strip('-')[:60]
 
 def main():
@@ -234,10 +248,23 @@ def main():
 ## 7. Paired test file
 `{p['tests'] or 'None for this packet - state why in handover.'}` — if named, the test is part of this packet's definition of done. Tests must include: happy path, the spec's worked example, one failure/edge case, and (for money) a rounding case. Tests must FAIL if the implementation is stubbed (mutation honesty).
 
-## 8. Packet-specific notes
+## 8. Build order (follow exactly)
+1. Re-read the cited spec sections; write down (in your head/notes) the exact contract: inputs, outputs, error codes, formulas/keys.
+2. Write the paired test FIRST from the spec's worked examples + the edge checklist in section 9; run it - it must fail for the right reason.
+3. Implement the smallest complete version satisfying the contract (no extra features, no extra files).
+4. Run: paired tests, then the module's neighbouring tests, then `python scripts/check.py` if it exists yet (Wave>=3) - record exact commands/outputs.
+5. Self-review against section 5 rules and section 9 checklist; fix before returning.
+
+## 9. Universal edge-case checklist (address every line in code or test, or state why N/A)
+Zero amounts / zero denominator; negative amounts and credit-normal accounts; empty input; single row; duplicate input; very large input (250k rows posture); missing optional data (rule must report not_run, export must label, UI must show empty state); locked period/version; superseded batch; expired waiver; hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description); ambiguous dates/amounts; currency minor-unit exponent; month 2 reuse (no month-1 assumptions hard-coded); deterministic repeat run.
+
+## 10. Forbidden in this packet
+Editing any other file (incl. "helpful" fixes); adding dependencies; changing a spec, threshold, key format, or error code; committing secrets/test data with real financials; disabling a lint/type rule; `float` on money; TODO/TBD/stub/mock-only code.
+
+## 11. Packet-specific notes
 {p['notes'] or 'None.'}
 
-## 9. Definition of done — return exactly this handover format
+## 12. Definition of done — return exactly this handover format
 ```
 PACKET: {pid}
 FILE: {p['path']}
@@ -251,6 +278,14 @@ BLOCKED ON: none | <exact missing contract>
 A `DONE` claim without test evidence is treated as not done.
 """
         (ROOT/f"agent-prompts/{pid}-{slug(p['path'])}.md").write_text(prompt, encoding="utf-8")
+        (ROOT/"agent-prompts"/"testers").mkdir(exist_ok=True)
+        tester = f"""# TST-{pid[4:]} - TESTER for {pid}: {p['path']}
+You are the INDEPENDENT TESTER for packet {pid}. You did not write this code and must trust nothing in its handover.
+Follow docs/34_AUDIT_PLAYBOOK.md section 1 exactly: (1) scope-diff - only `{p['path']}` (+ paired test `{p['tests']}`) may have changed; (2) fresh-run the paired tests and paste output; (3) MUTATION CHECK - stub/weaken the implementation (constant return, drop one leg of any AND-test, off-by-one period) - at least one test must fail per mutation, else REJECT (tests are theatre); (4) edge checklist from the creator packet section 9; (5) money grep - float/division/rounding outside app/core/money.py; (6) spec conformance - cite the spec lines you verified.
+Acceptance under test: {p['acceptance'] or 'spec conformance'}
+Return exactly: `TST-{pid[4:]} VERDICT: SIGN | REJECT` + evidence (commands, outputs, mutations tried) + defects with file:line.
+"""
+        (ROOT/f"agent-prompts/testers/TST-{pid[4:]}-{slug(p['path'])}.md").write_text(tester, encoding="utf-8")
 
     with open(ROOT/"docs/FILE_MANIFEST.csv","w",newline="",encoding="utf-8") as f:
         w=csv.DictWriter(f, fieldnames=["id","path","layer","purpose","deps","tests"])
