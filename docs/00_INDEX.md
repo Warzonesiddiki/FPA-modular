@@ -43,4 +43,4 @@ Give the agent exactly: (1) `agent-prompts/00_MASTER_AGENT_PROMPT.md`, (2) its `
 `31_GLOSSARY` is the terminology source; `55` owns exact UI strings; `27` owns number/date/currency formats.
 
 ## §10 Current phase (keep this section updated — prompts cite it)
-**Wave-0 docs complete and expanded to 88 specs; brutal audit (2026-10-14) remediation IN PROGRESS — do not dispatch build waves until the audit's remediation checklist is verified closed and owner approval is recorded as DEC-006 (doc 17).** No product code exists yet — by design. Next after approval: Wave 1 per `86` + `DEPENDENCY_GRAPH`.
+**APPROVED & BUILDING (DEC-006, 2026-10-14): brutal-audit remediation verified 9/9 (audit/REMEDIATION_2026-10-14.md). Wave 1 in progress: core -> schema -> coherent corpus -> acceptance harness (docs 86, DEPENDENCY_GRAPH).**

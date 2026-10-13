@@ -37,7 +37,7 @@
 | OQ-10 | Data retention of imported originals? | Kept in project `imports/` (hash-named) until user deletes project |
 
 ## 4. Decision log (DEC) — append-only
-DEC-001 Stack Python+FastAPI+SQLite+React (doc 04 ADR-001…008). DEC-002 Windows-first, single-user, offline v1. DEC-003 24-rule catalog with canonical finding keys (doc 07 §2). DEC-004 Coherent-corpus + planted acceptance as release gate (docs 06 §7, 14 §3). DEC-005 AI edge-only/off-default (doc 11). *(Owner approval of the doc set becomes DEC-006 at Phase-0 gate.)*
+DEC-001 Stack Python+FastAPI+SQLite+React (doc 04 ADR-001…008). DEC-002 Windows-first, single-user, offline v1. DEC-003 24-rule catalog with canonical finding keys (doc 07 §2). DEC-004 Coherent-corpus + planted acceptance as release gate (docs 06 §7, 14 §3). DEC-005 AI edge-only/off-default (doc 11). DEC-006 **APPROVED 2026-10-14** (owner instructed auto-decision mode): docs 00-88 baselined, brutal-audit remediation verified 9/9, Wave 1 build authorised. Stack and defaults per DEC-001..005 stand.
 
 ## 5. Backlog (parked, phase-tagged — not in v1)
 Live ERP connectors [P2] · contributor budget collection [P2] · consolidation/FX/NCI [P3] · macOS/Linux [P3] · industry packs (manufacturing/SaaS/retail calendars) [P2+] · anomaly ML scoring beyond rules [P2+, must remain explainable] · multi-user review workflow [separate product evaluation].
