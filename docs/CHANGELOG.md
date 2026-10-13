@@ -8,3 +8,5 @@
 - Status: awaiting owner approval (becomes DEC-006). No product code yet — docs-before-code gate.
 ## 2026-10-13 — Master plan
 - MASTER_PLAN, 00_INDEX, RESEARCH_AND_LESSONS, FILE_MANIFEST (184 packets), agent-prompts generated.
+## 2026-10-14 — Perfection gap audit
+- Added 37_MISSING_DOCS_AND_PERFECTION_REGISTER: 50 proposed docs (38–87) prioritised P0 (blocks Wave 1) / P1 (blocks feature wave) / P2 (blocks release) / P3 (blocks pilot/commercial).
