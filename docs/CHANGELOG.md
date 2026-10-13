@@ -1,5 +1,8 @@
 # Documentation Changelog (newest first)
 
+## 2026-10-13 — Session continuation (sandbox UTC; inherited entries retain their recorded dates)
+- **Orientation:** AGENT_PROMPT §11 steps 6–7 now explicitly include DEC-013, doc 26 §8 and doc 12 §1(d)/§5/§8; no connector/security contract is changed.
+
 ## 2026-10-14 (c) — Direct Dynamics 365 connector in v1 (DEC-013)
 - **Decision (DEC-013, doc 17 §4; OQ-15/16 closed):** the owner asked for direct import from Dynamics 365. A read-only connector for **both** products ships in v1 — Finance / F&O (OData v4) and Business Central (API v2.0) — with Entra ID sign-in (delegated auth-code + PKCE by default, application mode optional), designed as a **file producer** (ADR-009): a pull writes a deterministic snapshot workbook in the DEC-012 preset shapes and hands it to the unchanged import pipeline. DEC-012's "live connector = Phase 2" sentence is marked superseded. Phase 2 backlog re-worded (other ERP APIs, BC budget page, unposted-journal push).
 - **Spec (doc 26):** §3 rewritten as the architectural rule; new normative **§8** — products/transports/auth table, connector profiles as data with a connect-time *entity check* (default entity names flagged as defaults, not promises), pull protocol (token → entity check → `$count` guard → paged GET with Retry-After/backoff → count consistency → snapshot → stage+validate; commit stays explicit unless `connector.auto_commit_when_clean`), refresh/no-change detection (BC `lastModifiedDateTime` pre-check), security envelope, ERR-110…118, `tools/mock_d365.py` + offline **demo ledger** for the sample project, and the one-time IT setup appendix (§8.9, repeated as doc 18 §8). Sections reordered 1–8.
