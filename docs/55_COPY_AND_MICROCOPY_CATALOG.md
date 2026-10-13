@@ -13,3 +13,26 @@ Forecast: `fc.accuracy` "Last 3 months, this method was within {mape}% on averag
 Exports: `exp.checks.pass` "All checks passed." · `exp.blocked` "The board deck is blocked until the failed checks pass. The Excel pack is still available and lists them." · `exp.done` "{kind} generated for {period}."
 Close: `close.blockers` "{n} things still block sign-off." · `close.signoff.done` "Signed off by {name} on {date}." · `period.locked` "{period} is locked. Unlocking needs a reason and leaves a trail."
 Settings/AI: `ai.test.ok` "Connected. Drafting is ready." · `ai.key.safe` "Your key is stored in this computer's secure keychain — never in the project file." · `settings.impact.materiality` "Raising this means fewer, larger variances are flagged as material."
+
+## Per-screen mandatory strings (each screen's copy.ts contains at least these keys; AUD-F diffs extraction)
+| Screen | Keys (title / primary action / empty state) |
+|---|---|
+| S01 | "Month-end overview" / "Continue close" / "Start by importing this month's files." |
+| S02 | "Projects" / "New project" / "No projects yet — create one or explore the sample company." |
+| S03 | "Import" / "Commit import" / "Drop this month's exports to begin." |
+| S04 | "Mapping profiles" / "Save as new version" / "Profiles appear after your first import." |
+| S05 | "Trial balance" / "View imbalances" / "Commit a GL import to see the trial balance." |
+| S06 | "Statements" / "Export" / "No committed data for this period yet." |
+| S07 | "Budget vs actual" / "Approve commentary" / "Import a budget to compare against actuals." |
+| S08 | "Potential exceptions" / "Run checks" / "No potential exceptions — this period looks clean. Checks last ran {when}." |
+| S09 | "Forecast" / "Run forecast" / "Commit at least one month of actuals to forecast." |
+| S10 | "Scenarios" / "Save scenario" / "Lock a forecast first, then build scenarios on it." |
+| S11 | "Exports" / "Generate board pack" / "Generate your first pack once statements are ready." |
+| S12 | "Master data" / "Add" / "Nothing here yet." |
+| S13 | "Settings" / "Save changes" / — |
+| S14 | "Audit trail" / "Verify audit trail" / "Actions you take will appear here." |
+| S15 | "Help" / "Start the walkthrough" / — |
+| S16 | "Close" / "Sign off close" / "Tasks appear when a period is being closed." |
+| S17 | "Planning" / "Save plan" / "Import drivers or enter a plan to begin." |
+| S18 | "Reconcile" / "Run reconciliation" / "Import a sub-ledger extract to reconcile." |
+| S19 | "Alerts" / "Acknowledge" / "No alerts. We'll flag material changes here." |

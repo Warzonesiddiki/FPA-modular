@@ -5,5 +5,3 @@
 3. **Crash behaviour:** app restart marks running jobs `failed` with reason `interrupted` and offers resume where the stage design supports it (import staging persists; exports simply re-run). No job may leave partial artefacts: exports write to temp then atomic-rename; DB writes are transactional (61).
 4. **Limits & logging:** per-job log slice (job_id in every line), retained with project logs (65); job history (type, started, duration, result counts) viewable in S13 diagnostics.
 
-## Implementation detail (agent-ready)
-Owner: the module named in doc 20's row for this area. Inputs/outputs, states and errors follow docs 05/22/23; acceptance is executed via docs 14/34/71 with evidence filed per doc 77. Any behaviour not derivable from those contracts is a BLOCKED escalation to the integrator (doc 33 section 4), never an invention. Review checklist for this doc's area: (1) every claim traces to a numbered spec section, (2) every number traces to doc 14/36 budgets or a worked oracle, (3) failure paths name an ERR code from doc 22, (4) user-facing wording matches doc 55, (5) the audit stream in doc 34 that will attack this area is named in the wave review.

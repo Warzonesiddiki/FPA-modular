@@ -31,3 +31,11 @@
 | Close/Recon/Alerts/Planning/Report builder | 30/19I/19K/29/19J | S16–S19 | doc 05 §4 rows | close_service, alerts, planning/*, reconcile, report_builder + routes_* | their paired tests | UAT-01/03, doc 77 index |
 | Licence | 79 | S13 | settings (licence state) | core/license | test_license | forged-licence fixture |
 | AI prompts | 88, 11, 75 | S07/S11 | commentary | ai/prompts implements doc 88 texts verbatim | ai golden set | ai_eval artefacts |
+
+## Detail supplements (docs 88–91)
+| Area | Spec | Packets/evidence |
+|---|---|---|
+| AI prompt texts + golden set | 88 | ai/prompts packet implements verbatim; ai_eval evidence |
+| Fixtures & oracles | 89 | tests/fixtures packets per catalog; fixture README gate |
+| API field-level schemas | 90 | route contract tests; OpenAPI diff (Wave 6) |
+| Packet dependencies | 91 + DEPENDENCY_GRAPH | integrator dispatch record in TASKBOARD |
