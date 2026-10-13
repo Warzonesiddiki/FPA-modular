@@ -1,6 +1,7 @@
 # Documentation Changelog (newest first)
 
 ## 2026-10-13 — Session continuation (sandbox UTC; inherited entries retain their recorded dates)
+- **DEC-014 / plan:** scheduled the standard-library-only bootstrap docs checker at WI-0008 (M0), preserved the full M6 checker as `scripts/docs_check_release.py`, documented exact scopes in doc 86 §1.1 and updated consuming gate references. Generated plan → 267 items (M0 8; all other counts unchanged), later WI ids shift by one; TASKBOARD statuses preserved by path. Gate strings reconciled across doc 86 and the generator without dropping any requirement; stale M1 counts corrected to DEC-011. CSV writer now uses explicit LF line endings: the default CRLF caused `git diff --check` failures on every regenerated row. No checker or product code implemented and no gate closed.
 - **Plan wording:** generator’s “Forbidden in every item” now matches AGENT_PROMPT §10: outbound calls only in `app/ai/client.py` and `app/connectors/transport.py`, allow-listed hosts, user-initiated jobs; regenerated WORK_PLAN with no item/dependency changes.
 - **Orientation:** AGENT_PROMPT §11 steps 6–7 now explicitly include DEC-013, doc 26 §8 and doc 12 §1(d)/§5/§8; no connector/security contract is changed.
 
