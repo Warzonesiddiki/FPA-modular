@@ -1,6 +1,6 @@
 # 63 — API EXAMPLES & PAYLOAD COOKBOOK (companion to doc 05)
 
-> Conventions doc 05 §1 (money as decimal strings, cursor pagination, job pattern, error shape). Below: canonical examples implementers and UI agents copy — payloads here are normative for field names.
+> Conventions doc 05 §1 (money as decimal strings, cursor pagination, job pattern, error shape). Below: canonical examples the route and UI work items copy — payloads here are normative for field names.
 
 **Create project** `POST /api/v1/projects`
 ```json

@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-10-14 by `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md`.** Kept as history. Verdicts in this file ("FIXED", "no P0/P1 remaining", "NOT READY") are not current; pass 3 recomputed the numbers and read the schema, and its findings table is the one that counts.
+
 # BRUTAL AUDIT — FPA-modular doc & prompt system (2026-10-14)
 
 > Auditor stance: trust nothing, verify everything. Method: full-repo automated cross-checks (doc refs, EXC/ERR/screen IDs, manifest↔prompt parity, oracle arithmetic re-computation, contradiction greps) + manual contract tracing. **Verdict: NOT READY FOR WAVE 1. Score: 5/10 as a plan, 3/10 as buildable spec.** The skeleton is genuinely good; the flesh is thinner than the page count claims, and several contracts that agents must build against do not exist yet. Dispatching 500 agents today would reproduce attempt #4's failure at 10× the scale.

@@ -4,4 +4,4 @@
 
 
 ## Pilot operating rhythm
-Week 0: questionnaire (58) + training M1 (59). Weeks 1–2: two historical months loaded, mapping profiles built, parallel-run setup. Closes 1–3 under hypercare (doc 82): integrator on call, defect log reviewed after each close, threshold changes only by DEC. After close 2: go/no-go to retire the spreadsheet to backup. End: doc 84 review 30 days after close 3, conversion decision, and lessons appended to RESEARCH_AND_LESSONS — win or lose (the institutional memory attempts 1–4 kept losing).
+Week 0: questionnaire (58) + training M1 (59). Weeks 1–2: two historical months loaded, mapping profiles built, parallel-run setup. Closes 1–3 under hypercare (doc 82): support on call, defect log reviewed after each close, threshold changes only by DEC. After close 2: go/no-go to retire the spreadsheet to backup. End: doc 84 review 30 days after close 3, conversion decision, and lessons appended to RESEARCH_AND_LESSONS — win or lose (the institutional memory attempts 1–4 kept losing).

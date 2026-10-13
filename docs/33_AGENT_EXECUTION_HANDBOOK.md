@@ -1,25 +1,54 @@
-# 33 — AGENT EXECUTION HANDBOOK (how the 500 agents build this without becoming attempt #5)
+# 33 — SINGLE-AGENT EXECUTION HANDBOOK (how one builder builds this without becoming attempt #5)
 
-## 1. Roles & prompt files
-- **Creator** (270 packets): gets `agent-prompts/00_MASTER_AGENT_PROMPT.md` + one `agent-prompts/PKT-####-*.md`. Builds one file + paired test.
-- **Tester** (one per packet): gets `00_MASTER_AGENT_PROMPT.md` + `agent-prompts/testers/TST-####-*.md` (generated mirror). Has never seen the creator's reasoning; re-runs acceptance, mutation-checks (stub → tests must fail), verifies no other file changed (diff scope), signs/rejects.
-- **Auditor** (~130 assignments): gets `34_AUDIT_PLAYBOOK.md` + one audit packet (AUD-### in `agent-prompts/INDEX.md`): recompute, rule-boundary hunting, contract parity, adversarial, UX tabletop, truth audit.
-- **Integrator** (human/lead agent, 1–3): owns waves, taskboard, merges, gates. Only role allowed to edit shared files (manifest generator, CI, index docs).
+> Supersedes the 500-agent handbook (DEC-007). The operating prompt is `AGENT_PROMPT.md` at the repo root; this doc explains the *system* around it — files, ledgers, commit discipline, and why each rule exists — so the owner can audit the process and the builder can recover it after a long gap. Where this doc and `AGENT_PROMPT.md` disagree, `AGENT_PROMPT.md` wins and this doc is fixed.
 
-## 2. Wave protocol
-Wave opens → integrator posts: packet list, frozen contract hashes (doc versions), gate command. Creators work in parallel (files are disjoint by construction — a packet touching another packet's file is auto-rejected). Returns collected into a staging tree → `scripts/check.py` + wave gate (MASTER_PLAN §8) → testers verify → failures loop back as the *same* packet re-issued with the tester's evidence attached (creator #2 sees evidence, not blame). Wave closes only at 100% tester-signed or explicit owner cut (cut line, never quality).
+## 1. The operating files
+| File | Role | Who writes it |
+|---|---|---|
+| `AGENT_PROMPT.md` | The one prompt: session protocol, work-item loop, gap rules, non-negotiables, self-verification, handover format | Owner (changes are DECs) |
+| `docs/WORK_PLAN.md` + `.csv` | All 241 work items in build order with purpose, dependencies, inputs/outputs, acceptance, paired test, cited spec sections; milestones M0–M6 with exit gates | **Generated** by `tools/generate_work_plan.py`; never hand-edited |
+| `TASKBOARD.md` | Live ledger: status per item (`queued / in_progress / done / blocked / exists-unverified`), handover blocks, *Owner attention*, *Current position* | Builder, every session |
+| `docs/17_ROADMAP_RISKS.md` §3/§4 | Open questions with labelled defaults; decision log | Builder appends; owner accepts/vetoes |
+| `docs/CHANGELOG.md` | Every doc change, newest first | Builder |
+| `evidence/` | Test outputs, acceptance reports, milestone audits, perf runs, screenshots | Builder (never edited after the fact) |
+| `docs/00_INDEX.md` §10 | Current phase/milestone | Builder at gate closure |
 
-## 3. Taskboard (single source: `TASKBOARD.md` at repo root during build)
-Columns: Packet | File | Creator | Status (queued/returned/tester-review/done/blocked) | Evidence link | Tester verdict. Integrator updates it — agent self-reported "done" never appears as done without tester verdict (K5 fix).
+## 2. The loop in one picture
+```
+session start ─► read AGENT_PROMPT + TASKBOARD ─► run tests (truth) ─► pick first startable WI
+      ▲                                                                        │
+      │                                                                        ▼
+ commit "WI-####: path — done" ◄── handover block ◄── §6 self-verify ◄── implement ◄── tests from oracle ◄── read cited spec
+                                                                                       │
+                                                                 spec gap? ─► class A: OQ + default, proceed
+                                                                              class B: fix doc first (+CHANGELOG/DEC), then build
+                                                                              class C: BLOCKED in TASKBOARD, next item
+```
 
-## 4. BLOCKED protocol
-Creator returns BLOCKED with the exact missing contract → integrator triages within the wave: (a) doc exists but packet cited wrong section → re-issue with corrected citation; (b) genuine doc gap → doc PR first (P2), packet regenerated, all packets citing that section re-issued. BLOCKED is a success of the system, not a failure of the agent — say so in every briefing.
+## 3. Why the rules are shaped this way (lessons → rules)
+| Killer from attempts 1–4 (MASTER_PLAN §1) | Rule that kills it |
+|---|---|
+| Scope before a working spine | Strict milestone order; M1→M2 critical path; cut line only on UI/report-builder extras |
+| Incoherent sample data | Corpus generated from `plan.json` with controlled noise and a coherence test; plants only via `plant_P##()` |
+| Contracts that diverged | One owner per fact (doc 00 §5); class-B rule: doc first, same session; schema/API/error parity tests at column/field/code level |
+| Unverifiable code | Tests from oracles **before** code; ≥3 mutation checks per item; `scripts/check.py` has no skip flags |
+| "Done" without evidence | Handover block with pasted test output; TASKBOARD `done` requires it; milestone audit session re-verifies ten items chosen by number |
+| (new, single-agent) Memory loss between sessions | Repository-as-memory: re-read spec per item; cite doc §; look, don't recall; TASKBOARD *Current position* |
+| (new, single-agent) Self-certification | Cold audit session per milestone (doc 34 §2) written as a stranger; owner spot-checks; second-seed audit dataset in M5 |
 
-## 5. Prompt hygiene
-Prompts are generated (`tools/generate_agent_packets.py`); improvements go into the generator + MASTER prompt, then regenerate + diff-review. Never hand-patch 200 prompt files. Each prompt carries: mission, ownership boundary, read-first list, frozen inputs, output contract, step-by-step build order, universal edge-case checklist, enumerated tests to write, self-check commands, forbidden actions, exact handover format.
+## 4. Commit & branch discipline
+- One work item = one commit `WI-####: <path> — done|blocked`. Doc fixes = separate commits `docs: <doc> §<n> — <what>`. Regenerated WORK_PLAN = its own commit `plan: regenerate (<reason>)`.
+- Never rewrite history. Never commit generated artefacts except `docs/WORK_PLAN.*` and `evidence/` reports.
+- The tree is green at every commit (`python -m pytest -q`, later `scripts/check.py`). A red commit is allowed only with `blocked` in its message and a TASKBOARD row explaining it.
 
-## 6. Merging 500 returns without chaos
-One packet = one branch/commit named `PKT-####`; merge order = dependency order inside the wave; integrator runs gates after each merge batch (≤ 20 packets); conflicts mean the disjointness rule was broken → both packets re-issued after integrator inspection. Generated files (OpenAPI snapshot, manifest) regenerated by integrator only.
+## 5. The TASKBOARD contract
+- Rows are keyed by WI id; order is WORK_PLAN order. A row is `done` only with the full handover block (`AGENT_PROMPT.md` §8).
+- `exists-unverified` marks files that pre-date the plan (the build-pause code); they are re-verified against their acceptance line before `done` — existing tests passing is not enough.
+- *Owner attention* lists: class-A OQs awaiting veto, class-C blocks, DECs pending acceptance. The owner clears a line by replying in the next session's instructions or editing doc 17.
+- *Current position* holds exactly one `in_progress` item (or none) with its next step.
 
-## 7. Anti-patterns (automatic re-assignment)
-Invented contracts · stub-as-done · weakened tests/bars · editing another packet's file · float money · mock-only paths · silent scope additions · claiming tests not run · copying code from prior attempt repos without provenance note (prior code may be *read* for lessons; reuse requires licence/provenance check per doc 12 §6 and a note in the handover).
+## 6. Context hygiene (the single most important discipline for one agent)
+Memory of a spec is not a spec. Before every item the builder re-reads the cited sections — even if it wrote the previous item against the same doc. Decisions live in docs/DECs, not in the builder's head: "I decided earlier" is not a citation. Long reasoning goes to `evidence/` notes, not to chat. When reality and plan disagree (file exists, path moved), the generator is fixed and the plan regenerated — never the plan hand-edited.
+
+## 7. Anti-patterns (each is an automatic defect, found by the audit session or the owner)
+Invented contracts · stub-as-done · weakened tests/bars · float money · mock-only paths · silent scope additions · claiming tests not run · copying code from prior attempt repos without provenance note and licence check (doc 12 §6) · hand-editing generated files · resolving a spec gap in code without an OQ/DEC · starting the next milestone with an open gate · a session that ends without updating TASKBOARD.

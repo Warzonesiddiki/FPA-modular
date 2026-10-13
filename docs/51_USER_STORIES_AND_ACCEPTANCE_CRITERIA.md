@@ -1,6 +1,6 @@
 # 51 — USER STORIES & ACCEPTANCE CRITERIA (Given-When-Then)
 
-> Tester agents test against these GWTs; FR references doc 19. Format per story: As a / I want / so that + GWT. (Representative-complete: every FR family has ≥2 stories; new FRs add stories here in the same PR.)
+> Tests and the UX tabletop (doc 34 stream E) run against these GWTs; FR references doc 19 (ids `FR-<FAM>-<nnn>`). Format per story: As a / I want / so that + GWT. (Representative-complete: every FR family has ≥2 stories; new FRs add stories here in the same PR.)
 
 **US-IMP-01 (P1 analyst)** import a month: Given a committed March and a saved D365 mapping, when I drop April's GL and click Commit, then the mapping is pre-applied, counts reconcile (in = valid + quarantined), and either the batch commits with TB status shown or I get the exact imbalance accounts. **US-IMP-02:** Given a file with 12 bad rows, when validation finishes, then I see 12 quarantined rows grouped by reason with a fix action each, and nothing else was loaded. **US-IMP-03:** Given I re-import a corrected file, when I commit, then row counts equal the new file and the old batch shows Superseded.
 **US-CAL-01:** Given a material adverse variance, when I click it, then I see vouchers, then rows, then the source file and row number. **US-CAL-02:** Given budget exists only at entity×account, when I open BvA, then grain is entity×account and the footnote says cost-centre was combined.

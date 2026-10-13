@@ -4,7 +4,7 @@
 
 ## 1. Global rules
 - **Five states per screen, all designed + tested:** loading (skeleton), empty (plain-language "nothing here yet + what to do"), error (ErrorBanner with code-free message + hint + Retry when retryable), success, partial (e.g., some rules not_run — shown, never hidden).
-- **Navigation:** left rail: Dashboard, Import, Statements, BvA, Exceptions, Forecast, Scenarios, Exports, Master Data, Settings, Audit, Help. Project + period picker pinned in header on every screen; period lock state always visible.
+- **Navigation:** left rail, grouped: *Monthly* — Dashboard (S01), Import (S03–S05), Statements (S06), BvA (S07), Exceptions (S08), Close (S16), Reconcile (S18); *Plan* — Forecast (S09), Scenarios (S10), Planning (S17); *Share* — Exports (S11); *Admin* — Master Data (S12), Settings (S13), Audit (S14), Alerts (S19, also the header bell), Help (S15). Project picker (S02) sits in the header. Project + period picker pinned in header on every screen; period lock state always visible.
 - **Numbers:** tabular numerals; negatives `(1,200)`; favourable/adverse shown with ▲▼ + the words "favourable/adverse" (P19); every aggregate that supports drill shows a drill affordance and opens DrillDrawer (voucher → row → source file/row).
 - **Copy:** sentences, not labels-of-jargon; "potential exception" never "error/fraud"; every empty/error state ends with the next action. Buttons are verbs ("Commit import", "Run checks", "Generate Excel pack").
 - **Confirmations:** destructive/irreversible actions (lock period, discard batch, delete project, supersede import) use ConfirmDialog naming the consequence; waivers require reason text (no one-click waive).
@@ -31,7 +31,7 @@
 | S15 | Help | Guided first-month-end walkthrough (checklist deep-linking to screens), searchable help topics mirroring doc 18, diagnostics bundle download (redacted, doc 12 §5) | — (static + logs) |
 
 ## 3. Components (ui/src/components)
-DataTable (sortable, filterable, paginated, keyboard-navigable), VarianceBadge, DrillDrawer, FileDrop, WizardSteps, FindingCard, PeriodPicker, ExportButton (job progress), EmptyState, ErrorBanner, ConfirmDialog, KpiCard. Each: typed props, 5-state usage, axe test + unit test (manifest packets).
+DataTable (sortable, filterable, paginated, keyboard-navigable), VarianceBadge, DrillDrawer, FileDrop, WizardSteps, FindingCard, PeriodPicker, ExportButton (job progress), EmptyState, ErrorBanner, ConfirmDialog, KpiCard. Each: typed props, 5-state usage, axe test + unit test (one WORK_PLAN item per component).
 
 ## 4. Jobs & feedback
 Long operations show JobToast (stage, %, cancel); completion states survive navigation (job registry in uiStore). Success feedback names the artefact ("Excel pack generated — Checks 9/9 passed") and offers the next step ("Open Exports").

@@ -4,7 +4,7 @@
 
 ## 1. Phase-3 scope (when built)
 Group reporting over entities: IC transaction tagging, IC matching/elimination (sales/purchases, loans/interest, dividends), NCI, goodwill placeholder, consolidated PL/BS/CF with elimination column, group currency (doc 50).
-## 2. v1 reservations (checklist for schema packet PKT for schema.sql)
+## 2. v1 reservations (checklist for the `app/store/schema.sql` work item)
 - gl_rows carries entity_id on every row (already) — never aggregate away entity in storage.
 - Accounts can be tagged `intercompany` + counterparty entity field reserved: `accounts.ic_counterparty_entity_id NULL` column EXISTS in v1 schema (unused in UI).
 - Vendors/customers masters can link to entities (`vendors.linked_entity_id NULL` reserved).

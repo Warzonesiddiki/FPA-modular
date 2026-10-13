@@ -1,15 +1,15 @@
 # 20 — REQUIREMENTS TRACEABILITY MATRIX
 
-> No orphan anything: every FR ↔ spec section ↔ screen ↔ API ↔ file packet ↔ test ↔ acceptance evidence. This matrix is regenerated/checked in Wave 6; a row with an empty cell blocks release (doc 14 §6).
+> No orphan anything: every FR ↔ spec section ↔ screen ↔ API ↔ work item ↔ test ↔ acceptance evidence. **Status:** family-level today; the FR-level matrix (one row per FR id of doc 19 → WI id → test) is M0 work item `docs/20_TRACEABILITY_MATRIX.md` in `docs/WORK_PLAN.md`, and `scripts/docs_check.py` regenerates/diffs it from M6. A row with an empty cell blocks release (doc 14 §6). FR id ranges per family: PRJ 001–007 · MDM 001–005 · IMP 001–015 · CAL 001–010 · CLO 001–006 · PLN 001–012 · EXC 001–011 · FOR 001–009 · REC 001–005 · RPT 001–010 · ALR 001–003 · AI 001–006 · GOV 001–009 · HLP 001–003 · PKG 001–003 (doc 19).
 
-| FR family | Spec | Screens | API (doc 05) | Packets (manifest layer) | Tests | Acceptance evidence |
+| FR family | Spec | Screens | API (doc 05) | Work items (WORK_PLAN layer / paths) | Tests | Acceptance evidence |
 |---|---|---|---|---|---|---|
 | FR-PRJ projects/periods | 19A, 23 | S01,S02,S13 | projects, periods lock | store/period_repo, api/routes_projects | test_period_repo, api projects | Month-end golden run |
 | FR-MDM master data | 19B, 28 | S12 | master/* | store/master_repo, ui S12 | test_master_repo | Import unknown-code flow |
-| FR-IMP import | 06, 19C | S03,S04,S05 | imports, mapping-profiles | imports/* (10 packets) | parser/mapping/validation/commit/TB | Malformed corpus expected.json |
+| FR-IMP import | 06, 19C | S03,S04,S05 | imports, mapping-profiles | imports/* | parser/mapping/validation/commit/TB | Malformed corpus expected.json |
 | FR-CAL statements/BvA/KPI | 03, 29 | S01,S06,S07 | statements, bva, kpi, drill, bridge | calc/* (5) | statements/kpis/bva/attribution/drilldown | Oracle fixtures pl/bs/cf_basic |
 | FR-CLO close mgmt | 30 | S01 (+S16 Close) | close/* (29 §API addendum) | services/close_service, ui S16 | test_close_service | Close checklist golden period |
-| FR-PLN planning | 29 | S09,S10,S17 Planning | planning/* (29) | planning/* (8 packets, §29.9) | headcount/capex/debt/wc/cash13 tests | Integrated forecast BS balances |
+| FR-PLN planning | 29 | S09,S10,S17 Planning | planning/* (29) | planning/* | headcount/capex/debt/wc/cash13 tests | Integrated forecast BS balances |
 | FR-EXC exceptions | 07 | S08,S01 | exceptions/* | rules/* (27) | test_exc_001…024 + engine | Acceptance gate §3 doc 14 |
 | FR-FOR forecast/scenario | 08, 29 | S09,S10 | forecast/*, scenarios | forecast/* (11) | fc_* + scenarios + sensitivity/goal-seek | Backtest oracle (08 §3) |
 | FR-REC reconciliations | 19I | S18 Reconcile | reconcile/* (19I) | imports/reconcile.py, ui S18 | test_reconcile | Recon fixture both-sides unmatched |
@@ -19,10 +19,10 @@
 | FR-GOV audit/security | 12, 22, 23 | S13,S14 | settings, audit | core/audit, api settings | audit chain, security suite | Tamper test |
 | FR-HLP help/diagnostics | 18 | S15 | — (static) | ui S15 | a11y + walkthrough test | Tabletop UAT (14 §7) |
 
-**Screens added by doc 19/29/30 (superseding doc 13 count):** S16 Close, S17 Planning, S18 Reconcile, S19 Alerts — doc 13's 5-state/copy/a11y rules apply unchanged; UI packets for S16–S19 are in the regenerated manifest. Total screens: 19.
+**Screens added by doc 19/29/30 (superseding doc 13 count):** S16 Close, S17 Planning, S18 Reconcile, S19 Alerts — doc 13's 5-state/copy/a11y rules apply unchanged; UI work items for S16–S19 are in `docs/WORK_PLAN.md` (M4). Total screens: 19.
 
 ## Expansion rows (docs 38–88, added in brutal-audit remediation 2026-10-14)
-| Area | Spec | Screens | API (doc 05 §4) | Packets | Tests | Evidence |
+| Area | Spec | Screens | API (doc 05 §4) | Work items | Tests | Evidence |
 |---|---|---|---|---|---|---|
 | Adjustments | 39, 02 §6 | S06/S07 (layer selector) | adjustments, statements?layer | app/adjustments/engine, routes_adjustments | test_adjustments | layer drill in cross-artifact |
 | Allocations | 40 | S17 | allocations | planning/allocations, routes_allocations | test_allocations | doc 40 oracle |
@@ -33,9 +33,9 @@
 | AI prompts | 88, 11, 75 | S07/S11 | commentary | ai/prompts implements doc 88 texts verbatim | ai golden set | ai_eval artefacts |
 
 ## Detail supplements (docs 88–91)
-| Area | Spec | Packets/evidence |
+| Area | Spec | Work items / evidence |
 |---|---|---|
-| AI prompt texts + golden set | 88 | ai/prompts packet implements verbatim; ai_eval evidence |
-| Fixtures & oracles | 89 | tests/fixtures packets per catalog; fixture README gate |
-| API field-level schemas | 90 | route contract tests; OpenAPI diff (Wave 6) |
-| Packet dependencies | 91 + DEPENDENCY_GRAPH | integrator dispatch record in TASKBOARD |
+| AI prompt texts + golden set | 88 | `app/ai/prompts.py` implements verbatim; ai_eval evidence |
+| Fixtures & oracles | 89 | tests/fixtures items per catalog; fixture README gate |
+| API field-level schemas | 90 | route contract tests; OpenAPI diff (M3 onward, gate M6) |
+| Build order & dependencies | 91 + `docs/WORK_PLAN.csv` (`depends_on`) | TASKBOARD status per WI |

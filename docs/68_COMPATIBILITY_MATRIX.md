@@ -1,6 +1,6 @@
 # 68 — COMPATIBILITY MATRIX (tested combinations; anything unlisted = untested, stated in Help)
 
-| Dimension | Supported (tested in Wave 6 / CI where automatable) |
+| Dimension | Supported (tested in M6 / CI where automatable) |
 |---|---|
 | OS | Windows 11 23H2+ (x64); Windows 10 22H2 best-effort (labelled) |
 | Excel (open generated .xlsx) | Microsoft 365 Excel, Excel 2019/2021, LibreOffice 7.6+ (formulas re-perform, AUD-I) |

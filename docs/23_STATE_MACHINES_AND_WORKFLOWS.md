@@ -6,7 +6,7 @@
 Enter `closing` when analyst starts close checklist (S16); `locked` via lock action (FR-PRJ-003 guards). Imports into `locked` rejected; into `closing` allowed with banner.
 
 ## 2. Import batch: `staged → validated → committed | rejected | superseded`
-`staged` on upload; `validated` after validation run (quarantine may be non-empty); `committed` only via atomic commit passing control totals; `rejected` = analyst discard (staging removed, audit kept); `superseded` when same (file-hash, period, kind) recommitted. Crash in commit → stays `validated` (never half-committed).
+`staged` on upload; `validated` after the validation stage completes with no blocking issue (quarantine may be non-empty; ERR-022/023 keep the batch `staged`); `committed` only via atomic commit passing control totals and the TB gate (doc 06 §2 steps 6–8); `rejected` = analyst discard (staging removed, audit kept); `superseded` when the same (file-hash, period, kind) is recommitted. Crash in commit → stays `validated` (never half-committed; doc 06 §2 step 7). Re-validation after a mapping change returns the batch to `staged` first. Only `staged`/`validated` batches can be discarded; `committed` batches can only be superseded.
 
 ## 3. Finding: `new → acknowledged → explained → corrected → verified → closed`; `waived` from any non-closed state
 Guards: corrected needs reference note (re-import batch/journal); verified needs a re-run where the finding no longer fires OR evidence-accept note; waived needs reason + expiry ≤90d → auto-returns to `new` on expiry (job on app open + on rule run). Re-firing of a closed finding (same key, later run) reopens as `new` with history preserved.

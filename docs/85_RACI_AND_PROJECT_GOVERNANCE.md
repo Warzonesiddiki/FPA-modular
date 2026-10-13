@@ -1,13 +1,20 @@
-# 85 — RACI & PROJECT GOVERNANCE
+# 85 — RACI & PROJECT GOVERNANCE (single-builder model, DEC-007)
 
-Roles: **Owner** (product owner — approves docs, DEC, releases, cuts), **Integrator** (waves, taskboard, gates, merges), **Creator agents**, **Tester agents**, **Auditor agents**, **Support** (post-release, doc 35).
-| Decision/artefact | Owner | Integrator | Creator | Tester | Auditor |
-|---|---|---|---|---|---|
-| Doc set approval / scope change (DEC) | **A** | R | C | C | I |
-| Packet issue/re-issue, wave open/close | A(cut only) | **R/A** | I | C | I |
-| Code file (own packet) | I | C | **R** | A(sign) | I |
-| Test verdict | I | C | I | **R/A** | C |
-| Gate bar change (14/36) | **A** | R | — | C | C |
-| Release go/no-go (16 §4) | **A** | R | — | C | C |
-| Defect severity S1 stop-line | I | **R/A** | C | C | C |
-Escalation: creator→integrator (BLOCKED, same day) → owner (scope/contract decisions, batched weekly except S1). Governance cadence: wave reviews at each gate; DEC log (17 §4) is the only decision record that counts ("we agreed in chat" is not a decision until it's a DEC).
+Roles: **Owner** (product owner — approves docs, DECs, gate changes, releases, cuts; spot-checks any item), **Builder** (the one agent: plans nothing new, executes `docs/WORK_PLAN.md` under `AGENT_PROMPT.md`, verifies its own work procedurally, runs the milestone audit sessions, keeps `TASKBOARD.md`), **Support** (post-release, doc 35). There is no integrator, creator pool, tester pool or auditor pool; their duties are folded into the Builder's protocol (docs 33, 34) and the Owner's spot-checks.
+
+| Decision / artefact | Owner | Builder |
+|---|---|---|
+| Doc set approval, scope change, phase gate (DEC) | **A** | R (drafts the DEC with rationale and default) |
+| Class-A open question (design choice with a labelled default) | A (may veto; silence = default stands at the milestone gate) | **R** (records OQ, proceeds on default) |
+| Class-B spec fix (omission/contradiction) | I (reads CHANGELOG/DEC) | **R/A** (doc first, then code) |
+| Class-C block (impossible/unsafe as specified) | **A** (decides) | R (evidence in TASKBOARD, moves on) |
+| Work item implementation + paired test + handover | I | **R/A** |
+| Self-verification (mutations, scope diff, spec checks) | I (spot-checks) | **R/A** |
+| Milestone audit session + gate closure | **A** (may reopen) | R |
+| Acceptance bar / gate / threshold change (docs 14, 36, 42) | **A** (DEC required) | R (proposes with recomputation) |
+| Release go/no-go (doc 16 §4) | **A** | R (evidence pack) |
+| P0 defect stop-line | I (informed same session) | **R/A** (stops the item, fixes or blocks) |
+
+**Escalation:** Builder → TASKBOARD *Owner attention* (batched) → Owner reply in the next session's instructions or by editing doc 17. Immediate interruption only for class-C on the critical path, security holes, data-loss risk, or any temptation to weaken a gate (`AGENT_PROMPT.md` §9).
+
+**Cadence:** gate review at each milestone (doc 86 §1) using `evidence/audits/M<n>_audit.md`; the DEC log (doc 17 §4) is the only decision record that counts — "we agreed in chat" is not a decision until it is a DEC.

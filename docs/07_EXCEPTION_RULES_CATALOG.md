@@ -5,7 +5,7 @@
 ## 1. Common contract (all rules)
 - Pure function `(gl_rows, budget_lines?, params, context) -> Finding[]`. Deterministic; Decimal/integer only; no I/O, no clock (run date injected).
 - Params from settings `rule.EXC-###.*` with the defaults below; every param change is versioned + audited, and the run records the param snapshot in evidence.
-- Severity: `high|medium|low` per rule default; **amount escalation (all rules): a finding whose amount ≥ 3× the rule's absolute threshold is High** (this is what makes doc 42's P14/P20/P21 high-severity).
+- Severity: `high|medium|low` per rule default; **amount escalation (all rules): a finding whose amount ≥ 3× the rule's absolute threshold is High; for AND-test rules (EXC-013, EXC-018) escalation requires ≥ 3× on *both* legs** (this is what makes doc 42's P12/P14/P17/P20/P21 High and keeps P30 Medium).
 - Finding evidence_json always contains: triggering row ids, computed values, thresholds used, and the grain key parts — enough for a stranger to re-derive the finding by hand (audit standard).
 - A rule that cannot run (missing budget, missing PY) returns `not_run: reason`, shown on S08 — silent skips are defects.
 
@@ -34,7 +34,7 @@ Defaults: material_abs ₹100,000 (`10000000` minor), material_pct 5%, spike_pct
 | EXC-015 | Missing recurring charge (`vendor|account`) | Vendor+account active in ≥5 of prior 6 periods (median amount ±30%) absent this period | Medium |
 | EXC-016 | Accrual pattern break (`account`) | Monthly accrual in ≥5 of prior 6 periods absent or < 50% of median this period | Medium |
 | EXC-017 | Material unbudgeted spend (`account`) | Actual ≥ material_abs where budget = 0/absent for the grain | Medium |
-| EXC-018 | Material BvA variance (`account`) | AND-test: |Var| ≥ material_abs AND |Var%| ≥ material_pct (doc 03 §5) | Medium→High if ≥ 3× thresholds |
+| EXC-018 | Material BvA variance (`account`) | AND-test: |Var| ≥ material_abs AND |Var%| ≥ material_pct (doc 03 §5) | Medium→High if ≥ 3× both thresholds |
 | EXC-019 | Cumulative overrun trend (`account`) | YTD actual > YTD budget by ≥ material_abs and overrun grew in each of last 3 periods | Medium |
 | EXC-020 | Round-amount clustering (`account`) | ≥ 5 vouchers in period with amounts exact multiples of round_amount totalling ≥ spike_abs, share of account vouchers ≥ 30% | Low |
 | EXC-021 | Threshold splitting (`vendor`) | ≥ 3 vouchers, same vendor+entity within 7 days, each < approval_limit, Σ ≥ approval_limit × 1.5 | High |
@@ -43,11 +43,11 @@ Defaults: material_abs ₹100,000 (`10000000` minor), material_pct 5%, spike_pct
 | EXC-024 | Dormant/new account activity (`account`) | Account inactive ≥ 6 periods (or created this period) with period total ≥ material_abs | Low |
 
 ## 4. Worked sample + control case (every rule; two shown, pattern mandatory for all 24 in fixtures)
-- **EXC-018 sample:** Budget ₹1,000,000, Actual ₹1,200,000 → Var 200,000 (20%) → fires, key `EXC-018|IN01|5100|2026-P01|5100`. **Control:** Actual ₹900,000 vs Budget ₹880,000 → +2.27% → pct leg fails AND → does **not** fire (this exact control failed in attempt #4; it is acceptance plant P30).
-- **EXC-004 sample:** Voucher V1 lines +100,000.00, −99,999.99 → imbalance ₹0.01 beyond 0 tolerance → fires with both row ids in evidence. **Control:** +100,000.00/−100,000.00 → silent.
+- **EXC-018 sample:** Budget ₹1,000,000, Actual ₹1,200,000 → Var +200,000 (+20%) → both legs pass → fires, key `EXC-018|IN01|5100|2025-P01|5100`. **Controls (both required, because a control where both legs fail cannot tell an AND from an OR — the attempt-#4 bug was an OR):** (a) Budget ₹10,000,000, Actual ₹10,150,000 → +150,000 passes abs, +1.5% fails pct → does **not** fire; (b) Budget ₹200,000, Actual ₹260,000 → +60,000 fails abs, +30% passes pct → does **not** fire. (Corpus controls C02/C09, doc 42 §8.) **Escalation boundary:** Budget ₹1,000,000, Actual ₹1,150,000 → +150,000 (1.5× abs) / +15% (3× pct) → fires **Medium**, because escalation to High requires ≥3× on *both* legs (plant P30).
+- **EXC-004 sample:** Voucher V1 lines +100,000.00, −99,999.99 → imbalance ₹0.01 beyond 0 tolerance → fires with both row ids in evidence. **Control:** +100,000.00/−100,000.00 → silent (C01).
 
 ## 5. Lifecycle & ownership (implemented in rules/workflow.py)
 new → acknowledged → explained → corrected (requires linked re-import batch or journal reference in note) → verified (by analyst, after re-run no longer fires or evidence accepted) → closed. `waived` from any state: reason + expiry ≤ 90 days mandatory; expired waivers resurface. Owner resolution: account_owners → vendor owner fallback → "Unassigned" queue on S01/S08 (never ownerless-invisible). Due dates: high 3 days, medium 7, low next period-end (settings). Every transition → finding_history + audit_log.
 
 ## 6. Acceptance linkage
-Planted corpus (sample-data): 32 plants + 8 controls mapped to rules above; bars in doc 14 §3. Each rule's packet test includes its §4-style sample (fires once, exact key) and control (silent) before any integration run is trusted.
+Planted corpus (doc 42 §7–§8): 32 plants (18 High) + 10 controls mapped to the rules above; bars in doc 14 §3. Each rule's work item test includes its §4-style sample (fires once, exact key) and control (silent) before any integration run is trusted.

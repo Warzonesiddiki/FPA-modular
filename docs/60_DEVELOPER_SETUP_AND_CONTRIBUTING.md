@@ -11,6 +11,6 @@ python scripts/check.py        # baseline must be green before you change anythi
 python -m app.cli run-month-end --sample   # golden run on sample project
 ```
 ## Daily flow
-Branch `PKT-####-<slug>` (agents) / `feat-<slug>` (humans) → spec-first if behaviour changes (doc 17 §6) → tests → `scripts/check.py` → PR with template (87): packet/FR ids, spec sections, tests+output, evidence. Reviews: one tester verdict (human or tester agent, doc 34). Main protected: check + acceptance green, no direct pushes.
+Commit `WI-####: <path>` (the builder) / branch `feat-<slug>` (humans) → spec-first if behaviour changes (doc 17 §6) → tests → `scripts/check.py` → PR with template (87): WI/FR ids, spec sections, tests+output, evidence. Reviews: the self-verification block (doc 34 §1) for the builder; one human reviewer for humans. Main protected: check + acceptance green, no direct pushes.
 ## Repo hygiene
-No real financial data in repo, ever (78). No binaries except installer artefacts in releases. Generated files (manifest, OpenAPI snapshot) changed only via their generators. Scratch work in `scratch/` (gitignored).
+No real financial data in repo, ever (78). No binaries except installer artefacts in releases. Generated files (`docs/WORK_PLAN.*`, OpenAPI snapshot) changed only via their generators. Scratch work in `scratch/` (gitignored).

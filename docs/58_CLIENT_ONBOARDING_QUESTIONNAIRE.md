@@ -22,4 +22,4 @@ F1 Materiality for management reporting (₹ and %)? (₹100k + 5%) · F2 Approv
 G1 Whose laptop, encrypted drive? (doc 18 guidance) · G2 Backup habit today? · G3 AI: allowed at all? Which provider if any (doc 11 consent facts)? Default: off. · G4 Any data that must never leave the machine even as aggregates? (default posture already: nothing leaves except optional AI aggregates)
 ### H. Pilot success (doc 83)
 H1 The one number that proves the pilot (default: close cycle days −40% by close 3)? H2 Who is the CFO sponsor and the analyst operator (names)? H3 Parallel-run month preference (which month)? 
-**Output of this questionnaire:** completed answers → project settings (doc 62), master data, mapping profiles, and a DEC entry recording every non-default (integrator completes within 2 working days of receipt).
+**Output of this questionnaire:** completed answers → project settings (doc 62), master data, mapping profiles, and a DEC entry recording every non-default (support completes within 2 working days of receipt).

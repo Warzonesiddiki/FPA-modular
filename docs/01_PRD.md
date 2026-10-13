@@ -1,6 +1,6 @@
 # 01 — PRODUCT REQUIREMENTS DOCUMENT (PRD)
 
-> Status: Wave-0 spec v1.0 · Owner of: what/why/scope · Behaviour lives in docs 02–13 as numbered requirements · Numbers that gate releases live in doc 14 · Conflicts: this doc wins on scope, doc 03/07/08 win on formulas, doc 02 wins on fields.
+> Status: Phase-0 spec v1.1 (pass-3 audit applied) · Owner of: what/why/scope · Behaviour lives in docs 02–13 as numbered requirements · Numbers that gate releases live in doc 14 · Conflicts: this doc wins on scope, doc 03/07/08 win on formulas, doc 02 wins on fields.
 
 ## 1. Product in one paragraph
 FP&A Month-End Copilot is a local, offline, single-user Windows desktop app for a mid-size company's finance team. The analyst drops in the month's ERP exports (GL, budget, sub-ledgers as CSV/XLSX); the app validates and balances them, compares actuals vs budget/prior-year at the lowest shared grain, flags *potential* exceptions for human review with an accountable owner each, refreshes the rolling forecast with deterministic backtested methods, and generates the board Excel pack and PowerPoint deck — every figure drillable to the source transaction and the exact file and row it came from. It never writes back to the ERP, needs no internet, and stores everything in one local project folder.
@@ -9,7 +9,7 @@ FP&A Month-End Copilot is a local, offline, single-user Windows desktop app for 
 | # | Today (manual) | Pain | Product answer (FR) |
 |---|---|---|---|
 | 1 | Download/merge ERP exports monthly | Format drift, silent row loss | FR-IMP-* (doc 06): profiling, versioned mapping profiles, quarantine-with-reasons, control totals |
-| 2 | Hand-build trial balance & check balance | Hours; errors found late | FR-IMP-09 TB gate before any analysis unlocks |
+| 2 | Hand-build trial balance & check balance | Hours; errors found late | FR-IMP-010 TB gate before any analysis unlocks |
 | 3 | BvA in pivots, filter-sort to transactions | Not repeatable; no drill standard | FR-CAL-* (doc 03): BvA at lowest shared grain, 1-click drill to voucher/row |
 | 4 | Ad-hoc anomaly hunting, email owners | No tracking, no audit trail | FR-EXC-* (doc 07): 24-rule catalog, owner inbox, lifecycle, audit |
 | 5 | Rebuild forecast in spreadsheets | No backtest, versions overwritten | FR-FOR-* (doc 08): methods + MAPE backtest, immutable versions, rolling rhythm |
