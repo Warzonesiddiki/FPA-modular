@@ -11,14 +11,16 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **DEC-014** (auto): M0 bootstrap checker is now WI-0008; full release checker retained in M6 as WI-0260. Doc 86 §1.1 defines both scopes; product code remains frozen. All later ids shifted by one; statuses preserved by path. Gate wording reconciled, no gate weakened or closed. Evidence: `evidence/session_start_2026-10-13.md`.
 
+- **DEC-015** (auto): API error transport now covers all 73 codes; locked connector pull corrected to ERR-027/423 (docs 05 §1.1, 23 §11, 26 §8.4). WI-0001 remains in progress; remaining endpoint/job/auth/schema defects and reproducible partial checks: `evidence/WI-0001_api_contract_review.md`. No implementation or gate pass claimed.
+
 ## Current position
-- Milestone: **M0** (gate open) · In progress: — · Last session: 2026-10-13 UTC; baseline `6cc5776`, 9 tests pass. Three housekeeping changes prepared, including DEC-014; plan **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10. No WI done. Next: WI-0001 `docs/05_API_CONTRACT.md`.
+- Milestone: **M0** (gate open) · In progress: **WI-0001** · Last session: 2026-10-13 UTC; baseline `6cc5776`, 9 tests pass. Three housekeeping commits completed, including DEC-014; plan **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10. No WI done; WI-0001 error/lock sub-scope verified, remaining endpoint/job/schema/auth expansion recorded in its evidence §4. Resume WI-0001 `docs/05_API_CONTRACT.md`.
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | exists-unverified |  |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-015 error/lock sub-scope verified; full endpoint/job/auth rewrite remains. See handover and evidence. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -292,3 +294,23 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 - `python tools/generate_work_plan.py` → **267 items; M0=8 M1=53 M2=75 M3=44 M4=51 M5=26 M6=10**. Inline assertions → **267/267 ledger identities, 266/266 inherited statuses preserved, 7/7 gate strings identical, 2/2 regenerated files byte-identical**; CSV LF-only after correcting the generator's CRLF default.
 - Dependency mutation probes: unresolved path → `resolve_deps` failure; cycle → `check_graph` failure; M0→M6 dependency → `check_graph` failure. All three caught, isolated fixtures only.
 - Final `python -m pytest -q` → **9 passed in 0.10s**; `git diff --check` → exit 0. Details/limits: `evidence/session_start_2026-10-13.md`. No milestone gate claimed clean.
+
+## WI-0001 handover — partial, 2026-10-13 UTC
+
+WI-0001  `docs/05_API_CONTRACT.md`
+STATUS: in_progress
+CONTRACT:
+- Expand every method/path with auth, request/response field constraints, statuses/error details, pagination, idempotency and complete examples (WORK_PLAN WI-0001; docs 05/90/63).
+- Money at the public boundary is major-unit decimal strings; storage remains integer minor units (docs 05 introduction, 02 §1, 90). No product arithmetic in this WI.
+- Exhaustive doc-22 error transport; project ownership before state disclosure; connector stage/commit uses the file pipeline's lock guard (docs 05 §1.1, 23 §11, 26 §8.4, DEC-015).
+- Every async operation needs a typed terminal result, incl. connector-pull/check-changes (docs 05/64/90). Full catalogue still unfinished.
+TESTS RUN:
+- Partial doc assertions: `python -c 'from pathlib import Path; exec(Path("evidence/WI-0001_api_contract_review.md").read_text().split("```python\n", 1)[1].split("\n```", 1)[0])'` → **73/73 codes exactly once, 45/45 old statuses retained; lock guard agrees across 05/23/26; JSON example parses; 3/3 mutation probes caught**. Executed twice, identical output. This is not an API runtime test or full docs-gate pass.
+- `python -m pytest -q` → **9 passed in 0.12s**; `git diff --check` → exit 0. `scripts/check.py` and docs checker do not exist; not run. Paired test is “none” in the WI; reproducible doc assertions are in the evidence instead.
+MUTATIONS: remove ERR-118 → code-set mismatch; duplicate ERR-030 → duplicate mapping; revert doc-23 locked connector guard to ERR-030 → lock-code drift. Isolated text copies, no un-restored repository mutation.
+EDGES: locked period PASS (doc conformance only); duplicate/missing error definitions PASS (mutation checks); deterministic repeat PASS. Monetary zero/negative/denominator/exponent cases, empty/single/250k financial rows, missing optional data, locked versions, superseded batches, expired waivers, hostile financial text, ambiguous dates/amounts, month-2 reuse: N/A to error-transport-only sub-scope, **still to be covered by full WI contract/examples**; no runtime coverage claimed.
+SPEC CHECKS: doc 22 §2 code-set equality 73/73; docs 22 ERR-027/030 and 26 §8.4 lock preflight agree; doc 05 §1.1 preserves all 45 prior statuses and distinguishes job polling from business success. The public-money rule is stated, but remaining legacy payload violations are enumerated in evidence §4, not claimed fixed.
+FILES TOUCHED: docs/05, docs/17, docs/23, docs/26, docs/90, docs/CHANGELOG, TASKBOARD, evidence/WI-0001_api_contract_review.md.
+DEVIATIONS: DEC-015 resolves missing mappings and wrong connector-lock error in owning docs before implementation. No product code or new error code. Completion requires the remaining work below, so no WI done commit yet (this sub-scope is a docs-fix commit).
+DECISIONS TAKEN: DEC-015 (auto) · OWNER-ONLY ITEMS: no new items; existing Entra app registration (doc 18 §8) needed only before a real tenant pull, not this WI.
+NEXT: continue WI-0001 using evidence §4: expand method/path inventory; resolve callback auth/base path/project scope; reconcile all job kinds/results with doc 64; converge doc 90 fields and complete doc 63 examples; cover per-endpoint errors/pagination/idempotency and money strings. **Do not start WI-0002 or WI-0008 yet.** M0 gate open (0/8 done, 1 in progress).

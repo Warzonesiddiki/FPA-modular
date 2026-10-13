@@ -3,7 +3,7 @@
 > Every field: name, type, required, constraints, example. Money = decimal string (major units), dates ISO, ids per doc 02. Unknown fields in requests are rejected (400 → `FP&A-ERR-002` with `details.unknown_fields`) — silent ignoring hides UI bugs.
 
 ## Common
-`Page<T>{items: T[], next_cursor: string|null}` · `Job{job_id, status, progress_pct: number|null, stage: string, error: ErrorBody|null, result?: object}` · `ErrorBody{code,message,hint,retryable,details}` (doc 22).
+`Page<T>{items: T[], next_cursor: string|null}` · `Job{job_id, status, progress_pct: number|null, stage: string, error: ErrorBody|null, result?: object}` · `ErrorBody{code,message,hint,retryable,details}` (doc 22; exhaustive synchronous HTTP mapping and job-only ERR-004 in doc 05 §1.1). Money in `details` is a decimal string in major units, never a JSON number.
 
 ## Projects
 `ProjectCreate{name: string 1..80, base_currency: ISO4217, fy_start_month: 1..12, calendar_type: "monthly"}` → `Project{project_id, name, base_currency, currency_exponent (derived, doc 27), fy_start_month, calendar_type, is_sample, periods: Period[]}` · `Period{period_id, fiscal_year, period_no, start_date, end_date, status}`.

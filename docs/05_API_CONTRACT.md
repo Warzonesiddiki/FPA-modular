@@ -3,7 +3,40 @@
 > Owner of: every HTTP endpoint between UI/CLI and engine (field-level payloads: doc 90; both are normative). Routes implement this 1:1 (parity test, doc 14). Base: `http://127.0.0.1:<port>/api/v1`. All money in JSON = string decimal in major units (`"125000.50"`) at the boundary, converted via money.py — never JSON numbers for money. Dates ISO. Errors: `{code:"FP&A-ERR-###", message:<plain language>, hint:<next action>, retryable:bool, details:{}}` (catalogue in `app/core/errors.py`, doc 15).
 
 ## 1. Conventions
-**HTTP status codes (fixed mapping, tested per endpoint):** `200` success · `201` created (POST that creates a resource) · `202` job accepted (`{job_id}`) · `400` ERR-002/005/022/025/026/104/108/109 (request invalid) · `404` ERR-001 · `409` ERR-003/010/016/028/040/050/100/103/107 (state or uniqueness conflict) · `413` ERR-021 · `415` ERR-020 · `422` ERR-011/023/024/041/042/043/045/051/060/080/081/082/083/084/101/102/105/106 (business rule blocked the action) · `423` ERR-027/063 (locked) · `429` never (single user) · `500` ERR-099 · `503` ERR-070/072/092/093 (dependency unavailable, retryable). Every error body carries the doc 22 shape regardless of status.
+### 1.1 HTTP outcomes and error transport (DEC-015)
+Success: `200` synchronous read/action; `201` resource created; `202` asynchronous job accepted (`{job_id}`); `204` successful action with no body **only when the endpoint explicitly specifies it**. An accepted job is not a successful business result. `GET /jobs/{id}` returns `200` for every retained job, including `failed` and `cancelled`; its `error` carries the same catalogue body as a synchronous failure. An unknown/foreign job id is `404` / ERR-001. Cancellation is not HTTP status 499 and a provider throttle is not forwarded as local status 429.
+
+The table is exhaustive for the **73 codes in doc 22 §2**, with each code in exactly one row. It applies when a failure is returned synchronously; after `202`, use the job's terminal state/error instead. Error bodies always use the public code prefix `FP&A-` (for example `FP&A-ERR-027`) and the shape `{code, message, hint, retryable, details}` from doc 22; retryability comes from that catalogue, not from the HTTP status. `details` may contain money **only as decimal strings in major units** via money.py, never JSON numbers/minor-unit integers. Per-endpoint detail schemas remain required by WI-0001; this table alone does not complete that item.
+
+| HTTP status / transport | Catalogue codes | Meaning |
+|---|---|---|
+| 400 | ERR-002, ERR-005, ERR-013, ERR-015, ERR-022, ERR-025, ERR-026, ERR-031, ERR-032, ERR-085, ERR-104, ERR-108, ERR-109, ERR-111, ERR-113 | Invalid request, selector, confirmation, OAuth callback/sign-in input, or disallowed connector transport. ERR-111 does not represent local API-token authentication. |
+| 403 | ERR-117 | The signed-in Microsoft identity cannot read the selected company; this does not describe local API-token authentication. |
+| 404 | ERR-001 | Requested resource missing or outside the current project. |
+| 409 | ERR-003, ERR-010, ERR-016, ERR-028, ERR-040, ERR-050, ERR-052, ERR-061, ERR-100, ERR-103, ERR-107, ERR-110, ERR-112, ERR-118 | Resource state, uniqueness, referenced-record, connection state or concurrent-ledger-change conflict. |
+| 413 | ERR-021, ERR-073, ERR-116 | File/row/payload volume cap exceeded. |
+| 415 | ERR-020 | Unsupported file type. |
+| 422 | ERR-011, ERR-014, ERR-023, ERR-024, ERR-029, ERR-030, ERR-041, ERR-042, ERR-043, ERR-044, ERR-045, ERR-046, ERR-051, ERR-060, ERR-062, ERR-071, ERR-080, ERR-081, ERR-082, ERR-083, ERR-084, ERR-090, ERR-101, ERR-102, ERR-105, ERR-106, ERR-114 | Validly shaped request blocked by a business, integrity or safety check. |
+| 423 | ERR-027, ERR-063 | Import target period locked, or exports locked by licence state. Connector staging uses ERR-027 just like a file import. |
+| 500 | ERR-091, ERR-099 | Migration or unexpected internal failure (no raw exception/secret in the response). |
+| 503 | ERR-012, ERR-070, ERR-072, ERR-092, ERR-093, ERR-115 | Required local/remote resource unavailable; connector retries exhausted are ERR-115, not local 429. |
+| Job error only | ERR-004 | Terminal `cancelled` job, returned inside a `200` job poll. The cancel action itself acknowledges the request; it does not manufacture a failed HTTP response. |
+
+Example, a locked connector pull rejected before any job or network request:
+```http
+POST /api/v1/projects/prj_9f2c41aa07e1/connector/pull
+Content-Type: application/json
+X-FPA-Token: <per-launch token>
+
+{"period_id":"2025-P07","sources":["gl"]}
+```
+```json
+{"code":"FP&A-ERR-027","message":"Period 2025-P07 is locked, so nothing can be imported into it.","hint":"Unlock the period (with a note) or choose another period","retryable":false,"details":{"period_id":"2025-P07"}}
+```
+HTTP `423`; no job, pull, batch or snapshot created. A missing GL after a read request is instead `422` / ERR-030. All resource ownership checks precede business checks so a foreign id yields ERR-001, not information about another project's locks.
+
+### 1.2 Existing shared conventions (endpoint expansion in progress)
+
 **Paths:** every route below is relative to the base URL; routes written without `/projects/{id}` (e.g. `/imports/{batch_id}`) are project-scoped through the resource id (the batch belongs to one project) — the server verifies ownership and answers ERR-001 for a foreign id.
 **Job results:** `GET /jobs/{id}` → `{status, progress_pct, stage, error?, result?}` where `result` on `done` is the same body the synchronous form would return (import commit → `{committed counts, tb_status}`; rules → `{run_id, findings_new, findings_reopened, not_run: [{rule_id, reason}]}`; forecast → run; export → report). Jobs are kept 7 days; a job list `GET /projects/{id}/jobs?limit&cursor` exists for the S01 job tray.
 Pagination: `?limit=100&cursor=` (default 100, max 1000) on list endpoints; response `{items:[], next_cursor}`. Long jobs (import commit, rules, forecast, export): `POST` returns `202 {job_id}`; `GET /jobs/{id}` → `{status:queued|running|done|failed|cancelled, progress_pct, stage, error?}`; `POST /jobs/{id}/cancel` → 200. Idempotency: import commit and export accept `Idempotency-Key` header; replay returns original result. Versioning: breaking change = `/api/v2` + doc update first (P2).
@@ -41,7 +74,7 @@ Pagination: `?limit=100&cursor=` (default 100, max 1000) on list endpoints; resp
 | POST `/projects/{id}/connector/test` | token (silent) → companies list → entity check against the active profile → `{companies[], entity_check: {ok, missing[]: {source, entity, field?}, candidates[]}}` | ERR-110, ERR-112, ERR-113, ERR-114, ERR-117 |
 | GET `/projects/{id}/connector/companies` | legal entities (F&O `LegalEntities`) / BC `companies` the signed-in identity can read | ERR-112, ERR-117 |
 | GET/PUT `/projects/{id}/connector/profile` | active connector profile JSON (PUT creates a new version and re-runs the entity check) | ERR-002, ERR-114 |
-| POST `/projects/{id}/connector/pull` `{period_id, sources: [gl\|ap\|tb\|budget\|masters], company?}` | → job `connector-pull` (doc 64); result `{pull_id, status: staged\|no_change, snapshot_sha256, batches[]: {batch_id, source_kind, rows_in, quarantined}, row_counts}`; batches are staged+validated, **not** committed (unless `connector.auto_commit_when_clean`) | ERR-110, ERR-112, ERR-113, ERR-114, ERR-115, ERR-116, ERR-117, ERR-118; ERR-030 period locked |
+| POST `/projects/{id}/connector/pull` `{period_id, sources: [gl\|ap\|tb\|budget\|masters], company?}` | → job `connector-pull` (doc 64); result `{pull_id, status: staged\|no_change, snapshot_sha256, batches[]: {batch_id, source_kind, rows_in, quarantined}, row_counts}`; batches are staged+validated, **not** committed (unless `connector.auto_commit_when_clean`) | ERR-110, ERR-112, ERR-113, ERR-114, ERR-115, ERR-116, ERR-117, ERR-118; ERR-027 period locked |
 | POST `/projects/{id}/connector/check-changes` `{period_id}` | BC: `$count` with `lastModifiedDateTime gt <last pull>` → `{changed_rows, last_pull_at}`; F&O without a watermark field → `{changed_rows: null}` (UI says "pull to check") | ERR-110, ERR-112, ERR-115 |
 | GET `/projects/{id}/connector/pulls?limit&cursor` | pull history (`connector_pulls`) | |
 | POST `/projects/{id}/connector/disconnect` | removes the keyring entries + MSAL cache, sets state `disconnected`, keeps settings and history, audits | |

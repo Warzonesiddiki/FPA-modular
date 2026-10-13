@@ -96,6 +96,7 @@ A **connector profile** (`app/connectors/profiles/<kind>.json`, copied per proje
 | masters | `companies` · `accounts` (`number`, `displayName`, `category`, `accountType`) · `vendors` (`number`, `displayName`) · `dimensions` / `dimensionValues` | → `source_kind=masters` | optional |
 
 ### 8.4 Pull protocol (job `connector-pull`, doc 64; service `services/connector_service.py`)
+0. **Local preflight:** resolve project/period ownership (ERR-001), then reject a locked target period with ERR-027 before creating a job, pull, snapshot or batch and before any network request. A connector snapshot is an import, so it uses the same lock guard as a file.
 1. **Token:** silent refresh from the keyring cache; interactive sign-in only when the user clicks *Sign in*; refresh failure → ERR-112 (the UI offers *Sign in again*; nothing else changes).
 2. **Entity check** (cached per app session): ERR-114 lists missing entities/fields; the pull does not start.
 3. **Count:** `$count` with the period filter; count > `import.max_rows` (1,000,000) → ERR-116 ("split the period or use the file export").
