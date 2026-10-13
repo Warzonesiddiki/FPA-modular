@@ -303,7 +303,7 @@ UNIVERSAL = """## How to use this plan (the sole agent reads this once per sessi
 Zero amounts / zero denominators · negative amounts and credit-normal accounts · empty input · single row · duplicate input · 250k-row posture · missing optional data (rule → not_run, export → labelled, UI → empty state) · locked period / locked version · superseded batch · expired waiver · hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description) · ambiguous dates/amounts · currency minor-unit exponent 0/2/3 · month-2 reuse (no month-1 assumptions hard-coded) · deterministic repeat run.
 
 ### Forbidden in every item
-Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or threshold · inventing an API/field/key/threshold not in the docs · a second implementation of an owned concern (doc 04 §2) · user text with "error"/"fraud" for findings · telemetry or network outside `app/ai/client.py` · hand-editing generated files (regenerate them) · committing data with real financials.
+Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or threshold · inventing an API/field/key/threshold not in the docs · a second implementation of an owned concern (doc 04 §2) · user text with "error"/"fraud" for findings · telemetry or network outside `app/ai/client.py` and `app/connectors/transport.py` (allow-listed hosts only, user-initiated jobs only) · hand-editing generated files (regenerate them) · committing data with real financials.
 """
 
 

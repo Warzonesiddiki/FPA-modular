@@ -1,6 +1,7 @@
 # Documentation Changelog (newest first)
 
 ## 2026-10-13 — Session continuation (sandbox UTC; inherited entries retain their recorded dates)
+- **Plan wording:** generator’s “Forbidden in every item” now matches AGENT_PROMPT §10: outbound calls only in `app/ai/client.py` and `app/connectors/transport.py`, allow-listed hosts, user-initiated jobs; regenerated WORK_PLAN with no item/dependency changes.
 - **Orientation:** AGENT_PROMPT §11 steps 6–7 now explicitly include DEC-013, doc 26 §8 and doc 12 §1(d)/§5/§8; no connector/security contract is changed.
 
 ## 2026-10-14 (c) — Direct Dynamics 365 connector in v1 (DEC-013)
