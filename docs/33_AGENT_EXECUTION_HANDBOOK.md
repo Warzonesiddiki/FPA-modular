@@ -6,7 +6,7 @@
 | File | Role | Who writes it |
 |---|---|---|
 | `AGENT_PROMPT.md` | The one prompt: session protocol, work-item loop, gap rules, non-negotiables, self-verification, handover format | Owner (changes are DECs) |
-| `docs/WORK_PLAN.md` + `.csv` | All 241 work items in build order with purpose, dependencies, inputs/outputs, acceptance, paired test, cited spec sections; milestones M0–M6 with exit gates | **Generated** by `tools/generate_work_plan.py`; never hand-edited |
+| `docs/WORK_PLAN.md` + `.csv` | All 250 work items in build order with purpose, dependencies, inputs/outputs, acceptance, paired test, cited spec sections; milestones M0–M6 with exit gates | **Generated** by `tools/generate_work_plan.py`; never hand-edited |
 | `TASKBOARD.md` | Live ledger: status per item (`queued / in_progress / done / blocked / exists-unverified`), handover blocks, *Owner attention*, *Current position* | Builder, every session |
 | `docs/17_ROADMAP_RISKS.md` §3/§4 | Open questions with labelled defaults; decision log | Builder appends; owner accepts/vetoes |
 | `docs/CHANGELOG.md` | Every doc change, newest first | Builder |
@@ -44,7 +44,7 @@ session start ─► read AGENT_PROMPT + TASKBOARD ─► run tests (truth) ─�
 ## 5. The TASKBOARD contract
 - Rows are keyed by WI id; order is WORK_PLAN order. A row is `done` only with the full handover block (`AGENT_PROMPT.md` §8).
 - `exists-unverified` marks files that pre-date the plan (the build-pause code); they are re-verified against their acceptance line before `done` — existing tests passing is not enough.
-- *Owner attention* lists: class-A OQs awaiting veto, class-C blocks, DECs pending acceptance. The owner clears a line by replying in the next session's instructions or editing doc 17.
+- *Owner attention* is informational since DEC-010 (owner delegated decisions): it lists the DECs taken (`auto`) with their doc locations and any class-C blocks with evidence. Nothing in it waits for approval; the owner reverses a decision by editing doc 17 §4 and the owning doc, and the builder regenerates/patches in the next session.
 - *Current position* holds exactly one `in_progress` item (or none) with its next step.
 
 ## 6. Context hygiene (the single most important discipline for one agent)

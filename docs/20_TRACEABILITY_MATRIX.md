@@ -6,11 +6,11 @@
 |---|---|---|---|---|---|---|
 | FR-PRJ projects/periods | 19A, 23 | S01,S02,S13 | projects, periods lock | store/period_repo, api/routes_projects | test_period_repo, api projects | Month-end golden run |
 | FR-MDM master data | 19B, 28 | S12 | master/* | store/master_repo, ui S12 | test_master_repo | Import unknown-code flow |
-| FR-IMP import | 06, 19C | S03,S04,S05 | imports, mapping-profiles | imports/* | parser/mapping/validation/commit/TB | Malformed corpus expected.json |
+| FR-IMP import | 06, 19C (FR-IMP-001…019) | S03,S04,S05 | imports, mapping-profiles, enrich, control-file, tb-check | imports/* (incl. enrichment.py, tb_check.py) | parser/mapping/validation/commit/TB/enrichment/tb_check | Malformed corpus expected.json + ERP shape parity (doc 14 §3) |
 | FR-CAL statements/BvA/KPI | 03, 29 | S01,S06,S07 | statements, bva, kpi, drill, bridge | calc/* (5) | statements/kpis/bva/attribution/drilldown | Oracle fixtures pl/bs/cf_basic |
 | FR-CLO close mgmt | 30 | S01 (+S16 Close) | close/* (29 §API addendum) | services/close_service, ui S16 | test_close_service | Close checklist golden period |
 | FR-PLN planning | 29 | S09,S10,S17 Planning | planning/* (29) | planning/* | headcount/capex/debt/wc/cash13 tests | Integrated forecast BS balances |
-| FR-EXC exceptions | 07 | S08,S01 | exceptions/* | rules/* (27) | test_exc_001…024 + engine | Acceptance gate §3 doc 14 |
+| FR-EXC exceptions | 07 (+§7 suggestions), 44 | S08,S01,S11 | exceptions/*, suggestion/apply, rectification-journal, exports kind=journal | rules/* (31 incl. suggestions.py), exports/journal_export.py | test_exc_001…028 + engine + test_suggestions + test_journal_export + test_verification_loop | Acceptance gate §3 doc 14 (36/36 · 0/13 · 19/19 · suggestion exactness) |
 | FR-FOR forecast/scenario | 08, 29 | S09,S10 | forecast/*, scenarios | forecast/* (11) | fc_* + scenarios + sensitivity/goal-seek | Backtest oracle (08 §3) |
 | FR-REC reconciliations | 19I | S18 Reconcile | reconcile/* (19I) | imports/reconcile.py, ui S18 | test_reconcile | Recon fixture both-sides unmatched |
 | FR-RPT reporting | 09,10,19J | S11 | exports, reports | exports/* (23) | sheet_*/slide_*/pdf/report-builder | Cross-artifact tie-out |

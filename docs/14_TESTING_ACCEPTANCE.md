@@ -9,22 +9,24 @@ Unit (pure functions: money, calendar, rules, methods, parsers) · Contract (eve
 Every formula in docs 03/07/08/29/38–46 has a hand-worked example; the example is encoded as a fixture *before* the implementation and cited in the TASKBOARD handover. Tests must fail on a stubbed implementation — the builder mutation-checks every item (`AGENT_PROMPT.md` §6: ≥3 mutations, each caught by at least one test) and records the mutations in the handover.
 
 ## 3. THE acceptance gate (`scripts/acceptance.py`, runs harness twice)
-Corpus: sample-data coherent corpus + answer_key (**32 plants, 10 controls**, doc 42 §7–§8). The corpus is self-authored, so a missed plant is a defect in a rule or in the plant — never an acceptable miss; the bars are therefore exact (DEC-008).
+Corpus: sample-data coherent corpus + answer_key (**36 plants, 13 controls**, doc 42 §7–§8). The corpus is self-authored, so a missed plant is a defect in a rule or in the plant — never an acceptable miss; the bars are therefore exact (DEC-008, amended by DEC-011 when rules 025–028 added P33–P36 and C11–C13).
 | Bar | Threshold |
 |---|---|
-| Planted-exception recall | **32/32** plants found with the exact finding key (doc 07 §2) |
-| High-severity recall | **18/18** High plants carry severity `high` (doc 42 §7; generator asserts the count) |
-| Control precision | **0/10** controls fire |
+| Planted-exception recall | **36/36** plants found with the exact finding key (doc 07 §2) |
+| High-severity recall | **19/19** High plants carry severity `high` (doc 42 §7; generator asserts the count) |
+| Control precision | **0/13** controls fire |
+| Suggestion exactness | every plant's finding carries the suggestion kind, balanced lines (Σ = 0) and confidence of doc 07 §7.3 / doc 42 §7 (answer key field `expected_suggestion`) |
 | Severity exactness | every plant's severity equals the answer key (incl. P30 staying Medium) |
 | Extra findings | Machine-checkable: harness emits extras.json listing every non-plant finding; gate passes only if every extra has a justification record {finding_key, classification: genuine|defect, reason ≥20 chars, reviewer} in acceptance_justifications.json and `defect` count = 0. Missing/short justifications fail the gate automatically. |
 | Stability | Two consecutive runs produce identical finding keys + amounts |
-| Coverage | 24/24 rules wired and executed (not_run only with documented missing-input reason) |
+| Coverage | 28/28 rules wired and executed (not_run only with documented missing-input reason) |
+| ERP shape parity | committing each `sample-data/erp_shapes/` file of the golden period yields the same gl_rows as the CSV shape (doc 42 §4); the F&O shape's 3 `Tax`-layer rows are quarantined `OUT_OF_SCOPE_LAYER`; the trial-balance tie-out file reports zero differences |
 | Statements | Golden PL/BS/CF tie to oracles to the minor unit; TB balanced |
 | Cross-artifact | Golden period: API == Excel == PPT == PDF on 100% of compared figures |
 Verdict written to `evidence/acceptance_report.{json,md}` with corpus hash. FAIL = release blocked, report says why per plant (the attempt-#4 report format is the template — it was excellent; its numbers were the problem).
 
 ## 4. Performance NFRs (reference profile: 4-core/16GB Windows, SSD; measured in tests/perf, budgets asserted)
-250k-row GL: parse+stage ≤ 120s · commit ≤ 60s · full 24-rule run ≤ 60s · statements+BvA ≤ 5s · Excel pack (12 sheets incl. 250k-row DrillData) ≤ 60s · PPT ≤ 20s · UI interactive (filter/sort 10k table rows) ≤ 1s perceived (virtualised). Regression > 10% on any budget fails CI; absolute breach fails release.
+250k-row GL: parse+stage ≤ 120s · commit ≤ 60s · full 28-rule run incl. suggestions ≤ 60s · statements+BvA ≤ 5s · Excel pack (12 sheets incl. 250k-row DrillData) ≤ 60s · PPT ≤ 20s · UI interactive (filter/sort 10k table rows) ≤ 1s perceived (virtualised). Regression > 10% on any budget fails CI; absolute breach fails release.
 
 ## 5. Coverage & static gates (`scripts/check.py`, one command, honest exit)
 ruff clean · mypy strict on core/calc/rules/forecast · pytest pass · coverage: core/calc/rules ≥ 95% lines, overall ≥ 85% · UI: eslint + tsc + vitest + token check + axe · money-AST check (no `float(` in money paths, no money arithmetic outside money.py patterns) · docs link/ID check · secret + telemetry scan (doc 12). No `--skip` flags exist.

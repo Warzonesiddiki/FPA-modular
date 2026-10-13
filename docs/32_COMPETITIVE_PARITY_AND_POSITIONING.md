@@ -7,7 +7,7 @@
 | Data consolidation from ERP exports | ✓ connectors | ✓ | ✓ files+presets (06/26), connectors Phase 2 via same pipeline |
 | Statements + BvA + drill-to-transaction | ✓ | partial | ✓ (03) with row-level drill |
 | Variance commentary (AI) | ✓ cloud AI | ✓ | ✓ guarded, offline-optional (11) |
-| Anomaly/exception detection | partial (signals) | partial | ✓ 24-rule explainable catalog + owner workflow (07) — our deepest differentiator |
+| Anomaly/exception detection | partial (signals) | partial | ✓ 28-rule explainable catalog + suggested fix on every finding + ERP rectification journal file + owner workflow (07) — our deepest differentiator |
 | Driver planning, headcount, capex, debt, WC, 13-wk cash | ✓ (enterprise tiers) | partial | ✓ (29) |
 | Rolling forecast + scenarios + sensitivity/goal-seek | ✓ | ✓ | ✓ deterministic + backtested (08/29) |
 | Close management | add-on/module | ✗ | ✓ built-in (30) |

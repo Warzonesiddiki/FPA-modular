@@ -26,7 +26,7 @@
 | 52 | `52_USER_JOURNEYS_AND_USE_CASES` | End-to-end narratives (first month, month 2, restated month, owner correction loop, CFO challenge) — the tabletop (P20) needs scripts. | P0 |
 | 53 | `53_DESIGN_SYSTEM_AND_COMPONENT_SPEC` | 13 names components; no visual spec (spacing, type scale, colour values, dark/light, charts palette, icon set). Without it 19 screens look like 19 products. | P1 |
 | 54 | `54_WIREFRAMES_AND_PROTOTYPE_SPEC` | Layout per screen (zones, hierarchy, table densities). Text tables in 21 are not layouts. | P1 |
-| 55 | `55_COPY_AND_MICROCOPY_CATALOG` | Every button/empty/error/tooltip string in one reviewed catalog (incl. finding-name plain-language names for 24 rules). Copy invented per-screen drifts and can accuse ("error/fraud" ban). | P1 |
+| 55 | `55_COPY_AND_MICROCOPY_CATALOG` | Every button/empty/error/tooltip string in one reviewed catalog (incl. finding-name plain-language names for 28 rules). Copy invented per-screen drifts and can accuse ("error/fraud" ban). | P1 |
 | 56 | `56_ONBOARDING_AND_FIRST_RUN_SPEC` | First-run wizard steps, sample-data tour, empty-project path, migration from Excel checklist. 13 §5 is a paragraph. | P1 |
 | 57 | `57_ACCESSIBILITY_CONFORMANCE_SPEC` (VPAT/ACR-style) | 13 states WCAG AA; no per-criterion conformance table, keyboard maps per screen, screen-reader announcements for charts/tables. | P2 |
 | 58 | `58_CLIENT_ONBOARDING_QUESTIONNAIRE` | The discovery instrument (ERP, FY, COA, grain, thresholds, owners) that turns OQ defaults (17) into a real client's answers before pilot. Attempt #4 had this; we dropped it. | P1 (pilot P3) |

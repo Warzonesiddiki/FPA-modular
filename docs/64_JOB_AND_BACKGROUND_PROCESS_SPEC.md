@@ -11,7 +11,7 @@
 |---|---|---|---|
 | import-validate | reading → profiling → validating → summarising | yes, any stage | restart (staging persists) |
 | import-commit | checking totals → writing rows → trial balance | before "writing rows" only | no (re-run; idempotent, doc 06) |
-| rule-run | loading → EXC-001…024 (progress per rule) → assigning owners | between rules | no |
+| rule-run | loading → EXC-001…028 (progress per rule) → suggestions → verification matching → assigning owners | between rules | no |
 | forecast-run | backtesting → fitting per group → writing lines | between groups | no |
 | export-generate | snapshot → checks → rendering → stamping | before rendering only | no |
 | backup/restore | copying → verifying hashes → (restore) integrity+audit verify | no | no |

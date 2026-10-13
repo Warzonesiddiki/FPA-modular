@@ -12,4 +12,6 @@ Models in scope: forecast methods (08/46), goal-seek/sensitivity (29), allocatio
 | Allocations | Doc 40 oracle + step-down case | Σ = source, always |
 | KPI library | Doc 43 fixtures incl. n/a paths | AUD-A recompute |
 | Rule thresholds | Doc 42 register + doc 44 boundary matrix | AUD-B false-positive hunt |
+| Entry-hygiene rules EXC-025 (token association) / EXC-026 (median outlier) / EXC-027 (dimension dominance) / EXC-028 (window dedupe) | Deterministic, explainable statistics only (counts, shares, median — no fitted model); parameters in doc 62; doc 42 plants P33–P36 + controls C11–C13; doc 44 boundary cases incl. the mean-vs-median trap | AUD-B false-positive hunt on the full 24-month corpus: every extra finding of these rules must be classified genuine/defect with a reason; defect count 0 |
+| Rectification suggestion templates (doc 07 §7.3) | Σ = 0 type-level assertion; one fixture per rule (doc 89 §2); confidence rules quoted from the table | AUD-B reviews a sample of 10 suggestions for accounting correctness (debit/credit direction, account choice) and records the review |
 Accepted residual risks: short-history forecasts (UI-labelled), driver data quality, default thresholds may need client tuning (doc 58 → DEC).

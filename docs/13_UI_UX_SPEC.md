@@ -21,10 +21,10 @@
 | S05 | Trial balance | Per-entity balance table, imbalance drill to voucher, waive-with-note flow (audited) | statements/drill |
 | S06 | Statements | PL/BS/CF tabs, month/YTD toggle, ₹/₹'000 display toggle, drill on every line, "movement statement" labelling when no opening BS | statements |
 | S07 | BvA explorer | Grain selector, variance table (favourable words + arrows), bridge chart when drivers exist else explicit unavailable note, commentary editor (draft→approve; AI draft button when enabled) | bva/bridge/commentary |
-| S08 | Exception inbox | Filter bar (status/severity/owner/rule), finding cards with evidence summary + drill, bulk assign, transition actions per doc 07 §5, not_run rules panel | exceptions |
+| S08 | Exception inbox | Filter bar (status/severity/owner/rule), finding cards with evidence summary + drill, **suggested-fix panel with Apply as adjustment / Add to journal export / Not applicable (doc 07 §7)**, verification prompts, bulk assign, transition actions per doc 07 §5, not_run rules panel, journal queue bar | exceptions, exceptions/{id}/suggestion/apply, rectification-journal |
 | S09 | Forecast studio | Group×method matrix with backtest MAPE/bias chips, run/lock, FVA history, bias advisory badges | forecast |
 | S10 | Scenarios | Create from locked run (driver/% deltas), compare table + Δ vs base, assumptions summary | scenarios |
-| S11 | Export centre | Generate Excel/PPT/PDF, checks panel (doc 09 §4, failures explained + blocked states), report history with hashes + re-download | exports/reports |
+| S11 | Export centre | Generate Excel/PPT/PDF, **rectification journal for the ERP (doc 26 §7 formats)**, checks panel (doc 09 §4, failures explained + blocked states), report history with hashes + re-download | exports/reports |
 | S12 | Master data (owners) | Entities/accounts/cost-centres/vendors/owners CRUD, account→owner assignment, suspense/accrual tags, threshold & rule-parameter settings link | master/settings |
 | S13 | Settings | Tolerances/thresholds (with "what this changes" help), AI configuration (off by default; key in keyring; test-connection), backup/restore, About (version, disclaimer, data location) | settings |
 | S14 | Audit trail | Filterable audit list, chain Verify with result banner, finding-history view | audit |

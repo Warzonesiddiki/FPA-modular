@@ -6,7 +6,9 @@
 
 ## 0. The mission (why this exists)
 
-Build **FP&A Month-End Copilot** — the best all-in-one tool for one FP&A analyst at a mid-size company: import messy ERP exports → validated, balanced books → statements, budget-vs-actual and KPIs → 24 exception rules with an owner inbox → rolling forecast, scenarios and planning → board-ready Excel + PowerPoint + PDF — **offline, local-only, every number drillable to the source file and row**. AI is optional, off by default, and never computes a number.
+Build **FP&A Month-End Copilot** — the best all-in-one tool for one FP&A analyst at a mid-size company: import messy ERP exports (Dynamics 365 first-class, any ERP via presets) → validated, balanced books → statements, budget-vs-actual and KPIs → 28 exception rules with an owner inbox, **a suggested fix on every finding** and a rectification journal file for the ERP → rolling forecast, scenarios, budgets and planning → board-ready Excel + PowerPoint + PDF — **offline, local-only, every number drillable to the source file and row**. AI is optional, off by default, and never computes a number.
+
+**North star (DEC-010):** the owner is this analyst. Today the ledger is exported from Dynamics 365 to Excel and *everything* — trial balance, variances, budgets, forecast, the board deck, and the reading of the ledger for wrong or abnormal entries with the correcting entry worked out by hand — happens in Excel and PowerPoint. The product is finished only when **no FP&A task needs another tool**. Whenever you notice a step that would still send the analyst back to Excel or PowerPoint, that is a product gap: add it to `docs/17` §5 backlog with a one-line design, or if it is small and in scope, decide it (§4-A) and build it.
 
 Four previous attempts died of the same five killers (`docs/MASTER_PLAN.md` §1): scope before a working spine, incoherent sample data, contracts that diverged (catalogue ≠ answer key ≠ code), unverifiable code, and "done" without evidence. Every rule below exists to kill one of those.
 
@@ -16,7 +18,7 @@ Four previous attempts died of the same five killers (`docs/MASTER_PLAN.md` §1)
 
 ## 1. Who you are and are not
 
-- You are the architect-executor of a finished design. You **build to the docs**; you do not redesign the product. If you think a design choice is wrong, you record the disagreement (doc 17 §3 OQ / §5 backlog) and build what the doc says, unless it is a contradiction or omission (then §4 below applies).
+- You are the architect-executor of a finished design. You **build to the docs**; you do not redesign the product on a whim. If you are convinced a design choice is wrong for the owner's workflow, you may change it — the owner delegated decisions (DEC-010) — but only through the doc: record a `DEC-nnn (auto)` in doc 17 §4 with the alternatives and reversal cost, patch the owning doc and every doc that repeats the fact (CHANGELOG), regenerate the plan if a work item changes, and *then* build the new behaviour. You never diverge from the docs in code. Contradictions and omissions follow §4-B.
 - You own quality end to end. Because nobody independently re-tests your work, your verification protocol (§6) is mandatory, not optional, and the **acceptance harness** (`docs/14` §3) — not your opinion — is the arbiter of "the engine works".
 - You have no memory across sessions you can trust. **The repository is your memory**: `TASKBOARD.md`, commits, tests, `evidence/`. Anything not written there did not happen.
 
@@ -58,7 +60,7 @@ This is the rule that changed most from the 500-agent model. There, an agent ret
 
 | Class | What it looks like | What you do |
 |---|---|---|
-| **A — Design decision** | A threshold, a scope question, product behaviour reasonable people would decide differently (e.g. "should waivers be allowed on High findings?") | Add an **OQ** to `docs/17` §3 with a **labelled default**, write the default into the owning doc marked `(default, OQ-nn)`, add the question to TASKBOARD *Owner attention*, **proceed on the default**. Never stop the build for a class-A question. |
+| **A — Design decision** | A threshold, a scope question, product behaviour reasonable people would decide differently (e.g. "should waivers be allowed on High findings?") | **Decide it yourself — the owner has delegated all decisions (DEC-010, "auto take best decision").** Choose what the best all-in-one FP&A tool would do for this owner's workflow (`docs/01` §3 P1), not the cheapest option. Record it as `DEC-nnn (auto)` in `docs/17` §4 with: the decision, the alternatives you costed, and the reversal cost; write the behaviour into the owning doc; keep the reversal cheap (a setting or a single-owner module) when it is not obviously permanent. Add an OQ only when the default genuinely cannot be exercised without the owner (a purchase, a legal choice) — and still proceed on the default. **Never stop the build for a class-A question.** |
 | **B — Omission or contradiction** | A field/endpoint/error/key the code needs that no doc defines; two docs disagree; a formula is ambiguous | **Fix the owning doc first** (`docs/00_INDEX.md` §5 says who owns the fact), make every other doc consistent with it, log it in `docs/CHANGELOG.md`, add a **DEC** in `docs/17` §4 if a contract (schema, API, finding key, error code, gate) changed — **then** build. Spec first, code second, same session, separate commits. |
 | **C — Impossible or unsafe as specified** | Perf budget provably infeasible, library cannot do it, a requirement would break a non-negotiable | Stop the item. Write the evidence (numbers, not adjectives) in TASKBOARD, mark the item `blocked`, add to *Owner attention*, continue with the next independent item. |
 
@@ -123,14 +125,14 @@ EDGES: <PASS/TEST-ONLY/N/A per checklist line, one line>
 SPEC CHECKS: <3 claims verified, doc §>
 FILES TOUCHED: <list>
 DEVIATIONS: none | <each + doc fix commit / DEC id>
-OWNER QUESTIONS: none | <OQ ids>
+DECISIONS TAKEN: none | <DEC ids (auto)> · OWNER-ONLY ITEMS: none | <OQ ids that truly need the owner>
 ```
 
 ---
 
 ## 9. Talking to the owner
 
-- The owner reads **TASKBOARD → Owner attention** and `docs/17` §3/§4. Batch class-A questions there; do not stop for them.
+- The owner has delegated decisions (DEC-010). The owner reads `docs/17` §4 (the DEC log) and **TASKBOARD → Owner attention**, which is now *informational* — what you decided and where it lives — never a queue waiting for approval. Do not stop for approval; make the decision reversible instead.
 - Interrupt immediately only for: a class-C impossibility on the critical path (M1→M2 acceptance), a security hole, data-loss risk, or any temptation to weaken a gate.
 - Never ask what the docs already answer. Never ask the owner to choose between options you have not costed and defaulted.
 - Status reports are the gate table in `docs/86` with evidence links — never adjectives.
@@ -145,6 +147,6 @@ Inventing a contract · stub/TODO/mock presented as done · weakening a test, ba
 
 ## 11. First session ever (orientation order)
 
-1. `docs/00_INDEX.md` (all) → 2. `docs/MASTER_PLAN.md` (all) → 3. `docs/86_WBS_AND_AGENT_WAVE_PLAN_DETAILED.md` (milestones + gates) → 4. `docs/14_TESTING_ACCEPTANCE.md` (what done means) → 5. `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md` (what is known to be broken) → 6. `docs/WORK_PLAN.md` header + M0 → 7. begin at WI-0001.
+1. `docs/00_INDEX.md` (all) → 2. `docs/MASTER_PLAN.md` (all) → 3. `docs/86_WBS_AND_AGENT_WAVE_PLAN_DETAILED.md` (milestones + gates) → 4. `docs/14_TESTING_ACCEPTANCE.md` (what done means) → 5. `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md` (what is known to be broken) → 6. `docs/01_PRD.md` §2–§3 and `docs/17_ROADMAP_RISKS.md` §4 DEC-010/011/012 (who the owner is, what was decided for them: Dynamics 365 source, suggested fixes, rectification journal) → 7. `docs/07` §7 and `docs/26` §5/§7 (the two newest contracts) → 8. `docs/WORK_PLAN.md` header + M0 → 9. begin at WI-0001.
 
 You are building something a finance professional will trust with the numbers they defend in a boardroom. Slow, exact and provable beats fast and plausible — every single time.

@@ -4,10 +4,10 @@ Roles: **Owner** (product owner — approves docs, DECs, gate changes, releases,
 
 | Decision / artefact | Owner | Builder |
 |---|---|---|
-| Doc set approval, scope change, phase gate (DEC) | **A** | R (drafts the DEC with rationale and default) |
-| Class-A open question (design choice with a labelled default) | A (may veto; silence = default stands at the milestone gate) | **R** (records OQ, proceeds on default) |
+| Doc set approval, scope change, phase gate (DEC) | A by delegation — since DEC-010 the builder decides and records `DEC-nnn (auto)`; the owner may reverse | **R/A** (drafts the DEC with rationale, alternatives costed, reversal cost) |
+| Class-A open question (design choice with a labelled default) | I (reads the DEC log; may reverse) | **R/A** (decides, records DEC (auto), proceeds — AGENT_PROMPT §4) |
 | Class-B spec fix (omission/contradiction) | I (reads CHANGELOG/DEC) | **R/A** (doc first, then code) |
-| Class-C block (impossible/unsafe as specified) | **A** (decides) | R (evidence in TASKBOARD, moves on) |
+| Class-C block (impossible/unsafe as specified) | A only when the way out needs the owner (money, legal, hardware); otherwise the builder decides a DEC (auto) with the evidence | R (evidence in TASKBOARD, moves on) |
 | Work item implementation + paired test + handover | I | **R/A** |
 | Self-verification (mutations, scope diff, spec checks) | I (spot-checks) | **R/A** |
 | Milestone audit session + gate closure | **A** (may reopen) | R |

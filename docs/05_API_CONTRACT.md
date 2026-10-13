@@ -27,6 +27,9 @@ Pagination: `?limit=100&cursor=` (default 100, max 1000) on list endpoints; resp
 | POST `/imports/{batch_id}/validate` | → validation report (job) | |
 | POST `/imports/{batch_id}/commit` | → `{committed counts, tb_status}` (job) | ERR-023 control-total mismatch (details: declared vs actual), ERR-024 trial balance imbalance (details by account) — commit is blocked, staging preserved |
 | POST `/imports/{batch_id}/discard` | staging deleted, audit written | |
+| POST `/imports/{batch_id}/control-file` (multipart: ERP trial-balance export, `tb_check` shape) | attaches per-account declared movements to a staged GL batch (doc 06 §2 step 6) → per-account comparison | ERR-020, ERR-022 (unmapped TB shape) |
+| POST `/imports/{batch_id}/enrich` | runs vendor enrichment from the period's AP sub-ledger batch (doc 06 §2 step 9) → `{matched, ambiguous, unmatched, already_had_vendor}` (job) | ERR-001 no AP batch for the period |
+| POST `/projects/{id}/tb-check` `{period_id, batch_id}` | compares a committed `tb_check` batch with committed GL per account → `{differences[]: {account_id, erp_minor, app_minor, delta_minor}}`; zero differences flips the close item (doc 30) | ERR-030 period has no committed GL |
 
 ### Statements, BvA, drill (doc 03)
 | GET `/projects/{id}/statements?period_id&entity_id?&statement=pl|bs|cf` | statement lines `{line_key,label,amount,presentation_sign,drill_key}` | ERR-030 period has no committed GL |
@@ -40,6 +43,9 @@ Pagination: `?limit=100&cursor=` (default 100, max 1000) on list endpoints; resp
 | GET `/exceptions/{finding_id}` | finding + evidence + history | |
 | POST `/exceptions/{finding_id}/transition` `{to_status, note?, waive_reason?, waive_days?}` | ERR-040 illegal transition, ERR-041 waive needs reason+expiry | |
 | POST `/exceptions/bulk-assign` `{finding_ids, owner_id, due_date}` | |
+| GET `/exceptions/{finding_id}` (as above) includes `suggestion` (doc 90 `Suggestion`), `suggestion_status`, `suggestion_ref` | |
+| POST `/exceptions/{finding_id}/suggestion/apply` `{mode: adjustment|journal|dismiss, note?}` | `adjustment` → doc-39 group of kind `correction_view` created from the suggestion lines, finding → `corrected`, returns `{pair_group_id}`; `journal` → lines queued for the period's rectification journal (`suggestion_status = queued`); `dismiss` → `dismissed` with mandatory note | ERR-046 suggestion has no journal lines / target period locked / queue consumed, ERR-005 already applied or queued, ERR-002 dismiss without note |
+| GET `/projects/{id}/rectification-journal?period_id` | the queued lines for the period with their findings, totals (must net to zero) and the formats available | |
 | GET `/projects/{id}/owners` + master-data CRUD under `/projects/{id}/master/{entities|accounts|cost-centres|vendors|owners}` | ERR-050 code duplicate |
 
 ### Forecast & scenarios (doc 08)
@@ -49,7 +55,7 @@ Pagination: `?limit=100&cursor=` (default 100, max 1000) on list endpoints; resp
 | PUT `/driver-values` bulk upsert (imports also create these) |
 
 ### Exports & commentary & settings
-| POST `/projects/{id}/exports` `{kind:excel|pptx|pdf, period_id}` → job → report `{report_id, path, sha256, checks}` | ERR-060 checks failed (tie-out details; generation blocked for pptx/pdf, excel allowed with Checks sheet flag) |
+| POST `/projects/{id}/exports` `{kind:excel|pptx|pdf|journal, period_id, format?: d365fo_general_journal|d365bc_general_journal|generic_csv, finding_ids?}` → job → report `{report_id, path, sha256, checks}` | ERR-060 checks failed (tie-out details; generation blocked for pptx/pdf, excel allowed with Checks sheet flag); `journal`: ERR-046 queue empty, ERR-002 unknown format — on success the included findings move to `corrected` with `suggestion_status = exported` and `suggestion_ref = report_id` (doc 26 §7) |
 | GET `/projects/{id}/reports` · GET `/reports/{id}/download` (file) |
 | GET/PUT `/projects/{id}/commentary?period_id&scope` (PUT creates new version) · POST `/projects/{id}/commentary/draft` (AI; doc 11) → ERR-070 AI disabled/unconfigured, ERR-071 guardrail rejected draft (reasons) |
 | GET/PUT `/projects/{id}/settings` (thresholds under `rule.*` keys) · GET `/projects/{id}/audit?limit&cursor` · POST `/projects/{id}/audit/verify` |

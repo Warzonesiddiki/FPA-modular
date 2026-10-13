@@ -40,6 +40,10 @@
 | FR-IMP-013 | Resume & discard | each stage persisted; wizard resumable after restart; discard deletes staging with audit | — | S03–S05 | discard | pipeline_resume |
 | FR-IMP-014 | Source kinds | `gl`, `budget`, `subledger`, `drivers`, `opening`, `masters` share the pipeline; kind-specific required fields (02 §4) | ERR-020 | S03 | imports | per-kind fixtures |
 | FR-IMP-015 | Malformed corpus conformance | each file in 42 §5 yields exactly its `expected.json` counts | — | — | — | test_malformed |
+| FR-IMP-016 | Vendor enrichment from AP sub-ledger | post-commit, GL rows without vendor matched 1:1 on (voucher_no, posting_date) to the period's AP batch receive vendor_id with `vendor_source=ap_match`; column-sourced vendors never overwritten; ambiguous/unmatched counted (06 §2.9) | ERR-001 | S03, S05 | imports/{id}/enrich | test_enrichment + erp_shapes parity |
+| FR-IMP-017 | Trial-balance tie-out | `tb_check` source kind: per-account ERP movement vs committed GL; differences listed; attachable to a staged batch as per-account control totals (06 §2.6); zero differences flips the close item (30) | ERR-023, ERR-030 | S05, S16 | tb-check, control-file | test_tb_check |
+| FR-IMP-018 | Posting-layer scope | rows whose posting layer ∉ `import.posting_layers` (default `Current`) quarantined `OUT_OF_SCOPE_LAYER` with the layer name; setting per project | — | S04, S05 | validate | test_validation (layer) |
+| FR-IMP-019 | Segmented-account and conditional transforms | closed transform list 06 §2.4 incl. `split:<field>:<n>` (raw string kept in `source_account_ref`), `conditional:<col>=<value>`, `constant:`; D365 F&O/BC presets (26 §5) map with zero manual edits on the corpus ERP shapes | ERR-022 | S04 | mapping-profiles | test_transform + preset fixtures |
 
 ## D. Statements, KPIs, BvA, drill (FR-CAL) — owner doc 03, 43, 45
 | ID | Statement | Rule | Err | Scr | API | Test |
@@ -84,7 +88,7 @@
 ## G. Exceptions (FR-EXC) — owner docs 07, 44, 42
 | ID | Statement | Rule | Err | Scr | API | Test |
 |---|---|---|---|---|---|---|
-| FR-EXC-001 | 24 rules | EXC-001…024 per 07/44; each returns findings, `not_run` with reason, or empty; thresholds from settings `rule.*` | — | S08 | exceptions/run | test_exc_001…024 |
+| FR-EXC-001 | 28 rules | EXC-001…028 per 07/44 (025–028 = entry-hygiene: narration mismatch, amount outlier/decimal shift, unusual cost centre, near-duplicate charge); each returns findings, `not_run` with reason, or empty; thresholds from settings `rule.*` | — | S08 | exceptions/run | test_exc_001…028 |
 | FR-EXC-002 | Deterministic finding key | `EXC-nnn|entity|account|period|grain-key` (07 §2); re-run upserts, never duplicates; closed findings re-fire as `reopened` | — | S08 | — | engine_rerun |
 | FR-EXC-003 | Run orchestration | on demand + auto after commit (setting); job with per-rule progress; `not_run` rules listed with reasons | — | S08 | exceptions/run, jobs | engine |
 | FR-EXC-004 | Severity | rule default; escalation ≥3× absolute threshold (both legs for AND rules) → High (07 §1) | — | S08 | — | severity tests |
@@ -93,8 +97,12 @@
 | FR-EXC-007 | Evidence & drill | every finding carries rows/vouchers evidence that drills to source (03 §8) | — | S08 | exceptions/{id} | evidence tests |
 | FR-EXC-008 | Owner action list export | per-owner Excel of open findings (09 §2 sheet 11 shape) | — | S08 | exports | sheet_owner_actions |
 | FR-EXC-009 | Waiver expiry | expired waivers reopen on next run; expiry visible in list | — | S08 | — | engine_rerun |
-| FR-EXC-010 | Acceptance harness | recall 32/32 plants, controls 0/10, High 18/18 on the corpus (14 §3) | — | — | — | scripts/acceptance.py |
+| FR-EXC-010 | Acceptance harness | recall 36/36 plants, controls 0/13, High 19/19, suggestion exactness on the corpus (14 §3) | — | — | — | scripts/acceptance.py |
 | FR-EXC-011 | Finding comments | threaded notes per finding, audited, exported in action list | — | S08 | exceptions/{id}/comments | finding_repo |
+| FR-EXC-012 | Suggested fix on every finding | `suggestion {kind, lines, target_period_id, basis, confidence, erp_hint}` from the doc 07 §7.3 template; journal kinds net to zero; data-dependent parts per 44 (dominant account / cost centre, median, shift factor); stored in `findings.suggestion_json` | — | S08 | exceptions/{id} | test_suggestions (one case per rule) |
+| FR-EXC-013 | Apply suggestion as management adjustment | creates a doc-39 `correction_view` group from the lines, reason = finding key, finding → `corrected`, `suggestion_status = applied`; locked target period → ERR-046; second apply → ERR-005 | ERR-046, ERR-005 | S08 | exceptions/{id}/suggestion/apply | test_suggestion_apply |
+| FR-EXC-014 | Rectification journal export | queued suggestion lines of a period → journal file in `d365fo_general_journal` / `d365bc_general_journal` / `generic_csv` (26 §7); nets to zero per finding; findings → `corrected`/`exported` with report id; empty queue → ERR-046 | ERR-046 | S08, S11 | exports (kind journal), rectification-journal | test_journal_export (golden files) |
+| FR-EXC-015 | Correction verification loop | on each run, `corrected` findings whose correcting lines appear in newly committed GL (44 § verification match) get evidence + a proposed `verified` transition (confirm on S08; auto-confirm setting default off); unseen after 2 periods → close-checklist item | — | S08, S16 | exceptions/run | test_verification_loop |
 
 ## H. Forecast & scenarios (FR-FOR) — owner docs 08, 46
 | ID | Statement | Rule | Err | Scr | API | Test |
@@ -176,4 +184,4 @@
 | FR-PKG-002 | Signed installers | Windows + macOS per 16; version in `/health` and About | — | S15 | health | release checklist |
 | FR-PKG-003 | Upgrade safety | schema migrations forward-only, backup before migrate, rollback instructions | ERR-091 | S13 | — | migration tests |
 
-**Count:** PRJ 7 · MDM 5 · IMP 15 · CAL 10 · CLO 6 · PLN 12 · EXC 11 · FOR 9 · REC 5 · RPT 10 · ALR 3 · AI 6 · GOV 9 · HLP 3 · PKG 3 = **114 FRs.** Every error code referenced here exists in doc 22 (the catalogue was extended in the same commit: ERR-025, 026, 029, 051, 063, 082, 083, 100–105).
+**Count:** PRJ 7 · MDM 5 · IMP 19 · CAL 10 · CLO 6 · PLN 12 · EXC 15 · FOR 9 · REC 5 · RPT 10 · ALR 3 · AI 6 · GOV 9 · HLP 3 · PKG 3 = **122 FRs** (114 at pass 3; +4 IMP and +4 EXC under DEC-011/012). Every error code referenced here exists in doc 22 (the catalogue was extended in the same commit: ERR-025, 026, 029, 051, 063, 082, 083, 100–105).

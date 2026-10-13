@@ -39,6 +39,7 @@
 | ERR-043 | Adjustment or reclass on a locked period outside the restatement workflow | "This period is locked. Use Restate to change it." | Open the restatement workflow (it keeps the audit trail) | no |
 | ERR-044 | Assignment to an unknown or inactive owner | "{owner} can't be assigned items right now." | Pick an active owner, or reactivate them in Master data | no |
 | ERR-045 | Allocation basis empty or sums to zero | "This allocation has nothing to allocate on ({basis})." | Check the driver or basis values for the period | no |
+| ERR-046 | Suggested fix can't be applied or exported (doc 07 §7) — details.reason ∈ `no_journal_lines` (kind investigate/commentary/none), `target_period_locked`, `queue_empty` | "This suggestion can't be turned into an entry: {reason_text}." | Add a note or handle it in the ERP; for a locked period use Restate; for an empty queue add suggestions to the journal first | no |
 | ERR-050 | Duplicate master code | "That {kind} code is already used." | Use a unique code | no |
 | ERR-051 | Invalid account metadata (calc line as mapping target, unknown tag, bad normal side) | "That setting isn't valid for an account: {detail}." | Choose a value from the list | no |
 | ERR-052 | Delete of a master record that is referenced | "{kind} {code} is used by {n} rows, so it can't be deleted." | Deactivate it instead | no |

@@ -9,6 +9,10 @@
 | Numbers | Transcription/formula error | Single calc engine; exports generated, cross-artifact tie-out; Checks sheet | P+D | Checks, AUD-A/I |
 | Numbers | Rounding drift | Integer minor units; largest-remainder presentation | P | Money tests (03) |
 | Exceptions | Finding ignored forever | Owner+due workflow, waiver expiry resurfacing, lock guard | D+P | Finding history |
+| Exceptions | Wrong or abnormal entry posted and never corrected | Entry-hygiene rules EXC-025…028 + suggested fix on every finding; corrections tracked `corrected → verified` by matching the correcting lines in a later import; unseen corrections surface in the close checklist (T-06) | D+C | Finding history, suggestion status, verification evidence |
+| Exceptions | App posts to the ERP by mistake | No ERP write-back by API; corrections leave only as a reviewed journal *file* with a disclaimer footer; adjustments live in the app's own layer | P | Doc 26 §7 formats, doc 39 layer |
+| Import | Vendor mis-attributed by enrichment | 1:1 match only on (voucher, date); ambiguous matches reported, never assigned; column-sourced vendors never overwritten; `vendor_source` kept per row | P+D | Enrichment report, audit row |
+| Import | ERP export filtered/incomplete (silent row loss) | Per-account trial-balance tie-out (`tb_check`) before commit and as close item T-02 | D | TB tie-out report |
 | Period integrity | Locked month changed silently | Lock + audited unlock/restatement impact report | P+D | Audit chain, doc 41 report |
 | Adjustments | GL rewritten to hide variance | Immutable GL; separate adjustment layer with reasons | P | Layer drill (39) |
 | Access/integrity | DB/audit tampering | Hash-chained audit, verify on demand + before pack | D | S14 verify (ERR-090) |

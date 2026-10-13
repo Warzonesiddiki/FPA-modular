@@ -4,7 +4,7 @@
 |---|---|---|
 | NFR-01 | Import 250k rows parse+stage | ≤120s (14 §4) |
 | NFR-02 | Commit 250k rows | ≤60s, atomic kill-tested |
-| NFR-03 | 24-rule run on 250k rows | ≤60s |
+| NFR-03 | 28-rule run incl. suggestions on 250k rows | ≤60s |
 | NFR-04 | Statements/BvA render data | ≤5s API |
 | NFR-05 | Excel pack (250k drill rows) | ≤60s |
 | NFR-06 | UI table 10k rows filter/sort | ≤1s, virtualised |
