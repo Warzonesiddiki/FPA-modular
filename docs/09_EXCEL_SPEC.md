@@ -14,7 +14,7 @@ File: `<Project>_MonthEnd_<YYYY-P##>.xlsx`. Metadata (doc properties + Cover): p
 | 4 | BS | Balance sheet or movement statement (labelled, doc 03 §3) | calc |
 | 5 | CF | Cash flow indirect + tie-out line to BS cash movement | calc |
 | 6 | BvA | Full variance table at export grain with favourable flags, contribution %, material highlights | calc/bva |
-| 7 | Exceptions | Findings: rule, severity, owner, status, amount, age, key — potential-exception wording | findings |
+| 7 | Exceptions | Findings: rule, severity, owner, status, amount, age, key, suggested fix (kind label + confidence, doc 07 §7), suggestion status — potential-exception wording | findings |
 | 8 | Forecast | Remaining-year forecast by group, method per group, backtest MAPE, scenario columns if selected | forecast run |
 | 9 | KPIs | KPI table with formulas text and n/a reasons | calc/kpis |
 | 10 | DrillData | The GL rows behind this period (voucher, dates, account, amount, source file/row) — the audit pack | gl_rows |

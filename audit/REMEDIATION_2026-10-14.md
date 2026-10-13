@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-10-14 by `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md`.** Kept as history. Verdicts in this file ("FIXED", "no P0/P1 remaining", "NOT READY") are not current; pass 3 recomputed the numbers and read the schema, and its findings table is the one that counts.
+
 # REMEDIATION LOG — brutal audit 2026-10-14 (status per finding)
 A1 FIXED: 00_INDEX rewritten with numbered sections 1-10; prompts now cite "section 2 / section 10" which exist.
 A2 FIXED: doc 05 section 4 endpoint addendum; new packets: adjustments/engine, planning/allocations, planning/assumptions, services/year_end, routes_{adjustments,allocations,assumptions,year_end,close,reconcile,alerts,planning,reports_builder}, core/license.

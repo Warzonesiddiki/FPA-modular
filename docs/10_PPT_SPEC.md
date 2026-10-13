@@ -12,7 +12,7 @@
 | 2 | summary | Exec summary: 4 KPI tiles (Revenue, EBITDA, Net, Cash), top-3 variances (favourable/adverse labelled in words), open high findings count, forecast outlook line; commentary text (analyst-approved version only, doc 11) | — |
 | 3 | pl | P&L summary table (Actual/Budget/Var/PY, month+YTD) | bar: Actual vs Budget by line |
 | 4 | bridge | Variance bridge for the selected account group (doc 03 §6) or BvA top movers waterfall when no drivers | waterfall |
-| 5 | exceptions | Findings by severity/rule/owner aging table; top-5 by amount with owner + due date; wording: "potential exceptions for review" | bar: count by rule |
+| 5 | exceptions | Findings by severity/rule/owner aging table; top-5 by amount with owner + due date + suggested-fix kind; count of corrections queued/exported for the ERP; wording: "potential exceptions for review" | bar: count by rule |
 | 6 | forecast | Remaining-year forecast vs budget, method + MAPE per group, scenario band if scenarios selected | line: actual→forecast continuity |
 | 7 | risks | Risks & actions: expired waivers, stale suspense (EXC-007), bias advisories (doc 08 §6), checklist blockers | — |
 | 8 | appendix | Checks summary (doc 09 §4 pass/fail), sources & hashes, definitions of KPIs/rules referenced | — |

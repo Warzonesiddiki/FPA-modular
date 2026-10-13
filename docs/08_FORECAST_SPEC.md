@@ -13,7 +13,7 @@ Forecast operates per **account group** (Revenue, COGS, Personnel, Other Opex, O
 | `exponential_smoothing` | Holt-Winters additive (α .3 β .1 γ .2 defaults, grid-searched) if n≥14, else Holt linear if n≥4 (doc 46 owns the math and these minima) | 14 (HW) / 4 (Holt) |
 | `linear_trend` | Least-squares on last ≤12 points; optional CAGR variant for revenue | 4 |
 | `driver_based` | From driver_values: e.g. Revenue = volume × price; Personnel = headcount × avg cost; account mapping declares driver formula id | drivers present |
-| `seasonal` | Seasonal index (period_of_year mean / overall mean, ≥2 years) × trend level | 24 (else not_run, reason shown) |
+| `seasonal` | Seasonal index (period_of_year mean / overall mean, ≥2 full years) × trend level | 24 (else `not_run`, reason `insufficient_history:<n>/24`; no fallback — doc 46) |
 | `budget_phasing` | Remaining annual budget spread by phasing curve (prior-year monthly shares or manual curve) | budget present |
 | `manual` | Analyst-entered/overridden values layered on a base run; every override stored with author+reason, base preserved | base run |
 

@@ -8,7 +8,7 @@
 | `java-fpa-tool-development-2-`, `v0-fpa-tool-development` | (not readable: GitHub integration returns 403 for these two) | — | Treated as attempts 1–2 by chronology; recommend owner grants access or exports a zip so their lessons can be mined before Wave 0 freezes |
 
 ## Lessons encoded as rules (traceability)
-K1 scope-before-spine → Master Plan §3, §8 cut line · K2 incoherent corpus → §6 + sample-data packets, corpus precedes rules · K3 key divergence → §5 canonical contracts + freeze gate · K4 unverifiable native → §4 Python stack · K5 claimed-done drift → §9 evidence-or-not-done + independent testers (§7).
+K1 scope-before-spine → Master Plan §3, §8 cut line · K2 incoherent corpus → §6 + sample-data work items, corpus precedes rules · K3 key divergence → §5 canonical contracts + freeze gate · K4 unverifiable native → §4 Python stack · K5 claimed-done drift → §9 evidence-or-not-done + independent testers (§7).
 
 ## What prior attempts got right (kept verbatim in spirit)
 Docs-before-code; Decimal-only money; offline/local-only, zero telemetry; atomic all-or-nothing imports; nothing silently discarded; versioned mappings/thresholds; "potential exception" wording; 5-state screens; typed error catalogue; cross-artifact tie-out (UI == Excel == PPT); oracle fixtures before engines; largest-remainder rounding for statement presentation; planted-exception acceptance harness as a release gate.

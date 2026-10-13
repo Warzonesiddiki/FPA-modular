@@ -1,3 +1,5 @@
+> **SUPERSEDED 2026-10-14 by `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md`.** Kept as history. Verdicts in this file ("FIXED", "no P0/P1 remaining", "NOT READY") are not current; pass 3 recomputed the numbers and read the schema, and its findings table is the one that counts.
+
 # DOCS AUDIT — PASS 2 (2026-10-14, docs-only phase)
 Method: automated cross-checks over docs/ (97 files, 2,965 lines, ~55,800 words) + spot contradiction greps.
 RESULTS: numbered docs 00-91 with zero gaps; zero dangling doc references (>91 none); EXC/ERR/screen ID spaces consistent; doc 55 covers S01-S19; old materiality key extinct; thinnest doc = 146 words (doc 59 training — a process doc whose executable detail lives in docs 52/71; accepted).

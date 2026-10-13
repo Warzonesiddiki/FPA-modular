@@ -1,0 +1,267 @@
+id,path,layer,milestone,depends_on,read_first,tests
+WI-0001,docs/05_API_CONTRACT.md,docs0,M0,,"docs/05 (current), docs/90, docs/63, docs/22, docs/02",-
+WI-0002,docs/21_SCREEN_SPEC_DETAILED.md,docs0,M0,WI-0001,"docs/21, docs/13, docs/53, docs/54, docs/57, docs/05, docs/90",-
+WI-0003,docs/44_RULE_ALGORITHMS_DETAILED.md,docs0,M0,,"docs/44, docs/07, docs/42 §7, docs/62",-
+WI-0004,docs/03_CALCULATION_SPEC.md,docs0,M0,,"docs/03, docs/45, docs/38, docs/43, docs/89",-
+WI-0005,docs/55_COPY_AND_MICROCOPY_CATALOG.md,docs0,M0,WI-0002,"docs/55, docs/21, docs/22, docs/13",-
+WI-0006,docs/31_GLOSSARY.md,docs0,M0,,"docs/31, all docs",-
+WI-0007,docs/20_TRACEABILITY_MATRIX.md,docs0,M0,WI-0001 WI-0002,"docs/19, docs/20, docs/05, docs/21, docs/WORK_PLAN.md",-
+WI-0008,pyproject.toml,config,M1,,"docs/04_TECHNICAL_ARCHITECTURE.md, docs/60",-
+WI-0009,README.md,config,M1,,docs/00_INDEX.md,-
+WI-0010,.gitignore,config,M1,,"docs/12_SECURITY_PRIVACY.md, docs/70",-
+WI-0011,app/core/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0012,app/store/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0013,app/imports/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0014,app/connectors/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0015,app/calc/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0016,app/rules/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0017,app/forecast/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0018,app/planning/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0019,app/adjustments/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0020,app/exports/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0021,app/ai/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0022,app/api/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0023,app/services/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0024,app/jobs/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0025,app/desktop/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0026,app/cli/__init__.py,core,M1,,docs/04 §2,tests/unit/test_smoke.py
+WI-0027,app/__init__.py,core,M1,WI-0008,pyproject.toml,tests/unit/test_smoke.py
+WI-0028,app/core/errors.py,core,M1,,docs/22_ERROR_CATALOG.md,tests/unit/test_errors.py
+WI-0029,app/core/money.py,core,M1,WI-0004,"docs/03_CALCULATION_SPEC.md, docs/27",tests/unit/test_money.py
+WI-0030,app/core/calendar.py,core,M1,,"docs/02_DATA_DICTIONARY.md (period identity), docs/30",tests/unit/test_calendar.py
+WI-0031,app/core/ids.py,core,M1,,"docs/02, docs/06 §3, docs/07 §2",tests/unit/test_ids.py
+WI-0032,app/core/hashing.py,core,M1,,docs/12,tests/unit/test_hashing.py
+WI-0033,app/core/audit.py,core,M1,,"docs/12 §3, docs/02 audit_log",tests/unit/test_audit.py
+WI-0034,app/core/config.py,core,M1,,"docs/62, docs/04 §5",tests/unit/test_config.py
+WI-0035,app/core/logging.py,core,M1,,"docs/65, docs/12 §5",tests/unit/test_logging.py
+WI-0036,app/core/license.py,core,M1,,"docs/79, docs/12",tests/unit/test_license.py
+WI-0037,app/store/schema.sql,store,M1,,docs/02_DATA_DICTIONARY.md (every table/column),tests/unit/test_schema.py
+WI-0038,app/store/db.py,store,M1,WI-0037 WI-0028,"schema.sql, core/errors, docs/61",tests/unit/test_db.py
+WI-0039,app/store/migrations/__init__.py,store,M1,,docs/61,tests/unit/test_migrations.py
+WI-0040,app/store/migrations/m0001_initial.py,store,M1,,"docs/61, docs/02",tests/unit/test_migrations.py
+WI-0041,app/store/import_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_import_repo.py
+WI-0042,app/store/gl_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_gl_repo.py
+WI-0043,app/store/mapping_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_mapping_repo.py
+WI-0044,app/store/master_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_master_repo.py
+WI-0045,app/store/budget_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_budget_repo.py
+WI-0046,app/store/forecast_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_forecast_repo.py
+WI-0047,app/store/exception_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_exception_repo.py
+WI-0048,app/store/report_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_report_repo.py
+WI-0049,app/store/period_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_period_repo.py
+WI-0050,app/store/connector_repo.py,store,M1,WI-0038 WI-0029 WI-0033,"store/db.py, core/money, core/audit, docs/02",tests/unit/test_connector_repo.py
+WI-0051,sample-data/generate_sample_data.py,data,M1,WI-0003,"docs/42, docs/07, docs/44, docs/28, docs/26 §5",tests/data/test_corpus.py
+WI-0052,sample-data/answer_key.json,data,M1,WI-0051,"docs/42 §7–§8, generate_sample_data",tests/data/test_answer_key.py
+WI-0053,sample-data/malformed/,data,M1,,"docs/06 §4, docs/42 §5",tests/data/test_malformed.py
+WI-0054,packs/general.json,data,M1,,"docs/28, docs/45",tests/data/test_pack_general.py
+WI-0055,packs/manufacturing.json,data,M1,,"docs/28, docs/45",tests/data/test_pack_manufacturing.py
+WI-0056,packs/saas.json,data,M1,,"docs/28, docs/45",tests/data/test_pack_saas.py
+WI-0057,packs/retail.json,data,M1,,"docs/28, docs/45",tests/data/test_pack_retail.py
+WI-0058,packs/pack.schema.json,data,M1,,"docs/28, docs/45, docs/43",tests/data/test_pack_schema.py
+WI-0059,tests/fixtures/README.md,test,M1,,"docs/89, docs/78, docs/14 §2",-
+WI-0060,tests/acceptance/test_acceptance.py,test,M1,WI-0051 WI-0052 WI-0047,"generate_sample_data, answer_key, store/exception_repo, docs/14 §3, docs/42",-
+WI-0061,app/imports/models.py,imports,M2,,"docs/02, docs/06",tests/unit/test_import_models.py
+WI-0062,app/imports/parser_csv.py,imports,M2,WI-0061,"imports/models, docs/06 §1",tests/unit/test_parser_csv.py
+WI-0063,app/imports/parser_xlsx.py,imports,M2,WI-0061,"imports/models, docs/06 §1",tests/unit/test_parser_xlsx.py
+WI-0064,app/imports/profiler.py,imports,M2,WI-0061,imports/models,tests/unit/test_profiler.py
+WI-0065,app/imports/mapping.py,imports,M2,WI-0061 WI-0043,"imports/models, store/mapping_repo, docs/06 §2.3–2.4, docs/26 §5",tests/unit/test_mapping.py
+WI-0066,app/imports/mapping_suggest.py,imports,M2,,"profiler output, docs/06 §2.3, docs/26",tests/unit/test_mapping_suggest.py
+WI-0067,app/imports/validation.py,imports,M2,WI-0061 WI-0029,"imports/models, core/money, docs/06 §2.5, §4",tests/unit/test_validation.py
+WI-0068,app/imports/control_totals.py,imports,M2,WI-0029 WI-0061,"core/money, imports/models, docs/06 §2.6, docs/26 §5",tests/unit/test_control_totals.py
+WI-0069,app/imports/enrichment.py,imports,M2,WI-0042 WI-0041,"store/gl_repo, store/import_repo, docs/06 §2.9, docs/26 §5",tests/unit/test_enrichment.py
+WI-0070,app/imports/tb_check.py,imports,M2,WI-0042 WI-0041 WI-0029,"store/gl_repo, store/import_repo, core/money, docs/06, docs/30",tests/unit/test_tb_check.py
+WI-0071,app/imports/commit.py,imports,M2,WI-0012 WI-0037 WI-0038 WI-0039 WI-0040 WI-0041 WI-0042 WI-0043 WI-0044 WI-0045 WI-0046 WI-0047 WI-0048 WI-0049 WI-0050 WI-0067 WI-0068,"store/*, validation, control_totals, docs/06 §2.7, docs/23 §2",tests/unit/test_commit.py
+WI-0072,app/imports/trial_balance.py,imports,M2,WI-0042 WI-0029 WI-0004,"store/gl_repo, core/money, docs/03 §2",tests/unit/test_trial_balance.py
+WI-0073,app/imports/reconcile.py,imports,M2,,"docs/19 §I, docs/06",tests/unit/test_reconcile.py
+WI-0074,app/calc/statements.py,calc,M2,WI-0042 WI-0029 WI-0004,"store/gl_repo, core/money, docs/03, docs/45, docs/39",tests/unit/test_statements.py
+WI-0075,app/calc/kpis.py,calc,M2,WI-0074 WI-0004,"calc/statements, docs/43, docs/03 §4",tests/unit/test_kpis.py
+WI-0076,app/calc/bva.py,calc,M2,WI-0042 WI-0045 WI-0004,"store/gl_repo, budget_repo, docs/03 §5",tests/unit/test_bva.py
+WI-0077,app/calc/attribution.py,calc,M2,WI-0076 WI-0004,"calc/bva, docs/03 §6",tests/unit/test_attribution.py
+WI-0078,app/calc/drilldown.py,calc,M2,WI-0042 WI-0004,"store/gl_repo, docs/03 §8",tests/unit/test_drilldown.py
+WI-0079,app/calc/quality_score.py,calc,M2,WI-0074,"docs/29 §9, calc/statements",tests/unit/test_quality_score.py
+WI-0080,app/rules/exc_001.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-001, docs/44 EXC-001, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_001.py
+WI-0081,app/rules/exc_002.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-002, docs/44 EXC-002, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_002.py
+WI-0082,app/rules/exc_003.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-003, docs/44 EXC-003, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_003.py
+WI-0083,app/rules/exc_004.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-004, docs/44 EXC-004, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_004.py
+WI-0084,app/rules/exc_005.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-005, docs/44 EXC-005, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_005.py
+WI-0085,app/rules/exc_006.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-006, docs/44 EXC-006, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_006.py
+WI-0086,app/rules/exc_007.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-007, docs/44 EXC-007, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_007.py
+WI-0087,app/rules/exc_008.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-008, docs/44 EXC-008, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_008.py
+WI-0088,app/rules/exc_009.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-009, docs/44 EXC-009, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_009.py
+WI-0089,app/rules/exc_010.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-010, docs/44 EXC-010, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_010.py
+WI-0090,app/rules/exc_011.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-011, docs/44 EXC-011, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_011.py
+WI-0091,app/rules/exc_012.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-012, docs/44 EXC-012, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_012.py
+WI-0092,app/rules/exc_013.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-013, docs/44 EXC-013, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_013.py
+WI-0093,app/rules/exc_014.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-014, docs/44 EXC-014, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_014.py
+WI-0094,app/rules/exc_015.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-015, docs/44 EXC-015, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_015.py
+WI-0095,app/rules/exc_016.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-016, docs/44 EXC-016, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_016.py
+WI-0096,app/rules/exc_017.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-017, docs/44 EXC-017, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_017.py
+WI-0097,app/rules/exc_018.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-018, docs/44 EXC-018, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_018.py
+WI-0098,app/rules/exc_019.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-019, docs/44 EXC-019, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_019.py
+WI-0099,app/rules/exc_020.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-020, docs/44 EXC-020, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_020.py
+WI-0100,app/rules/exc_021.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-021, docs/44 EXC-021, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_021.py
+WI-0101,app/rules/exc_022.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-022, docs/44 EXC-022, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_022.py
+WI-0102,app/rules/exc_023.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-023, docs/44 EXC-023, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_023.py
+WI-0103,app/rules/exc_024.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-024, docs/44 EXC-024, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_024.py
+WI-0104,app/rules/exc_025.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-025, docs/44 EXC-025, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_025.py
+WI-0105,app/rules/exc_026.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-026, docs/44 EXC-026, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_026.py
+WI-0106,app/rules/exc_027.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-027, docs/44 EXC-027, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_027.py
+WI-0107,app/rules/exc_028.py,rules,M2,WI-0003 WI-0029 WI-0030,"docs/07 EXC-028, docs/44 EXC-028, docs/42 §7 plants for this rule, core/money, core/calendar",tests/unit/test_exc_028.py
+WI-0108,app/rules/suggestions.py,rules,M2,WI-0080 WI-0081 WI-0082 WI-0083 WI-0084 WI-0085 WI-0086 WI-0087 WI-0088 WI-0089 WI-0090 WI-0091 WI-0092 WI-0093 WI-0094 WI-0095 WI-0096 WI-0097 WI-0098 WI-0099 WI-0100 WI-0101 WI-0102 WI-0103 WI-0104 WI-0105 WI-0106 WI-0107 WI-0042 WI-0044 WI-0029 WI-0030 WI-0003 WI-0005,"rules/exc_*, store/gl_repo, store/master_repo, core/money, core/calendar, docs/07 §7, docs/44, docs/55",tests/unit/test_suggestions.py
+WI-0109,app/rules/engine.py,rules,M2,WI-0080 WI-0081 WI-0082 WI-0083 WI-0084 WI-0085 WI-0086 WI-0087 WI-0088 WI-0089 WI-0090 WI-0091 WI-0092 WI-0093 WI-0094 WI-0095 WI-0096 WI-0097 WI-0098 WI-0099 WI-0100 WI-0101 WI-0102 WI-0103 WI-0104 WI-0105 WI-0106 WI-0107 WI-0108 WI-0047,"rules/exc_*, rules/suggestions, store/exception_repo, docs/07 §1, §5, §7",tests/unit/test_rule_engine.py
+WI-0110,app/rules/owner_resolver.py,rules,M2,WI-0044,"store/master_repo, docs/07 §5",tests/unit/test_owner_resolver.py
+WI-0111,app/forecast/naive.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_naive.py
+WI-0112,app/forecast/moving_average.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_moving_average.py
+WI-0113,app/forecast/exponential_smoothing.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_exponential_smoothing.py
+WI-0114,app/forecast/linear_trend.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_linear_trend.py
+WI-0115,app/forecast/driver_based.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_driver_based.py
+WI-0116,app/forecast/seasonal.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_seasonal.py
+WI-0117,app/forecast/budget_phasing.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_budget_phasing.py
+WI-0118,app/forecast/manual.py,forecast,M2,WI-0029 WI-0030,"docs/08 §2, docs/46, core/money, core/calendar",tests/unit/test_fc_manual.py
+WI-0119,app/forecast/engine.py,forecast,M2,WI-0112 WI-0111 WI-0113 WI-0114 WI-0115 WI-0116 WI-0117 WI-0118 WI-0046,"forecast/moving_average, forecast/naive, forecast/exponential_smoothing, forecast/linear_trend, forecast/driver_based, forecast/seasonal, forecast/budget_phasing, forecast/manual, store/forecast_repo, docs/08 §3",tests/unit/test_forecast_engine.py
+WI-0120,app/forecast/scenarios.py,forecast,M2,WI-0119,"forecast/engine, docs/08 §4",tests/unit/test_scenarios.py
+WI-0121,app/forecast/rolling.py,forecast,M2,WI-0119 WI-0030,"forecast/engine, core/calendar, docs/08 §1, §6",tests/unit/test_rolling.py
+WI-0122,tests/integration/test_erp_shape_parity.py,test,M2,WI-0065 WI-0067 WI-0071 WI-0069 WI-0070 WI-0051,"imports/mapping, imports/validation, imports/commit, imports/enrichment, imports/tb_check, generate_sample_data, docs/26 §5, docs/42 §4",-
+WI-0123,app/planning/drivers.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_drivers.py
+WI-0124,app/planning/headcount.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_headcount.py
+WI-0125,app/planning/capex.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_capex.py
+WI-0126,app/planning/debt.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_debt.py
+WI-0127,app/planning/working_capital.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_working_capital.py
+WI-0128,app/planning/cash13.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_cash13.py
+WI-0129,app/planning/sensitivity.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_sensitivity.py
+WI-0130,app/planning/goal_seek.py,planning,M2,WI-0029,"docs/29, docs/08, core/money, docs/89 §5",tests/unit/test_plan_goal_seek.py
+WI-0131,app/planning/integrate.py,planning,M2,WI-0074,"docs/29 §7, calc/statements",tests/unit/test_plan_integrate.py
+WI-0132,app/planning/assumptions.py,planning,M2,,"docs/48, docs/02 §6",tests/unit/test_assumptions.py
+WI-0133,app/adjustments/engine.py,adjust,M2,WI-0029,"docs/39, docs/02 §6, core/money, store",tests/unit/test_adjustments.py
+WI-0134,app/rules/workflow.py,rules,M2,WI-0047 WI-0133 WI-0033,"store/exception_repo, adjustments/engine, core/audit, docs/23 §3, docs/22, docs/07 §7.4, docs/39 §4",tests/unit/test_finding_workflow.py
+WI-0135,app/planning/allocations.py,planning,M2,WI-0133,"docs/40, docs/39, app/adjustments/engine",tests/unit/test_allocations.py
+WI-0136,app/connectors/models.py,connectors,M3,,"docs/26 §8.2–8.4, docs/62 connector.*, docs/23 §11, docs/02 connector_*",tests/unit/test_connector_models.py
+WI-0137,app/connectors/profiles/d365fo.json,connectors,M3,,"docs/26 §8.3, docs/26 §5",tests/unit/test_connector_profiles.py
+WI-0138,app/connectors/profiles/d365bc.json,connectors,M3,,"docs/26 §8.3, docs/26 §5",tests/unit/test_connector_profiles.py
+WI-0139,app/connectors/transport.py,connectors,M3,WI-0035 WI-0028 WI-0136,"core/logging, core/errors, connectors/models, docs/12 §1(d), docs/26 §8.2/8.4, docs/62",tests/unit/test_connector_transport.py
+WI-0140,app/connectors/auth.py,connectors,M3,WI-0136 WI-0034,"connectors/models, core/config (keyring), docs/26 §8.2, docs/12 §5, docs/23 §11",tests/unit/test_connector_auth.py
+WI-0141,app/connectors/odata.py,connectors,M3,WI-0139 WI-0136,"connectors/transport, connectors/models, docs/26 §8.3/8.4",tests/unit/test_connector_odata.py
+WI-0142,app/connectors/snapshot.py,connectors,M3,WI-0136 WI-0029 WI-0032 WI-0065,"connectors/models, core/money, core/hashing, imports/mapping (preset header names), docs/26 §8.4 step 6, docs/06 §1/§3",tests/unit/test_connector_snapshot.py
+WI-0143,app/connectors/d365fo.py,connectors,M3,WI-0141 WI-0140 WI-0137,"connectors/odata, connectors/auth, connectors/profiles/d365fo.json, docs/26 §8.2/8.3",tests/unit/test_connector_d365fo.py
+WI-0144,app/connectors/d365bc.py,connectors,M3,WI-0141 WI-0140 WI-0138,"connectors/odata, connectors/auth, connectors/profiles/d365bc.json, docs/26 §8.2/8.3/8.5",tests/unit/test_connector_d365bc.py
+WI-0145,tools/mock_d365.py,connectors,M3,WI-0051,"sample-data/generate_sample_data.py (erp_shapes/api), docs/26 §8.8, docs/42 §4",tests/unit/test_mock_d365.py
+WI-0146,tests/fixtures/connectors/README.md,connectors,M3,WI-0145 WI-0051,"docs/89 §4b, tools/mock_d365.py, sample-data/generate_sample_data.py",-
+WI-0147,app/jobs/registry.py,services,M3,WI-0001,"docs/64, docs/05 §1",tests/unit/test_jobs.py
+WI-0148,app/services/connector_service.py,services,M3,WI-0143 WI-0144 WI-0142 WI-0063 WI-0065 WI-0067 WI-0071 WI-0069 WI-0070 WI-0050 WI-0147,"connectors/d365fo, connectors/d365bc, connectors/snapshot, imports/parser_xlsx, imports/mapping, imports/validation, imports/commit, imports/enrichment, imports/tb_check, store/connector_repo, jobs/registry, docs/26 §8.4–8.6, docs/23 §11, docs/64",tests/integration/test_connector_pull.py
+WI-0149,app/services/month_end.py,services,M3,,"all engine modules, docs/23 workflow, docs/04 §3",tests/integration/test_month_end.py
+WI-0150,app/services/dashboard.py,services,M3,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0012 WI-0037 WI-0038 WI-0039 WI-0040 WI-0041 WI-0042 WI-0043 WI-0044 WI-0045 WI-0046 WI-0047 WI-0048 WI-0049 WI-0050,"calc/*, store/*, docs/90",tests/unit/test_dashboard_service.py
+WI-0151,app/services/close_service.py,services,M3,,"docs/30, docs/23 §7",tests/unit/test_close_service.py
+WI-0152,app/services/alerts.py,services,M3,,"docs/19 §K, docs/08 §6, docs/62",tests/unit/test_alerts.py
+WI-0153,app/services/year_end.py,services,M3,WI-0133,"docs/38, app/adjustments/engine",tests/unit/test_year_end.py
+WI-0154,app/api/main.py,api,M3,WI-0001,"docs/05 §1, docs/12",tests/api/test_main.py
+WI-0155,app/api/routes_health.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §health, docs/90, docs/63",tests/api/test_routes_health.py
+WI-0156,app/api/routes_projects.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §projects, docs/90, docs/63",tests/api/test_routes_projects.py
+WI-0157,app/api/routes_imports.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §imports, docs/90, docs/63",tests/api/test_routes_imports.py
+WI-0158,app/api/routes_statements.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §statements, docs/90, docs/63",tests/api/test_routes_statements.py
+WI-0159,app/api/routes_bva.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §bva, docs/90, docs/63",tests/api/test_routes_bva.py
+WI-0160,app/api/routes_exceptions.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §exceptions, docs/90, docs/63",tests/api/test_routes_exceptions.py
+WI-0161,app/api/routes_forecast.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §forecast, docs/90, docs/63",tests/api/test_routes_forecast.py
+WI-0162,app/api/routes_exports.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §exports, docs/90, docs/63",tests/api/test_routes_exports.py
+WI-0163,app/api/routes_settings.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §settings, docs/90, docs/63",tests/api/test_routes_settings.py
+WI-0164,app/api/routes_adjustments.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §adjustments, docs/90, docs/63",tests/api/test_routes_adjustments.py
+WI-0165,app/api/routes_allocations.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §allocations, docs/90, docs/63",tests/api/test_routes_allocations.py
+WI-0166,app/api/routes_assumptions.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §assumptions, docs/90, docs/63",tests/api/test_routes_assumptions.py
+WI-0167,app/api/routes_year_end.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §year_end, docs/90, docs/63",tests/api/test_routes_year_end.py
+WI-0168,app/api/routes_close.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §close, docs/90, docs/63",tests/api/test_routes_close.py
+WI-0169,app/api/routes_reconcile.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §reconcile, docs/90, docs/63",tests/api/test_routes_reconcile.py
+WI-0170,app/api/routes_alerts.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §alerts, docs/90, docs/63",tests/api/test_routes_alerts.py
+WI-0171,app/api/routes_planning.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §planning, docs/90, docs/63",tests/api/test_routes_planning.py
+WI-0172,app/api/routes_reports_builder.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §reports_builder, docs/90, docs/63",tests/api/test_routes_reports_builder.py
+WI-0173,app/api/routes_connector.py,api,M3,WI-0154 WI-0001,"api/main, docs/05 §connector, docs/90, docs/63",tests/api/test_routes_connector.py
+WI-0174,app/cli/main.py,cli,M3,WI-0149 WI-0148,"services/month_end, services/connector_service, docs/60",tests/integration/test_cli.py
+WI-0175,app/desktop/shell.py,desktop,M3,WI-0154,"api/main, ui build, docs/12, docs/16",tests/unit/test_desktop_shell.py
+WI-0176,app/ai/client.py,ai,M3,WI-0034,"docs/11 §5, core/config",tests/unit/test_ai_client.py
+WI-0177,app/ai/guardrails.py,ai,M3,,"docs/11 §3, docs/88",tests/unit/test_ai_guardrails.py
+WI-0178,app/ai/commentary.py,ai,M3,WI-0176 WI-0177 WI-0076,"ai/client, ai/guardrails, calc/bva, docs/11 §1",tests/unit/test_ai_commentary.py
+WI-0179,app/ai/prompts.py,ai,M3,,"docs/88, docs/11 §4",tests/unit/test_ai_prompts.py
+WI-0180,ui/package.json,ui,M4,,"docs/04 §6, docs/15",-
+WI-0181,ui/vite.config.ts,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0182,ui/tsconfig.json,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0183,ui/tsconfig.node.json,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0184,ui/index.html,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0185,ui/eslint.config.js,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0186,ui/src/main.tsx,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0187,ui/src/App.tsx,ui,M4,,"docs/13, docs/15, docs/53, docs/27",-
+WI-0188,ui/src/lib/format.ts,ui,M4,,"docs/13, docs/15, docs/53, docs/27",ui/src/lib/format.test.ts
+WI-0189,ui/src/api/client.ts,ui,M4,WI-0001 WI-0005,"docs/05, docs/90, docs/55",ui/src/api/client.test.ts
+WI-0190,ui/src/theme/tokens.ts,ui,M4,,docs/53 §4,ui/src/theme/tokens.test.ts
+WI-0191,ui/src/components/DataTable.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/DataTable.test.tsx
+WI-0192,ui/src/components/VarianceBadge.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/VarianceBadge.test.tsx
+WI-0193,ui/src/components/DrillDrawer.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/DrillDrawer.test.tsx
+WI-0194,ui/src/components/FileDrop.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/FileDrop.test.tsx
+WI-0195,ui/src/components/WizardSteps.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/WizardSteps.test.tsx
+WI-0196,ui/src/components/FindingCard.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/FindingCard.test.tsx
+WI-0197,ui/src/components/PeriodPicker.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/PeriodPicker.test.tsx
+WI-0198,ui/src/components/ExportButton.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/ExportButton.test.tsx
+WI-0199,ui/src/components/EmptyState.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/EmptyState.test.tsx
+WI-0200,ui/src/components/ErrorBanner.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/ErrorBanner.test.tsx
+WI-0201,ui/src/components/ConfirmDialog.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/ConfirmDialog.test.tsx
+WI-0202,ui/src/components/KpiCard.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/KpiCard.test.tsx
+WI-0203,ui/src/components/LayerSelector.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/LayerSelector.test.tsx
+WI-0204,ui/src/components/JobToast.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/JobToast.test.tsx
+WI-0205,ui/src/components/ConnectionCard.tsx,ui,M4,WI-0190,"docs/53 §2, docs/57, theme/tokens",ui/src/components/ConnectionCard.test.tsx
+WI-0206,ui/src/stores/projectStore.ts,ui,M4,WI-0189,"api/client, docs/13 §4",ui/src/stores/projectStore.test.ts
+WI-0207,ui/src/stores/periodStore.ts,ui,M4,WI-0189,"api/client, docs/13 §4",ui/src/stores/periodStore.test.ts
+WI-0208,ui/src/stores/importStore.ts,ui,M4,WI-0189,"api/client, docs/13 §4",ui/src/stores/importStore.test.ts
+WI-0209,ui/src/stores/findingStore.ts,ui,M4,WI-0189,"api/client, docs/13 §4",ui/src/stores/findingStore.test.ts
+WI-0210,ui/src/stores/forecastStore.ts,ui,M4,WI-0189,"api/client, docs/13 §4",ui/src/stores/forecastStore.test.ts
+WI-0211,ui/src/stores/uiStore.ts,ui,M4,WI-0189,"api/client, docs/13 §4",ui/src/stores/uiStore.test.ts
+WI-0212,ui/src/pages/S01-dashboard/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S01, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S01-dashboard/index.test.tsx
+WI-0213,ui/src/pages/S02-projects/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S02, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S02-projects/index.test.tsx
+WI-0214,ui/src/pages/S03-import/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S03, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S03-import/index.test.tsx
+WI-0215,ui/src/pages/S04-mapping/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S04, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S04-mapping/index.test.tsx
+WI-0216,ui/src/pages/S05-trial-balance/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S05, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S05-trial-balance/index.test.tsx
+WI-0217,ui/src/pages/S06-statements/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S06, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S06-statements/index.test.tsx
+WI-0218,ui/src/pages/S07-bva/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S07, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S07-bva/index.test.tsx
+WI-0219,ui/src/pages/S08-exceptions/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S08, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S08-exceptions/index.test.tsx
+WI-0220,ui/src/pages/S09-forecast/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S09, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S09-forecast/index.test.tsx
+WI-0221,ui/src/pages/S10-scenarios/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S10, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S10-scenarios/index.test.tsx
+WI-0222,ui/src/pages/S11-exports/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S11, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S11-exports/index.test.tsx
+WI-0223,ui/src/pages/S12-owners/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S12, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S12-owners/index.test.tsx
+WI-0224,ui/src/pages/S13-settings/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S13, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S13-settings/index.test.tsx
+WI-0225,ui/src/pages/S14-audit/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S14, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S14-audit/index.test.tsx
+WI-0226,ui/src/pages/S15-help/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S15, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S15-help/index.test.tsx
+WI-0227,ui/src/pages/S16-close/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S16, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S16-close/index.test.tsx
+WI-0228,ui/src/pages/S17-planning/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S17, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S17-planning/index.test.tsx
+WI-0229,ui/src/pages/S18-reconcile/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S18, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S18-reconcile/index.test.tsx
+WI-0230,ui/src/pages/S19-alerts/index.tsx,ui,M4,WI-0002 WI-0005 WI-0189,"docs/21 §S19, docs/13, docs/55, docs/57, ui/src/api/client",ui/src/pages/S19-alerts/index.test.tsx
+WI-0231,app/exports/sheet_cover.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_cover.py
+WI-0232,app/exports/sheet_contents.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_contents.py
+WI-0233,app/exports/sheet_pl.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_pl.py
+WI-0234,app/exports/sheet_bs.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_bs.py
+WI-0235,app/exports/sheet_cf.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_cf.py
+WI-0236,app/exports/sheet_bva.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_bva.py
+WI-0237,app/exports/sheet_exceptions.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_exceptions.py
+WI-0238,app/exports/sheet_forecast.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_forecast.py
+WI-0239,app/exports/sheet_kpis.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_kpis.py
+WI-0240,app/exports/sheet_drilldata.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_drilldata.py
+WI-0241,app/exports/sheet_checks.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_checks.py
+WI-0242,app/exports/sheet_sources.py,exports,M5,WI-0015 WI-0074 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0029,"docs/09, calc/*, core/money",tests/unit/test_sheet_sources.py
+WI-0243,app/exports/excel_pack.py,exports,M5,WI-0231 WI-0232 WI-0233 WI-0234 WI-0235 WI-0236 WI-0237 WI-0238 WI-0239 WI-0240 WI-0241 WI-0242,"exports/sheet_*, docs/09",tests/unit/test_excel_pack.py
+WI-0244,app/exports/slide_title.py,exports,M5,,docs/10,tests/unit/test_slide_title.py
+WI-0245,app/exports/slide_summary.py,exports,M5,,docs/10,tests/unit/test_slide_summary.py
+WI-0246,app/exports/slide_pl.py,exports,M5,,docs/10,tests/unit/test_slide_pl.py
+WI-0247,app/exports/slide_bridge.py,exports,M5,,docs/10,tests/unit/test_slide_bridge.py
+WI-0248,app/exports/slide_exceptions.py,exports,M5,,docs/10,tests/unit/test_slide_exceptions.py
+WI-0249,app/exports/slide_forecast.py,exports,M5,,docs/10,tests/unit/test_slide_forecast.py
+WI-0250,app/exports/slide_risks.py,exports,M5,,docs/10,tests/unit/test_slide_risks.py
+WI-0251,app/exports/slide_appendix.py,exports,M5,,docs/10,tests/unit/test_slide_appendix.py
+WI-0252,app/exports/ppt_pack.py,exports,M5,WI-0244 WI-0245 WI-0246 WI-0247 WI-0248 WI-0249 WI-0250 WI-0251,"docs/10, exports/slide_*",tests/unit/test_ppt_pack.py
+WI-0253,app/exports/journal_export.py,exports,M5,WI-0047 WI-0048 WI-0029 WI-0005,"store/exception_repo, store/report_repo, core/money, docs/26 §7, docs/07 §7.4, docs/55, docs/09 §5",tests/unit/test_journal_export.py
+WI-0254,app/exports/pdf_report.py,exports,M5,,"exports data objects, docs/09, docs/10",tests/unit/test_pdf_report.py
+WI-0255,app/exports/report_builder.py,exports,M5,,"docs/19 §J, docs/69, docs/09",tests/unit/test_report_builder.py
+WI-0256,tests/integration/test_cross_artifact.py,test,M5,WI-0020 WI-0243 WI-0231 WI-0232 WI-0233 WI-0234 WI-0235 WI-0236 WI-0237 WI-0238 WI-0239 WI-0240 WI-0241 WI-0242 WI-0252 WI-0244 WI-0245 WI-0246 WI-0247 WI-0248 WI-0249 WI-0250 WI-0251 WI-0253 WI-0254 WI-0255 WI-0022 WI-0154 WI-0155 WI-0156 WI-0157 WI-0158 WI-0159 WI-0160 WI-0161 WI-0162 WI-0163 WI-0164 WI-0165 WI-0166 WI-0167 WI-0168 WI-0169 WI-0170 WI-0171 WI-0172 WI-0173 WI-0189,"exports/*, api/*, docs/14 §3",-
+WI-0257,scripts/check.py,scripts,M6,,"docs/14 §5, docs/15, docs/66, docs/12 §1",-
+WI-0258,scripts/acceptance.py,scripts,M6,WI-0060,"test_acceptance, docs/14 §3",-
+WI-0259,scripts/docs_check.py,scripts,M6,,"docs/14 §5, docs/00_INDEX",tests/unit/test_docs_check.py
+WI-0260,packaging/fpa.spec,packaging,M6,,docs/16,-
+WI-0261,packaging/installer.iss,packaging,M6,,docs/16 §2,-
+WI-0262,scripts/build.py,scripts,M6,WI-0260 WI-0261,"packaging/*, docs/16, docs/81",-
+WI-0263,.github/workflows/ci.yml,ci,M6,,"docs/66, docs/15",-
+WI-0264,docs/18_USER_GUIDE.md,docs6,M6,WI-0005,"docs/18, docs/52, docs/22, docs/55",-
+WI-0265,docs/00_INDEX.md,docs6,M6,WI-0259,"scripts/docs_check.py, docs/34",-
+WI-0266,tests/perf/test_perf.py,test,M6,,"docs/14 §4, docs/67",-
