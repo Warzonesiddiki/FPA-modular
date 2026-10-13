@@ -1,0 +1,5 @@
+# 78 — TEST DATA MANAGEMENT SPECIFICATION
+
+1. **Synthetic-first:** all dev/test/demo data is generated (doc 42). Real company data enters the repo **never** — not in fixtures, screenshots, bugs, or AI evals (72 defect template enforces: dataset hash or synthetic reproduction steps).
+2. **Pilot data (on the client machine only):** stays in the client's project folder; if a defect needs their shape, the client may share an **anonymised extract** produced by the in-app anonymiser (Help → "Create anonymised sample": names/vendors/descriptions replaced with stable fake tokens, amounts scaled by a secret factor, dates shifted by whole months — structure and balance preserved, values unrecoverable). Anonymised extracts live outside the repo (support channel) and are deleted after the defect closes (35).
+3. **Fixture governance:** fixtures carry source (generator version/seed or hand-oracle reference), a README per fixture folder, and hash in CI; changing a fixture requires the same review as changing a spec expectation (fixtures ARE expectations, doc 14 §2).

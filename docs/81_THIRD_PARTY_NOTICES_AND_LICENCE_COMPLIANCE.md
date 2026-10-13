@@ -1,0 +1,3 @@
+# 81 — THIRD-PARTY NOTICES & LICENCE COMPLIANCE
+
+Process: dependency licences inventoried from lockfiles at build (SBOM, 12 §6) → allowlist check (MIT/BSD/Apache-2.0/PSF/LGPL-with-linking-review; anything copyleft-strong or unknown = build fail pending ADR) → `THIRD_PARTY_NOTICES` file generated (name, version, licence, copyright, URL) shipped in install dir + About screen link. Python/Node transitive deps included. Fonts/icons (Lucide ISC, Calibri = system font, not redistributed) recorded. Owner reviews the notices diff each release (16 checklist line). AI provider terms are the user's own agreement (S13 links, we ship no provider SDK that phones home — HTTP client only).

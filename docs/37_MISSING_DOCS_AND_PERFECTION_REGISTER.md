@@ -1,6 +1,6 @@
 # 37 — MISSING DOCS & PERFECTION REGISTER (gap audit, 2026-10-14)
 
-> Audit of docs 00–36 + MASTER_PLAN against "absolute perfection, zero compromise". Everything below is **missing or only mentioned in passing** today. Priority: **P0** = blocks Wave 1 (build on sand without it) · **P1** = blocks its feature wave · **P2** = blocks release · **P3** = blocks pilot/commercial/Phase-2. Proposed numbering continues 38+.
+> Audit of docs 00–36 + MASTER_PLAN against "absolute perfection, zero compromise". **STATUS 2026-10-14: all 50 docs below have been WRITTEN (docs 38–87).** This register remains as the audit trail + the checklist a Wave-0 reviewer signs against (AUD-J). Priority: **P0** = blocks Wave 1 (build on sand without it) · **P1** = blocks its feature wave · **P2** = blocks release · **P3** = blocks pilot/commercial/Phase-2. Proposed numbering continues 38+.
 
 ## A. FP&A domain depth — the biggest holes (finance correctness)
 | # | Proposed doc | Why fatal if missing | P |

@@ -203,6 +203,10 @@ for sid, slug3, desc in [("S16","close","Close management screen per doc 21/30")
 for num2 in ["19_DETAILED_FUNCTIONAL_SPEC","20_TRACEABILITY_MATRIX","21_SCREEN_SPEC_DETAILED","22_ERROR_CATALOG","23_STATE_MACHINES_AND_WORKFLOWS","24_DATA_FLOWS_ERD_AND_SEQUENCES","25_THREAT_MODEL","26_INTEGRATIONS_AND_ERP_FIELD_GUIDES","27_LOCALIZATION_CURRENCY_AND_UNITS","28_MASTER_DATA_COA_AND_TEMPLATES","29_BUDGETING_PLANNING_AND_KPI_SPEC","30_CLOSE_MANAGEMENT_SPEC","31_GLOSSARY","32_COMPETITIVE_PARITY_AND_POSITIONING","33_AGENT_EXECUTION_HANDBOOK","34_AUDIT_PLAYBOOK","35_OPERATIONS_SUPPORT_AND_SLA","36_NFR_CATALOG"]:
     add(f"docs/{num2}.md","docs",f"Expansion spec {num2}: complete, cross-referenced, zero placeholders; already authored by lead - agent REVISES only via integrator instruction, else verifies links/IDs.","docs/00_INDEX, docs/"+num2.split('_')[0],"existing doc","verified doc","Docs-verify: all IDs referenced exist; no TBD; consistent with docs 01-18","-","This doc exists; packet = verification/hardening pass, report gaps as BLOCKED-style findings, do not rewrite unilaterally.")
 
+for num3 in range(38,88):
+    _f = sorted((ROOT/"docs").glob(f"{num3}_*.md"))
+    if _f:
+        add(f"docs/{_f[0].name}","docs",f"Perfection-register doc {num3}: authored by lead; agent verifies cross-refs, IDs, consistency with docs 01-36 and reports gaps - does not rewrite unilaterally.","docs/37_MISSING_DOCS_AND_PERFECTION_REGISTER","existing doc","verified doc","Docs-verify passes; every referenced ID exists; zero placeholders","-","See doc 37 for why this doc exists and its priority.")
 def slug(p): return re.sub(r'[^a-z0-9]+','-',p.lower()).strip('-')[:60]
 
 def main():

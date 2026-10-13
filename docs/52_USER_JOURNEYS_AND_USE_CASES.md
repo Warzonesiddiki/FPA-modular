@@ -1,0 +1,13 @@
+# 52 — USER JOURNEYS & TABLETOP SCRIPTS (P20 walkthroughs)
+
+> Each journey is a tabletop/UAT script (doc 71 derives executable UAT from these). Personas doc 01 §3.
+
+**J1 First month (new analyst, sample):** install → open Sample → guided walkthrough (S15) → import (already staged) → read quarantine → commit → TB green → statements → explain top variance → waive one finding with reason → run forecast, read MAPE → generate board pack → lock period. *Success: ≤60 min, zero dead-ends, every number drilled once.*
+**J2 Month 2 (real rhythm):** drop 3 files → mapping auto-applied → 4 quarantined rows fixed via master-data flow → commit → auto rule run → triage 6 findings (2 corrected via ERP re-export → verify closes them) → rolling forecast refresh → board pack. *Success: ≤30 min hands-on (14 §6).*
+**J3 The CFO challenge:** CFO disputes marketing variance in the deck → analyst opens PPT note drill key → S07 filtered → DrillDrawer → source row → answer in <2 min live. *This journey is the product's demo script.*
+**J4 Restated month:** error found in locked period → unlock with reason → re-import → read Restatement Impact Report → forecasts flagged stale → re-run → re-lock with attestation → new pack supersedes old with cross-reference (doc 41).
+**J5 Owner correction loop:** analyst exports owner action list → owner corrects in ERP → next import → corrected findings verified → closure rate KPI moves (doc 29 §8).
+**J6 Budget season:** import next-FY budget → phase it → driver/headcount/capex plans (S17) → integrated forecast balances → scenarios Base/Upside/Downside → board scenario pack (doc 29).
+**J7 Bad-data month:** malformed files (encoding, ambiguous dates, unbalanced) → quarantine handled → control-total mismatch caught → month proceeds only when clean; nothing silently loaded. *Failure of any step in J7 = P1 defect.*
+**J8 Year-end:** J2 + doc 38 sequence → rollforward Δ=0 → new FY opens correctly.
+Each journey defines: entry state, steps (screen ids), data (corpus period), expected artefacts, and the "wince points" (moments that must feel effortless: mapping reuse, drill speed, plain-language errors).
