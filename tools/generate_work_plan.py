@@ -35,7 +35,7 @@ add("docs/05_API_CONTRACT.md", "docs0",
     "Rewrite to OpenAPI-grade: every endpoint with method, path, auth, request schema, response schema, status codes (200/201/202/204/400/404/409/422), error codes, pagination, idempotency, example. Merge doc 90 field tables into per-endpoint sections (doc 90 stays as the schema index).",
     "docs/05 (current), docs/90, docs/63, docs/22, docs/02", "current tables", "complete endpoint catalogue",
     "Every route file in M3 can be written without inventing a field; a parity script (M6) diffs OpenAPI against the catalogue with zero gaps; `/jobs/{id}` result schema defined per job kind (import, rules, forecast, export, allocation, reconcile, year-end).",
-    "-", "Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema.")
+    "tests/docs/test_api_job_contract.py", "Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema. DEC-016: docs/api_job_schemas.json is the normative job-schema attachment, with document-only tests; product code stays frozen. Full endpoint rewrite still required.")
 add("docs/21_SCREEN_SPEC_DETAILED.md", "docs0",
     "Expand from one table row per screen to one section per screen S01–S19: route, layout zones (doc 54), every field with source DTO path (doc 05/90), every action with API call + success/failure copy key (doc 55), validations, the five states, keyboard map (doc 57), drill paths, acceptance tests.",
     "docs/21, docs/13, docs/53, docs/54, docs/57, docs/05, docs/90", "current table", "19 implementable screen specs",

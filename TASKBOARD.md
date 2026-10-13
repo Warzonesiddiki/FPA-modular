@@ -13,6 +13,9 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **DEC-015** (auto): API error transport now covers all 73 codes; locked connector pull corrected to ERR-027/423 (docs 05 §1.1, 23 §11, 26 §8.4). WI-0001 remains in progress; remaining endpoint/job/auth/schema defects and reproducible partial checks: `evidence/WI-0001_api_contract_review.md`. No implementation or gate pass claimed.
 
+- **Batch request (2026-10-14):** owner requested the next 30 items; track WI-0001…0030 in plan order. No gate bypass, no bulk done marking. Current item remains WI-0001.
+- **DEC-016** (auto): shared API protocol and job-schema ownership fixed in docs before implementation; details doc 17 §4. No owner approval needed.
+
 ## Current position
 - Milestone: **M0** (gate open) · In progress: **WI-0001** · Last session: 2026-10-13 UTC; baseline `6cc5776`, 9 tests pass. Three housekeeping commits completed, including DEC-014; plan **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10. No WI done; WI-0001 error/lock sub-scope verified, remaining endpoint/job/schema/auth expansion recorded in its evidence §4. Resume WI-0001 `docs/05_API_CONTRACT.md`.
 
@@ -314,3 +317,8 @@ FILES TOUCHED: docs/05, docs/17, docs/23, docs/26, docs/90, docs/CHANGELOG, TASK
 DEVIATIONS: DEC-015 resolves missing mappings and wrong connector-lock error in owning docs before implementation. No product code or new error code. Completion requires the remaining work below, so no WI done commit yet (this sub-scope is a docs-fix commit).
 DECISIONS TAKEN: DEC-015 (auto) · OWNER-ONLY ITEMS: no new items; existing Entra app registration (doc 18 §8) needed only before a real tenant pull, not this WI.
 NEXT: continue WI-0001 using evidence §4: expand method/path inventory; resolve callback auth/base path/project scope; reconcile all job kinds/results with doc 64; converge doc 90 fields and complete doc 63 examples; cover per-endpoint errors/pagination/idempotency and money strings. **Do not start WI-0002 or WI-0008 yet.** M0 gate open (0/8 done, 1 in progress).
+
+## WI-0001 continuation — 2026-10-14
+STATUS: in_progress
+CONTRACT: docs 05 §1.2–1.4 / 12 §1.1: explicit local token + project context, root callback only with state/PKCE; doc 22: 76 known errors; doc 64: every job has a closed, typed result; money is a decimal string. Schema attachment + paired doc tests permitted by DEC-016; no product imports.
+BASELINE: `python -m pytest -q` → 9 passed in 0.12s. Thirty-item request is not a waiver of M0 or its cold audit.
