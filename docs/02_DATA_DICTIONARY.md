@@ -23,6 +23,8 @@
 ### periods
 | period_id TEXT PK (`2026-P01`) · project_id FK · fiscal_year INT · period_no INT 1–12 · start_date/end_date DATE · status TEXT `open|closing|locked` · locked_at TEXT NULL · lock_note TEXT NULL |
 
+**Period identity (normative):** `fiscal_year` = calendar year in which the fiscal year *starts*. `period_id = <fiscal_year>-P<period_no 01..12>`; with fy_start_month=4, `2026-P01` = April 2026, `2026-P12` = March 2027. PY of `2026-P01` = `2025-P01`. All docs' examples follow this.
+
 ### entities / accounts / cost_centres / vendors / owners
 Master data, each: `<x>_id TEXT PK`, `project_id FK`, `code TEXT`, `name TEXT`, `is_active INT`, `version INT`, timestamps. `accounts` adds: `account_type` (`revenue|cogs|opex|asset|liability|equity|other`), `statement_line` (doc 03 mapping key), `normal_side` (`debit|credit`). `owners`: `owner_id, display_name, email NULL, role_label`. `account_owners(account_id, owner_id, valid_from)` assigns accountability (doc 07).
 
@@ -33,13 +35,13 @@ Master data, each: `<x>_id TEXT PK`, `project_id FK`, `code TEXT`, `name TEXT`, 
 | raw_id PK · batch_id FK · sheet_name TEXT · row_no INT (1-based in source incl. header offset recorded) · raw_json TEXT (original cells as strings) · parse_status (`ok|quarantined`) · quarantine_reason TEXT NULL |
 
 ### gl_rows (the fact table)
-| gl_row_id TEXT PK = hash(batch_id+row_no) (deterministic, doc 06) · project_id · period_id · batch_id FK · entity_id · account_id · cost_centre_id NULL · vendor_id NULL · voucher_no TEXT · document_date DATE · posting_date DATE · description TEXT (hostile data — never executed/rendered as markup) · amount_minor INT (debit +, credit −) · quantity REAL NULL (drivers only) · source_file TEXT · source_row INT |
+| gl_row_id TEXT PK = hash(batch_id+row_no) (deterministic, doc 06) · project_id · period_id · batch_id FK · entity_id · account_id · cost_centre_id NULL · vendor_id NULL · voucher_no TEXT · document_date DATE · posting_date DATE · description TEXT (hostile data — never executed/rendered as markup) · amount_minor INT (debit +, credit −) · quantity_decimal TEXT NULL (decimal string; floats are banned everywhere including drivers, doc 46) · source_file TEXT · source_row INT |
 
 ### mapping_profiles / mapping_rules
 `mapping_profiles(profile_id PK, project_id, source_kind, name, version, is_default, created_at)`. `mapping_rules(profile_id FK, source_column TEXT, canonical_field TEXT, transform TEXT (`none|date:fmt|amount:debit_credit_cols|sign_flip`), constant_value TEXT NULL, PK(profile_id, canonical_field))`. Canonical fields: entity, account, cost_centre, vendor, voucher_no, document_date, posting_date, description, amount, debit, credit, quantity.
 
 ### budget_lines / budget_versions
-`budget_versions(version_id PK, project_id, label (`Budget FY27 v1`), status (`draft|approved|locked`), created_at)`. `budget_lines(version_id FK, period_id, entity_id, account_id, cost_centre_id NULL, amount_minor INT, PK(version_id, period_id, entity_id, account_id, cost_centre_id))`.
+`budget_versions(version_id PK, project_id, label (`Budget FY27 v1`), status (`draft|approved|locked`), created_at)`. `budget_lines(line_id TEXT PK, version_id FK, period_id, entity_id, account_id, cost_centre_id NULL, amount_minor INT)` + `UNIQUE INDEX ux_budget_grain ON budget_lines(version_id, period_id, entity_id, account_id, IFNULL(cost_centre_id,''))` — a composite PK over a nullable column would silently allow duplicates in SQLite, so uniqueness lives in this expression index, and a schema test inserts a duplicate grain expecting failure.
 
 ### driver_values
 | driver_id TEXT (`volume|price|headcount|rate|custom:<name>`) · period_id · entity_id · account_id NULL · value TEXT (decimal string, parsed via money module rules — never float storage) · source (`import|manual|scenario`) · scenario_id NULL |
@@ -84,3 +86,10 @@ Design point: 250k gl_rows/project/year, 5M lifetime. Indexes: gl_rows(period_id
 - **alerts**: alert_id PK · project_id · alert_key · period_id · kind (`kpi|finding|bias|close`) · severity · message · status (doc 23 §9) · seen_count INT · created_at/last_seen.
 - **report_definitions**: def_id PK · project_id · name · blocks_json (statement/bva/kpi blocks, grain, period mode) · version · created_by.
 All expansion tables carry created_at/updated_at/version and audit-on-mutation per §1.
+
+## 6. Tables required by docs 38–48 (normative — schema.sql is incomplete without these)
+- **adjustments** (doc 39): adj_id TEXT PK · project_id · period_id · entity_id · account_id · cost_centre_id NULL · amount_minor INT · kind (`reclass|provision|closing|correction_view|other`) · label · reason TEXT NOT NULL · pair_group_id TEXT NULL · contra_account_id NULL · status (`draft|applied|reversed`) · reverses_adj_id NULL · source (`manual|system_closing|allocation`) · created_by/at · version. Rule runs record their layer; statement queries take layer as a parameter.
+- **allocation_definitions**: def_id PK · project_id · name · method (`pct|driver|step_down`) · source_scope_json · driver_id NULL · step_order_json NULL · version · is_active. **allocation_receivers**: def_id FK · cost_centre_id · pct TEXT NULL (driver method computes shares). **allocation_runs**: run_id PK · def_id FK · period_id · status (`draft|applied`) · created_at (output = adjustments rows with source=`allocation`, label `ALLOC:<name>`).
+- **assumptions** (doc 48): assumption_id PK · project_id · scope (`project|entity|account_group`) · scope_ref · key · value_decimal TEXT · unit · owner_id NULL · source_note · valid_from_period · version · status (`draft|approved`). Forecast runs store assumption versions in accuracy/snapshot JSON.
+- **year_end_runs**: ye_id PK · project_id · fiscal_year INT · status (`checks|closing_proposed|confirmed`) · closing_batch_ref NULL · rollforward_check_json · created_at. (Closing journal itself is stored as adjustments kind=`closing` + a generated `opening` import batch, doc 38.)
+Schema-equality test (doc 14) compares this doc's full table list (sections 2, 5, 6) against sqlite_master — any table here missing from schema.sql fails CI.

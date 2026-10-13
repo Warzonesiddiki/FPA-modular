@@ -5,7 +5,7 @@
 ## 1. Common contract (all rules)
 - Pure function `(gl_rows, budget_lines?, params, context) -> Finding[]`. Deterministic; Decimal/integer only; no I/O, no clock (run date injected).
 - Params from settings `rule.EXC-###.*` with the defaults below; every param change is versioned + audited, and the run records the param snapshot in evidence.
-- Severity: `high|medium|low` per rule default; amount-based escalation where stated.
+- Severity: `high|medium|low` per rule default; **amount escalation (all rules): a finding whose amount ≥ 3× the rule's absolute threshold is High** (this is what makes doc 42's P14/P20/P21 high-severity).
 - Finding evidence_json always contains: triggering row ids, computed values, thresholds used, and the grain key parts — enough for a stranger to re-derive the finding by hand (audit standard).
 - A rule that cannot run (missing budget, missing PY) returns `not_run: reason`, shown on S08 — silent skips are defects.
 
@@ -20,7 +20,7 @@ Defaults: material_abs ₹100,000 (`10000000` minor), material_pct 5%, spike_pct
 | EXC-001 | Duplicate voucher (`voucher_no`) | Same entity+voucher_no+|amount| posted in ≥2 distinct batches, or twice in one batch with distinct rows and no reversal pair | High |
 | EXC-002 | Re-import overlap (`voucher_no|account`) | Voucher/account/amount/date tuple present in an earlier committed batch and again in current | Medium |
 | EXC-003 | Control-total mismatch (`batch_id`) | Declared vs actual totals differ at commit (also raised retrospectively if a committed batch's stored totals ≠ recomputed) | High |
-| EXC-004 | Unbalanced voucher (`voucher_no`) | Σ amounts per entity+voucher ≠ 0 beyond ₹0.01 tolerance (setting, default exact) | High |
+| EXC-004 | Unbalanced voucher (`voucher_no`) | Σ amounts per entity+voucher ≠ 0 exactly (tolerance setting `rule.EXC-004.tol_minor`, default 0 minor units) | High |
 | EXC-005 | Posting to locked period (`voucher_no`) | posting_date in a period whose status was `locked` at commit time (post-lock imports require unlock audit) | High |
 | EXC-006 | Vendor concentration spike (`vendor`) | One vendor ≥ 40% of entity×account period spend AND spend ≥ spike_abs, where prior-3-period average share < 25% | Medium |
 | EXC-007 | Suspense/clearing ageing (`account`) | Accounts flagged `suspense` (master-data tag; default code pattern `1999*`) with net balance older than 30 days (oldest open voucher) or balance ≥ material_abs at period end | High |

@@ -10,7 +10,7 @@ Forecast operates per **account group** (Revenue, COGS, Personnel, Other Opex, O
 |---|---|---|
 | `naive` | Last actual (or same-period-last-year if seasonality flag) repeated | 1 |
 | `moving_average` | Mean of last n (default 3) actuals, n configurable | n |
-| `exponential_smoothing` | Holt-Winters (additive trend/seasonality, α .3 β .1 γ .2 defaults, grid-searched on backtest window) | 12 for seasonal, else Holt linear ≥4 |
+| `exponential_smoothing` | Holt-Winters additive (α .3 β .1 γ .2 defaults, grid-searched) if n≥14, else Holt linear if n≥4 (doc 46 owns the math and these minima) | 14 (HW) / 4 (Holt) |
 | `linear_trend` | Least-squares on last ≤12 points; optional CAGR variant for revenue | 4 |
 | `driver_based` | From driver_values: e.g. Revenue = volume × price; Personnel = headcount × avg cost; account mapping declares driver formula id | drivers present |
 | `seasonal` | Seasonal index (period_of_year mean / overall mean, ≥2 years) × trend level | 24 (else not_run, reason shown) |

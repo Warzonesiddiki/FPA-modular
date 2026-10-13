@@ -207,6 +207,27 @@ for num3 in range(38,88):
     _f = sorted((ROOT/"docs").glob(f"{num3}_*.md"))
     if _f:
         add(f"docs/{_f[0].name}","docs",f"Perfection-register doc {num3}: authored by lead; agent verifies cross-refs, IDs, consistency with docs 01-36 and reports gaps - does not rewrite unilaterally.","docs/37_MISSING_DOCS_AND_PERFECTION_REGISTER","existing doc","verified doc","Docs-verify passes; every referenced ID exists; zero placeholders","-","See doc 37 for why this doc exists and its priority.")
+# ---------------------------------------------------------------- audit-remediation packets (2026-10-14 brutal audit A2/B1)
+add("app/adjustments/__init__.py","core","Package marker for adjustments module.","docs/39","-","package","import test","-")
+add("app/adjustments/engine.py","adjust","Management-adjustment engine per doc 39: draft/apply/reverse, balanced pair-group invariant, layer-aware statement inputs.","docs/39, docs/02 S6, core/money, store (adjustments table)","adjustment lines","applied adjustment set","Unbalanced group rejected with delta; reversal chain; layer selector changes totals exactly by adjustment sum","tests/unit/test_adjustments.py")
+add("app/planning/allocations.py","planning","Cost allocations per doc 40 (pct/driver/step-down) producing allocation adjustments.","docs/40, docs/39","allocation def + drivers","adjustment lines","Doc 40 oracle exact; pct sums 100.000; zero-driver blocked","tests/unit/test_allocations.py")
+add("app/planning/assumptions.py","planning","Assumptions register service per doc 48: versioned assumptions, approve, stale-marking of dependent runs.","docs/48","assumption drafts","approved versions","Change after lock lists impacted runs; versions immutable","tests/unit/test_assumptions.py")
+add("app/services/year_end.py","services","Year-end close + rollforward per doc 38: checks, closing proposal, opening batch generation, delta=0 verification.","docs/38, app/adjustments/engine","fiscal year","year_end_run + opening batch","Doc 38 oracle: RE roll, P&L opens 0, rollforward delta 0","tests/unit/test_year_end.py")
+for r in ["adjustments","allocations","assumptions","year_end","close","reconcile","alerts","planning","reports_builder"]:
+    add(f"app/api/routes_{r}.py","api",f"REST routes for {r} per doc 05 S4 addendum (and doc 29 S10 for planning). Thin transport, AppError mapping.","docs/05 S4, docs/63","HTTP requests","JSON responses","Contract tests incl. error paths per endpoint","tests/api/test_routes_"+r+".py")
+add("app/core/license.py","core","Offline licence verification per doc 79: Ed25519-signed licence file, trial expiry, perpetual core never expires.","docs/79, docs/12","licence file","licence state","Forged/expired licence fixtures; core access never blocked for perpetual","tests/unit/test_license.py")
+for pkg in ["core","store","imports","calc","rules","forecast","planning","adjustments","exports","ai","api","services","jobs","desktop","cli"]:
+    add(f"app/{pkg}/__init__.py","core",f"Package marker for app/{pkg} (no logic, no imports with side effects).","docs/04 S2","-","package",f"python -c 'import app.{pkg}' exit 0","tests/unit/test_smoke.py")
+for cfg in ["ui/vite.config.ts","ui/tsconfig.json","ui/tsconfig.node.json","ui/index.html","ui/eslint.config.js","ui/src/main.tsx","ui/src/App.tsx","ui/src/lib/format.ts"]:
+    add(cfg,"ui",f"UI project file {cfg}: per docs 04/13/15 (format.ts = decimal-string display formatting ONLY, no money arithmetic).","docs/13, docs/15, docs/53","-","working UI build","npm run build includes it; format.ts unit tests for grouping/negatives","ui/src/lib/format.test.ts" if "format" in cfg else "-")
+add("app/store/migrations/__init__.py","store","Migration registry per doc 61: ordered m0001.. steps, backup-first runner hooks (runner in db.py).","docs/61","-","registry","Migration list ordered + unique test","tests/unit/test_migrations.py")
+add("app/store/migrations/m0001_initial.py","store","Initial schema migration: applies schema.sql content as migration 1 (fresh DB == migrated DB).","docs/61, docs/02","schema.sql","tables","Fresh vs migrated schema equality test","tests/unit/test_migrations.py")
+for pack in ["general","manufacturing","saas","retail"]:
+    add(f"packs/{pack}.json","data",f"Industry starter pack '{pack}' per doc 28 (COA + KPI set + drivers + threshold tweaks) as validated data.","docs/28","-","pack JSON","Pack schema validation + loads into a new project producing statements on fixture GL","tests/data/test_pack_"+pack+".py")
+add("packs/pack.schema.json","data","JSON Schema for industry packs (doc 28): COA entries, statement lines, tags, KPI keys, driver keys.","docs/28, docs/45","-","schema","All packs/*.json validate","tests/data/test_pack_schema.py")
+add("tests/fixtures/README.md","test","Fixture index: every fixture, its source (generator seed or hand oracle + doc section), and hash. Fixtures ARE expectations (doc 78).","docs/78, docs/14 S2","-","index","Every tests/fixtures file listed; CI fails on unlisted fixture","-")
+add("TASKBOARD.md","docs","Live taskboard per doc 33 S3 (integrator-owned; agents never edit).","docs/33","-","taskboard","Exists with packet columns","-")
+
 def slug(p): return re.sub(r'[^a-z0-9]+','-',p.lower()).strip('-')[:60]
 
 def main():
@@ -216,17 +237,22 @@ def main():
         pid=f"PKT-{i:04d}"
         p["id"]=pid
         rows.append(p)
+        _exists = (ROOT/p['path']).exists()
         prompt=f"""# {pid} — {p['path']}
+> TYPE: {'REVIEW (file exists - verify against its spec, report gaps in the handover, do not rewrite it)' if _exists else 'CREATE'}
 
-> **ONE AGENT. ONE FILE. NOTHING ELSE.** You create exactly `{p['path']}` (plus its paired test if named below). You do not modify any other file. If a contract you need is missing, STOP and write `BLOCKED: <what>` — never invent a contract.
+> **ONE AGENT. ONE FILE. NOTHING ELSE.** You create exactly TWO files: `{p['path']}` and its paired test if named below (section 7). You do not create or modify any other file. If a contract you need is missing, STOP and write `BLOCKED: <what>` — never invent a contract.
 
 ## 1. Mission
 {p['purpose']}
 
 ## 2. Read first (in this order, nothing else)
-1. `docs/00_INDEX.md` §2 (reading plan) and §10 (current phase)
+1. `docs/00_INDEX.md` section 2 (reading order) and section 10 (current phase)
 2. {p['deps'] or 'docs/00_INDEX.md'}
 3. This packet in full.
+
+## 2b. Resolving dependencies
+Dependency names below (e.g. `api/client`, `calc/bva`) are MODULE NAMES, not paths: find the owning packet in `docs/FILE_MANIFEST.csv` (search the path column) and treat that file's public contract + the cited doc sections as fixed. If the owning file does not exist yet, return BLOCKED (your wave has not opened).
 
 ## 3. Inputs you may rely on
 {p['inputs'] or 'See dependencies above. Treat dependency APIs as fixed contracts.'}
@@ -260,7 +286,7 @@ def main():
 5. Self-review against section 5 rules and section 9 checklist; fix before returning.
 
 ## 9. Universal edge-case checklist (address every line in code or test, or state why N/A)
-Zero amounts / zero denominator; negative amounts and credit-normal accounts; empty input; single row; duplicate input; very large input (250k rows posture); missing optional data (rule must report not_run, export must label, UI must show empty state); locked period/version; superseded batch; expired waiver; hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description); ambiguous dates/amounts; currency minor-unit exponent; month 2 reuse (no month-1 assumptions hard-coded); deterministic repeat run.
+Mark each line PASS (handled+tested), TEST-ONLY, or N/A with a one-line reason in your handover - silently ignoring a line = reject. Zero amounts / zero denominator; negative amounts and credit-normal accounts; empty input; single row; duplicate input; very large input (250k rows posture); missing optional data (rule must report not_run, export must label, UI must show empty state); locked period/version; superseded batch; expired waiver; hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description); ambiguous dates/amounts; currency minor-unit exponent; month 2 reuse (no month-1 assumptions hard-coded); deterministic repeat run.
 
 ## 10. Forbidden in this packet
 Editing any other file (incl. "helpful" fixes); adding dependencies; changing a spec, threshold, key format, or error code; committing secrets/test data with real financials; disabling a lint/type rule; `float` on money; TODO/TBD/stub/mock-only code.
@@ -283,11 +309,25 @@ A `DONE` claim without test evidence is treated as not done.
 """
         (ROOT/f"agent-prompts/{pid}-{slug(p['path'])}.md").write_text(prompt, encoding="utf-8")
         (ROOT/"agent-prompts"/"testers").mkdir(exist_ok=True)
-        tester = f"""# TST-{pid[4:]} - TESTER for {pid}: {p['path']}
-You are the INDEPENDENT TESTER for packet {pid}. You did not write this code and must trust nothing in its handover.
-Follow docs/34_AUDIT_PLAYBOOK.md section 1 exactly: (1) scope-diff - only `{p['path']}` (+ paired test `{p['tests']}`) may have changed; (2) fresh-run the paired tests and paste output; (3) MUTATION CHECK - stub/weaken the implementation (constant return, drop one leg of any AND-test, off-by-one period) - at least one test must fail per mutation, else REJECT (tests are theatre); (4) edge checklist from the creator packet section 9; (5) money grep - float/division/rounding outside app/core/money.py; (6) spec conformance - cite the spec lines you verified.
-Acceptance under test: {p['acceptance'] or 'spec conformance'}
-Return exactly: `TST-{pid[4:]} VERDICT: SIGN | REJECT` + evidence (commands, outputs, mutations tried) + defects with file:line.
+        tester = f"""# TST-{pid[4:]} - INDEPENDENT TESTER for {pid}: {p['path']}
+You did NOT write this code. Trust nothing in the creator's handover. Follow docs/34_AUDIT_PLAYBOOK.md section 1.
+
+## Packet under test
+- File: `{p['path']}`  - Paired test: `{p['tests']}`  - Layer: {p['layer']}
+- Creator acceptance claim to verify: {p['acceptance'] or 'spec conformance'}
+- Spec sections the creator cited / you must check against: {p['deps'] or 'packet mission'}
+
+## Protocol (all steps, evidence for each)
+1. SCOPE-DIFF: list every changed file; anything beyond the deliverable + paired test = REJECT.
+2. FRESH RUN: clean environment, run the paired test command yourself; paste full output (pass/fail counts).
+3. MUTATION CHECKS (minimum 3, chosen for this file's logic): (a) constant/stub return, (b) drop one leg of any AND/threshold test or flip a boundary (>= to >), (c) off-by-one in period/date/rounding. At least one test must fail per mutation, else REJECT (tests are theatre). Record each mutation + result.
+4. EDGE CHECKLIST: zero, negative, empty, duplicate, huge-input posture, missing optional data, locked/superseded state, hostile text - verify handled per spec or explicitly out of contract.
+5. MONEY GREP: search the file for float literals/division/rounding on money paths outside app/core/money.py (UI/docs: verify no money computation at all).
+6. SPEC CONFORMANCE: pick the 3 highest-risk claims in the cited spec sections and verify them directly against behaviour, citing doc + section.
+7. NO-INVENTION CHECK: any API/field/key/threshold in the code that is not in the cited docs = REJECT with file:line.
+
+## Verdict (return exactly)
+`TST-{pid[4:]} VERDICT: SIGN | REJECT` - commands run + outputs - mutations tried + results - defects with file:line - residual risks.
 """
         (ROOT/f"agent-prompts/testers/TST-{pid[4:]}-{slug(p['path'])}.md").write_text(tester, encoding="utf-8")
 
@@ -306,6 +346,13 @@ Return exactly: `TST-{pid[4:]} VERDICT: SIGN | REJECT` + evidence (commands, out
     idx=["# AGENT PROMPT INDEX\n","Master prompt for every agent: `00_MASTER_AGENT_PROMPT.md`. One packet = one file = one agent.\n"]
     for p in rows: idx.append(f"- [{p['id']} {p['path']}]({p['id']}-{slug(p['path'])}.md)")
     (ROOT/"agent-prompts/INDEX.md").write_text("\n".join(idx)+"\n", encoding="utf-8")
+    wave={"config":0,"docs":0,"core":1,"data":1,"store":1,"imports":2,"calc":2,"rules":2,"forecast":2,"planning":2,"adjust":2,"services":3,"api":3,"cli":3,"desktop":3,"ai":3,"ui":4,"exports":5,"test":6,"scripts":6,"packaging":6,"ci":6}
+    grows=["# DEPENDENCY GRAPH (generated) - dispatch order: a packet opens only when all lower-wave packets it names are tester-SIGNED (doc 86).\n","| Packet | File | Wave | Depends on (layers/docs) |","|---|---|---|---|"]
+    with open(ROOT/"docs/DEPENDENCY_GRAPH.csv","w",newline="",encoding="utf-8") as f:
+        w=csv.writer(f); w.writerow(["packet","path","wave","deps"])
+        for p in rows:
+            wv=wave.get(p["layer"],3); w.writerow([p["id"],p["path"],wv,p["deps"]]); grows.append(f"| {p['id']} | `{p['path']}` | {wv} | {p['deps']} |")
+    (ROOT/"docs/DEPENDENCY_GRAPH.md").write_text("\n".join(grows)+"\n", encoding="utf-8")
     print(f"packets: {len(rows)}")
 
 if __name__=="__main__": main()

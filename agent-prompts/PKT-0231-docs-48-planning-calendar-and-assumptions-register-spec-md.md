@@ -1,14 +1,18 @@
 # PKT-0231 — docs/48_PLANNING_CALENDAR_AND_ASSUMPTIONS_REGISTER_SPEC.md
+> TYPE: REVIEW (file exists - verify against its spec, report gaps in the handover, do not rewrite it)
 
-> **ONE AGENT. ONE FILE. NOTHING ELSE.** You create exactly `docs/48_PLANNING_CALENDAR_AND_ASSUMPTIONS_REGISTER_SPEC.md` (plus its paired test if named below). You do not modify any other file. If a contract you need is missing, STOP and write `BLOCKED: <what>` — never invent a contract.
+> **ONE AGENT. ONE FILE. NOTHING ELSE.** You create exactly TWO files: `docs/48_PLANNING_CALENDAR_AND_ASSUMPTIONS_REGISTER_SPEC.md` and its paired test if named below (section 7). You do not create or modify any other file. If a contract you need is missing, STOP and write `BLOCKED: <what>` — never invent a contract.
 
 ## 1. Mission
 Perfection-register doc 48: authored by lead; agent verifies cross-refs, IDs, consistency with docs 01-36 and reports gaps - does not rewrite unilaterally.
 
 ## 2. Read first (in this order, nothing else)
-1. `docs/00_INDEX.md` §2 (reading plan) and §10 (current phase)
+1. `docs/00_INDEX.md` section 2 (reading order) and section 10 (current phase)
 2. docs/37_MISSING_DOCS_AND_PERFECTION_REGISTER
 3. This packet in full.
+
+## 2b. Resolving dependencies
+Dependency names below (e.g. `api/client`, `calc/bva`) are MODULE NAMES, not paths: find the owning packet in `docs/FILE_MANIFEST.csv` (search the path column) and treat that file's public contract + the cited doc sections as fixed. If the owning file does not exist yet, return BLOCKED (your wave has not opened).
 
 ## 3. Inputs you may rely on
 existing doc
@@ -42,7 +46,7 @@ Docs-verify passes; every referenced ID exists; zero placeholders
 5. Self-review against section 5 rules and section 9 checklist; fix before returning.
 
 ## 9. Universal edge-case checklist (address every line in code or test, or state why N/A)
-Zero amounts / zero denominator; negative amounts and credit-normal accounts; empty input; single row; duplicate input; very large input (250k rows posture); missing optional data (rule must report not_run, export must label, UI must show empty state); locked period/version; superseded batch; expired waiver; hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description); ambiguous dates/amounts; currency minor-unit exponent; month 2 reuse (no month-1 assumptions hard-coded); deterministic repeat run.
+Mark each line PASS (handled+tested), TEST-ONLY, or N/A with a one-line reason in your handover - silently ignoring a line = reject. Zero amounts / zero denominator; negative amounts and credit-normal accounts; empty input; single row; duplicate input; very large input (250k rows posture); missing optional data (rule must report not_run, export must label, UI must show empty state); locked period/version; superseded batch; expired waiver; hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description); ambiguous dates/amounts; currency minor-unit exponent; month 2 reuse (no month-1 assumptions hard-coded); deterministic repeat run.
 
 ## 10. Forbidden in this packet
 Editing any other file (incl. "helpful" fixes); adding dependencies; changing a spec, threshold, key format, or error code; committing secrets/test data with real financials; disabling a lint/type rule; `float` on money; TODO/TBD/stub/mock-only code.

@@ -26,10 +26,10 @@ FP&A Month-End Copilot is a local, offline, single-user Windows desktop app for 
 ### IN (v1.0)
 P&L/BS/CF (indirect) statements; BvA + PY + forecast-vs-actual; variance bridge where drivers exist; 24 exception rules with owner workflow; rolling forecast (8 methods, doc 08) + Base/Upside/Downside scenarios; Excel pack (12 sheets), PPT deck (8 slide types), PDF summary; CSV/XLSX import from any ERP via mapping profiles; single entity-group with multiple entities (reporting by entity/cc/account), single reporting currency per project; sample company; backup/restore; optional AI commentary (doc 11).
 ### OUT (explicit, with phase)
-Live ERP connectors/API sync (Phase 2), multi-currency & FX translation & consolidation/eliminations & NCI (Phase 3), multi-user/roles/cloud (never in desktop line; possible separate product), budget *authoring* workflow with contributor collection (Phase 2; v1 imports budgets), tax/statutory reporting (never), ERP write-back (never), macOS/Linux (Phase 3).
+Live ERP connectors/API sync (Phase 2), multi-currency & FX translation & consolidation/eliminations & NCI (Phase 3), multi-user/roles/cloud (never in desktop line; possible separate product), full budget *authoring* workflow with contributor collection (Phase 2; v1 imports budgets + audited grid editing of imported budgets, doc 29 §1), tax/statutory reporting (never), ERP write-back (never), macOS/Linux (Phase 3).
 
 ## 5. Functional requirement families (detail owned elsewhere)
-IMP (doc 06) · CAL statements/BvA/KPI (doc 03) · EXC rules/workflow (doc 07) · FOR forecast/scenarios (doc 08) · EXP exports (docs 09/10) · AI (doc 11) · SEC (doc 12) · UI screens S01–S15 (doc 13). Every FR has: statement, acceptance test pointer (doc 14), screen(s), API endpoint(s) (doc 05). No FR exists only in this PRD.
+IMP (doc 06) · CAL statements/BvA/KPI (doc 03) · EXC rules/workflow (doc 07) · FOR forecast/scenarios (doc 08) · EXP exports (docs 09/10) · AI (doc 11) · SEC (doc 12) · UI screens S01–S19 (docs 13/21). Every FR has: statement, acceptance test pointer (doc 14), screen(s), API endpoint(s) (doc 05). No FR exists only in this PRD.
 
 ## 6. Success metrics (measured at gates, doc 14)
 Golden sample month-end ≤ 30 min analyst hands-on time; acceptance bars (doc 14 §3) all green; 250k-row NFRs met; cross-artifact tie-out 100%; first-run-to-first-pack ≤ 60 min for a new analyst using only doc 18; zero P1 defects open at release; support burden target: ≤ 1 owner-decision (OQ) escalated per month-end on sample data.

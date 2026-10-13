@@ -27,3 +27,4 @@
 | ERR-099 | Unexpected internal error | "Something went wrong on our side." (diagnostics id) | Retry; if it repeats, download diagnostics from Help | yes |
 
 Job failures surface as the same catalogue via `/jobs/{id}.error`. Every code has a test asserting message+hint non-empty and retryable flag.
+| ERR-042 | Adjustment group unbalanced (doc 39/40) | "These adjustment lines don't net to zero." (Δ shown) | Balance the group or change the kind to provision with a contra account | no |

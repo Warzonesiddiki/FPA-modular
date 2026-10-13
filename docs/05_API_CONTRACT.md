@@ -54,3 +54,16 @@ Pagination: `?limit=100&cursor=` (default 100, max 1000) on list endpoints; resp
 
 ## 3. Contract tests (doc 14)
 Every endpoint: happy path + each listed error + money-as-string assertion + pagination. OpenAPI generated from routes is diffed against this doc's table in CI (endpoint set equality).
+
+## 4. Addendum — expansion endpoints (docs 38–48; same conventions §1; routes_routes files in manifest)
+| Area | Endpoints |
+|---|---|
+| Adjustments (39) | GET/POST `/projects/{id}/adjustments?period_id&status` · POST `/adjustments/{id}/apply` (balanced-group check; error ERR-023-style → new code FP&A-ERR-042 "Adjustment group doesn't balance (Δ shown)") · POST `/adjustments/{id}/reverse` · statements/bva accept `layer=gl|gl_adj` |
+| Allocations (40) | CRUD `/projects/{id}/allocations` · POST `/allocations/{id}/run {period_id}` → job → adjustments created · GET run result |
+| Assumptions (48) | CRUD `/projects/{id}/assumptions` · POST `/assumptions/{id}/approve` |
+| Year-end (38) | POST `/projects/{id}/year-end/check {fiscal_year}` · POST `/projects/{id}/year-end/close {fiscal_year}` (creates closing adjustments + opening batch) · GET `/projects/{id}/year-end/rollforward {fiscal_year}` (Δ per account, must be 0) |
+| Close (30) | GET `/projects/{id}/close?period_id` · PUT `/close/tasks/{id}` · POST `/close/sign-off` (ERR-080) |
+| Reconcile (19I) | POST `/projects/{id}/reconcile/run {kind, period_id, batch_id}` → job · GET `/reconcile/{id}` (matches, unmatched both sides) · POST `/reconcile/{id}/sign-off` (ERR-081) |
+| Alerts (19K) | GET `/projects/{id}/alerts?status` · POST `/alerts/{id}/ack|dismiss` |
+| Planning (29) | doc 29 §10 endpoints (drivers/headcount/capex/debt/wc/cash13/integrate/sensitivity/goal-seek) · report builder `/projects/{id}/report-definitions` CRUD + POST `/report-definitions/{id}/render` |
+All list endpoints paginate; all mutations audit; all money decimal strings (§1).

@@ -12,10 +12,10 @@ Every formula in docs 03/07/08 has a hand-worked example; the example is encoded
 Corpus: sample-data coherent corpus + answer_key (32 plants, 8 controls).
 | Bar | Threshold |
 |---|---|
-| Planted-exception recall | ≥ 29/32 |
-| High-severity recall | 18/18 |
+| Planted-exception recall | ≥ 29/31 plants (P30 is a control, counted in the control bar, doc 42 §7) |
+| High-severity recall | 18/18 (plant severities enumerated in doc 42 §7; generator asserts the count) |
 | Control precision | 0/8 controls fire |
-| Extra findings | Every extra beyond plants individually justified in acceptance_report.md (rule, cause: genuine corpus signal vs defect) — unjustified extras fail the gate |
+| Extra findings | Machine-checkable: harness emits extras.json listing every non-plant finding; gate passes only if every extra has a justification record {finding_key, classification: genuine|defect, reason ≥20 chars, reviewer} in acceptance_justifications.json and `defect` count = 0. Missing/short justifications fail the gate automatically. |
 | Stability | Two consecutive runs produce identical finding keys + amounts |
 | Coverage | 24/24 rules wired and executed (not_run only with documented missing-input reason) |
 | Statements | Golden PL/BS/CF tie to oracles to the minor unit; TB balanced |

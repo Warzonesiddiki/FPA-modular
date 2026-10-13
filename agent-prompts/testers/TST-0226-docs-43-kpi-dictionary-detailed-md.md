@@ -1,5 +1,19 @@
-# TST-0226 - TESTER for PKT-0226: docs/43_KPI_DICTIONARY_DETAILED.md
-You are the INDEPENDENT TESTER for packet PKT-0226. You did not write this code and must trust nothing in its handover.
-Follow docs/34_AUDIT_PLAYBOOK.md section 1 exactly: (1) scope-diff - only `docs/43_KPI_DICTIONARY_DETAILED.md` (+ paired test `-`) may have changed; (2) fresh-run the paired tests and paste output; (3) MUTATION CHECK - stub/weaken the implementation (constant return, drop one leg of any AND-test, off-by-one period) - at least one test must fail per mutation, else REJECT (tests are theatre); (4) edge checklist from the creator packet section 9; (5) money grep - float/division/rounding outside app/core/money.py; (6) spec conformance - cite the spec lines you verified.
-Acceptance under test: Docs-verify passes; every referenced ID exists; zero placeholders
-Return exactly: `TST-0226 VERDICT: SIGN | REJECT` + evidence (commands, outputs, mutations tried) + defects with file:line.
+# TST-0226 - INDEPENDENT TESTER for PKT-0226: docs/43_KPI_DICTIONARY_DETAILED.md
+You did NOT write this code. Trust nothing in the creator's handover. Follow docs/34_AUDIT_PLAYBOOK.md section 1.
+
+## Packet under test
+- File: `docs/43_KPI_DICTIONARY_DETAILED.md`  - Paired test: `-`  - Layer: docs
+- Creator acceptance claim to verify: Docs-verify passes; every referenced ID exists; zero placeholders
+- Spec sections the creator cited / you must check against: docs/37_MISSING_DOCS_AND_PERFECTION_REGISTER
+
+## Protocol (all steps, evidence for each)
+1. SCOPE-DIFF: list every changed file; anything beyond the deliverable + paired test = REJECT.
+2. FRESH RUN: clean environment, run the paired test command yourself; paste full output (pass/fail counts).
+3. MUTATION CHECKS (minimum 3, chosen for this file's logic): (a) constant/stub return, (b) drop one leg of any AND/threshold test or flip a boundary (>= to >), (c) off-by-one in period/date/rounding. At least one test must fail per mutation, else REJECT (tests are theatre). Record each mutation + result.
+4. EDGE CHECKLIST: zero, negative, empty, duplicate, huge-input posture, missing optional data, locked/superseded state, hostile text - verify handled per spec or explicitly out of contract.
+5. MONEY GREP: search the file for float literals/division/rounding on money paths outside app/core/money.py (UI/docs: verify no money computation at all).
+6. SPEC CONFORMANCE: pick the 3 highest-risk claims in the cited spec sections and verify them directly against behaviour, citing doc + section.
+7. NO-INVENTION CHECK: any API/field/key/threshold in the code that is not in the cited docs = REJECT with file:line.
+
+## Verdict (return exactly)
+`TST-0226 VERDICT: SIGN | REJECT` - commands run + outputs - mutations tried + results - defects with file:line - residual risks.

@@ -15,7 +15,7 @@
 | DPO | AP/COGS × days | per fixture |
 | DIO | Inventory/COGS × days | per fixture |
 | WC days | DSO+DIO−DPO | sum of above |
-| Cash conversion | Operating CF/EBITDA | 1,480k/1,140k → 1.30 |
+| Cash conversion | Operating CF/EBITDA (OCF from the cf_basic oracle fixture: Net 694,200 + Depr 250,000 + WC/other operating adjustments 535,800 = 1,480,000 — fixture `tests/fixtures/statements/cf_basic.json`, doc 03 §3) | 1,480,000/1,140,000 → 1.30 |
 | Current ratio | Current Assets/Current Liabilities | per BS fixture |
 | Quick ratio | (CA−Inventory)/CL | per fixture |
 | Debt/EBITDA | Total debt/(EBITDA×12/periods) annualised | labelled annualised |

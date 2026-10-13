@@ -20,3 +20,14 @@
 | FR-HLP help/diagnostics | 18 | S15 | — (static) | ui S15 | a11y + walkthrough test | Tabletop UAT (14 §7) |
 
 **Screens added by doc 19/29/30 (superseding doc 13 count):** S16 Close, S17 Planning, S18 Reconcile, S19 Alerts — doc 13's 5-state/copy/a11y rules apply unchanged; UI packets for S16–S19 are in the regenerated manifest. Total screens: 19.
+
+## Expansion rows (docs 38–88, added in brutal-audit remediation 2026-10-14)
+| Area | Spec | Screens | API (doc 05 §4) | Packets | Tests | Evidence |
+|---|---|---|---|---|---|---|
+| Adjustments | 39, 02 §6 | S06/S07 (layer selector) | adjustments, statements?layer | app/adjustments/engine, routes_adjustments | test_adjustments | layer drill in cross-artifact |
+| Allocations | 40 | S17 | allocations | planning/allocations, routes_allocations | test_allocations | doc 40 oracle |
+| Assumptions | 48 | S17/S09 | assumptions | planning/assumptions, routes_assumptions | test_assumptions | stale-run list |
+| Year-end | 38 | S16 | year_end | services/year_end, routes_year_end | test_year_end | rollforward Δ=0 (UAT-06) |
+| Close/Recon/Alerts/Planning/Report builder | 30/19I/19K/29/19J | S16–S19 | doc 05 §4 rows | close_service, alerts, planning/*, reconcile, report_builder + routes_* | their paired tests | UAT-01/03, doc 77 index |
+| Licence | 79 | S13 | settings (licence state) | core/license | test_license | forged-licence fixture |
+| AI prompts | 88, 11, 75 | S07/S11 | commentary | ai/prompts implements doc 88 texts verbatim | ai golden set | ai_eval artefacts |
