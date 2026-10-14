@@ -24,16 +24,18 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **DEC-021** (auto): seven impact/baseline/approval transport contracts, immutable paged comparison and exact current-cycle binding; durable audit ordering, no generation-induced forecast staleness or lock-note bypass. Snapshot/invalidation persistence ownership still unfinished. Evidence: `evidence/WI-0001_impact_contract_2026-10-14.md`.
 
+- **DEC-022** (auto): task/template/calendar and outcome-history transport; future-only period copies, protected system/outcome tasks, statement-only T-04 binding. Doc 02 delta 15 and explicit existing storage/service/calendar owners added; M1 schema gate strengthened, never closed. Evidence: `evidence/WI-0001_task_contract_2026-10-14.md`.
+
 ## Current position
 - Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-14. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
-- DEC-016…021 checkpoints verified: **530 document tests + 9 unchanged product tests = 539 passing**; 254 definitions, 18 job kinds, 76 errors. Seven impact transport sections now supplement the close contracts. Product code frozen; no runtime/gate claim.
-- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_impact_contract_2026-10-14.md` §4 (Exact continuation).
+- DEC-016…022 checkpoints verified: **685 document tests + 9 unchanged product tests = 694 passing**; 276 definitions, 18 job kinds, 76 errors. Eight task/calendar/template/history contracts added; product code frozen, no runtime/gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_task_contract_2026-10-14.md` §4 (Exact continuation).
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-021: seven impact transport contracts; 539 tests pass. Full endpoint rewrite and snapshot/persistence ownership incomplete. Evidence: WI-0001_impact_contract_2026-10-14.md; latest handover below. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-022: eight task/calendar/history contracts; 694 tests pass. Full endpoint rewrite and snapshot/lifecycle persistence coordination incomplete. Evidence: WI-0001_task_contract_2026-10-14.md; latest handover below. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -400,4 +402,11 @@ NEXT: still WI-0001: task/calendar/template + sign-off/lock history contracts; i
 STATUS: in_progress; M0 open (0/8), batch 0/30 complete.
 BASELINE: local Git metadata stale at 4257b5a while files matched pushed d7ddb98. Fetched assigned branch, verified EVERY tracked remote file including the two locally untracked files byte-equal, mixed-reset metadata only, rechecked bytes unchanged. Ignored .venv recreated; `.venv/bin/python -m pytest -q` → 539 passed in 15.10s. No checker exists.
 CONTRACT: DEC-022 docs 05 §10/30 §§8–9: eight task/template/calendar/history routes, future-only template snapshots, acyclic scalar dependencies, outcome protections, task+period/review guards and statement-only T-04 evidence. Doc 02 delta 15/plan name existing persistence/date/service owners; stronger M1 schema gate, no product change.
-NEXT: independent document fixtures/red → schemas → adversarial checks and exact evidence. Not WI completion.
+TESTS RUN: `.venv/bin/python -m pytest tests/docs/test_api_task_contract.py -q --tb=short` → **155 passed in 4.63s**; `.venv/bin/python -m pytest tests/docs -q --tb=short` → **685 passed in 20.70s**; `.venv/bin/python -m pytest -q --tb=short` → **694 passed in 20.85s**, repeat **694 passed in 20.99s**. `git diff --check` clean. Initial red 6 passed/120 missing-contract errors; review-context red 13 failed/113 passed; adversarial red 4 failed/150 passed, all corrected without weakening tests.
+MUTATIONS: T-10 kind constant system→manual; remove period-version conjunct; include anchor date in nonzero business offset → same independent oracle catches all three isolated copies. Fifteen earlier probes remain green; no runtime mutation claimed.
+EDGES: schema/model PASS for bounded templates/pages, cycles/self/outcome/dangling references, exact review digest, stale/legacy evidence, notes/injections, holidays/weekends/zero/negative/leap/overflow/overdue equality/waiver-expiry boundary and month-2 dates. No financial arithmetic or 250k-row throughput claim; live HTTP/auth/DB/cursor/invalidations/calendar behavior unbuilt. Full checklist in evidence §3.
+SPEC CHECKS: 30 §8 / 23 §7 outcome protections, conditional T-04 binding and dependency guards; 30 §9 / 62 calendar isolation and exact business-date/expiry boundaries; 05 §10 / 02 §5 / 22 / 90 typed read history and route/error/schema parity. All are document checks, not runtime evidence.
+FILES TOUCHED: docs 02/05/17/19/22/23/24/30/48/62/63/86/90/CHANGELOG; schema; new tests/docs/test_api_task_contract.py; generator/WORK_PLAN md/csv; TASKBOARD; evidence/WI-0001_task_contract_2026-10-14.md. Product/SQL/original tests unchanged from d7ddb98.
+DEVIATIONS: DEC-022 docs-first 58759fc/e17e96c/44bef75. 22 new definitions, all 254 prior definitions unchanged; 267 WI identities stable. WI-0152 now explicitly depends on WI-0001/0050/0031. M1 gate only strengthens delta coverage 1–14→1–15, other clauses/gates retained and equal to doc 86; plan regeneration byte-identical.
+DECISIONS TAKEN: DEC-022 (auto) · OWNER-ONLY ITEMS: none for this scope; Entra setup only before real tenant pilot.
+NEXT: still WI-0001: complete retained statement/financial manifests, impact storage/invalidation and legacy repair, project lifecycle/receipt coordination; then backup/restore and remaining endpoint families including annual planning/doc-90 migration. Exact gaps in evidence §4. **M0 open (0/8), batch 0/30 complete.**
