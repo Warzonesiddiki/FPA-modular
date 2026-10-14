@@ -383,5 +383,5 @@ NEXT: impact generation/approval fields/transport; task/calendar/template/histor
 ## WI-0001 continuation — impact review transport, 2026-10-14
 STATUS: in_progress; M0 open, 0/30 complete.
 BASELINE: clean assigned branch arena/5165fe46-fpa-modular at merge 4257b5a; ignored .venv installed from pinned requirements; full suite 394 passed in 11.94s before edits. No checker exists.
-CONTRACT: DEC-021, docs 05 §9 / 41 §6: six scoped endpoints; immutable baseline/current pack/report/approval; paged typed changes; explicit human attest+note; exact cycle/version/manifest binding and permanent input-change invalidation. No generation-induced financial staleness or implicit sign-off/lock. Product remains frozen; persistence ownership/schema verification still unfinished.
+CONTRACT: DEC-021, docs 05 §9 / 41 §6: seven scoped endpoints; immutable baseline/current pack/report/approval; paged typed changes; explicit human attest+note; exact cycle/version/manifest binding and permanent input-change invalidation. No generation-induced financial staleness or implicit sign-off/lock. Product remains frozen; persistence ownership/schema verification still unfinished.
 NEXT: independent test-first fixtures, missing-contract red, schema implementation, adversarial verification and exact evidence. This is not WI completion.

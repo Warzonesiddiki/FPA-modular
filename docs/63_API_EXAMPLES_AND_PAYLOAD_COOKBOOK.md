@@ -708,10 +708,10 @@ Synthetic illustrative values, not sample-corpus expectations. All calls use X-F
   },
   "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
   "after_manifest_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  "changes_sha256": "33c44dcb8e226601ae3e97038099c0c7449f444f2f766dc6808dea82a1d92788",
+  "changes_sha256": "ea4dcc1c58bfceee6c0cce5852eadef0feea058032782c46d8f0050f86a8ecaa",
   "counts": {
     "statement": 1,
-    "bva": 1,
+    "bva": 2,
     "finding": 1,
     "forecast": 1,
     "report": 1
@@ -725,6 +725,27 @@ Synthetic illustrative values, not sample-corpus expectations. All calls use X-F
 ```json
 {
   "items": [
+    {
+      "kind": "bva",
+      "key": "720be8763b801d02a7f652ad1070a802537f3b680a4ff73eb0e4ead6bcbb9829",
+      "statement": null,
+      "line_key": null,
+      "entity_id": "entity_1",
+      "account_id": "account_rev",
+      "cost_centre_id": null,
+      "measure": "actual",
+      "before": {
+        "value": "100.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_before_rev"
+      },
+      "after": {
+        "value": "125.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_after_rev"
+      },
+      "delta": "25.00"
+    },
     {
       "kind": "bva",
       "key": "9ef09f801c999309e27505529401bb4b4fa9b8cf1664356368546201cbd06b56",
@@ -817,7 +838,7 @@ Synthetic illustrative values, not sample-corpus expectations. All calls use X-F
   "after_snapshot_id": "snapshot_new",
   "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
   "after_manifest_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
-  "changes_sha256": "33c44dcb8e226601ae3e97038099c0c7449f444f2f766dc6808dea82a1d92788",
+  "changes_sha256": "ea4dcc1c58bfceee6c0cce5852eadef0feea058032782c46d8f0050f86a8ecaa",
   "signer": "Controller",
   "attestation_text": "I reviewed the restatement impact for 2026-P01 and approve these changes",
   "note": "Reviewed correction against the original pack.",
@@ -826,3 +847,5 @@ Synthetic illustrative values, not sample-corpus expectations. All calls use X-F
 ```
 
 POST responses are 201; GET responses 200. §11.1 illustrates the state after §11.4, not permission to skip generation. GET /impacts/impact_1 and GET /impact-approvals/approval_1 return exactly these historical objects even after lock. Re-read readiness after approval, sign off, then re-read readiness again before lock. A second unlock/version change or changed financial manifest makes current ids null; the immutable history is unchanged. A well-shaped attempt to approve an old report fails 422 ERR-083 with {"reason":"approval_note_required"}; a null/blank note fails 400 ERR-002. Same-key replay can return an old success without restoring authority. Empty impact is counts all zero, changes_sha256=SHA256([]), and an empty page; it still needs explicit approval.
+
+GET /restatement-baselines/baseline_1 returns §11.1 baseline, even after a later cycle. Current report/approval selection uses durable audit append order; equal or regressed clock values never resurrect older approval.
