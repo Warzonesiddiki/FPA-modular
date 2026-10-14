@@ -1,5 +1,30 @@
 # Documentation Changelog (newest first)
 
+## 2026-10-15 (b) — DEC-024 retained source-row codec (WI-0001 in progress)
+- Verified 166 new document tests; 1033 full tests passing, repeated green. Three schema mutations caught; public attachment/product/SQL/prior tests unchanged. Evidence: `evidence/WI-0001_source_contract_2026-10-15.md`. User requested a PR checkpoint; no WI/gate completion.
+- Specify complete retained GL/adjustment row images, origin evidence, strict canonical bytes and immutable content-addressed storage; distinguish connector content identity from actual workbook bytes.
+- Gate wording explicitly retains deltas 1–16 and adds delta 17; existing document assertions/tests remain unchanged, no prior coverage removed.
+- Separate internal integer-minor-unit schema from public money-string contracts; assign existing hashing/report_repo owners and delta 17. Full snapshots/file membership/views/finding state and lifecycle/restore remain unfinished; no runtime or WI completion.
+
+## 2026-10-15 — DEC-023 input revisions and impact persistence (WI-0001 in progress)
+- Verified **173 new document tests; 867 full tests passing** (858 docs + 9 unchanged product), repeat green; three caught schema/model mutations. 285 definitions/18 jobs/76 errors. Evidence: `evidence/WI-0001_revision_contract_2026-10-15.md`. No WI/gate or runtime completion.
+- Replace watermark-only cache authority with statement/forecast/pack revision fences and exact manifest identity; specify union-once atomic invalidation and immutable impact/baseline/approval storage. Derived outputs cannot stale their own inputs.
+- Clarify existing ERR-003 detail field mapping, initial project counters and immutable-table metadata exceptions and required composite FK parent uniques; index internal policy/effect/storage metadata without introducing caller-set guards.
+- Add doc-02 delta 16 and explicit existing-module ownership/acceptance obligations; strengthen only M1 schema delta coverage. Product/SQL/original tests remain frozen. Full manifest/view/finding codecs and project lifecycle/control-plane/restore fencing remain unfinished.
+
+## 2026-10-14 (j) — DEC-022 close tasks/calendar/history (WI-0001 in progress)
+- Verified **155 new task document tests; 694 full tests passing** (685 docs + 9 unchanged product), with three new caught mutations and four corrected adversarial failures. Evidence: `evidence/WI-0001_task_contract_2026-10-14.md`. No WI/gate completion or runtime claim.
+- Specify eight routes, future-only template/calendar revisions, guarded human transitions, acyclic scalar dependencies, immutable outcome history and statement-only T-04 binding. Preserve no-writes-on-GET and non-bypassable close guards.
+- Expose the exact task review context (not only its digest), so T-04 clients can compare the displayed statement fingerprint. Correct the custom-task page example to retain a continuation for the mandatory tasks.
+- Bound live task cursor lifetime by the next relevant waiver expiry; use audit_id+1 for actual audit-revision conflicts, never invent a version increment on a read.
+- Extend doc-02 task storage obligations (delta 15), assign existing period_repo/close_service/calendar owners in the generator and strengthen the matching M1 schema gate. No product/SQL/original-test changes or work-item completion.
+
+## 2026-10-14 (i) — DEC-021 impact review transport (WI-0001 in progress)
+- Verified **145 new impact document tests; 539 full tests passing** (530 docs + 9 unchanged product), including three new caught mutations. Evidence: `evidence/WI-0001_impact_contract_2026-10-14.md`. No runtime or milestone completion.
+- Specify immutable baseline/report/approval bindings, seven scoped endpoints, paged monetary/finding/stale-forecast/superseded-report changes, currentness/invalidation and durable replay. No lock note or boolean replaces impact approval; report generation does not stale its checked pack.
+- Specify durable audit append order (not wall-clock/id order) for current report/approval selection and a historical baseline read.
+- Align docs 22/30/41/24/90, add cookbook examples and register independent document tests. Product code/SQL/original tests frozen; persistence/manifest ownership remains unfinished, no WI/gate completed.
+
 ## 2026-10-14 (h) — DEC-020 close review and lock contracts
 - Verified checkpoint: 108 new close-contract tests; full **394 passing** (385 docs + 9 unchanged product), including three additional caught mutations. Evidence: `evidence/WI-0001_close_contract_2026-10-14.md`. WI-0001 remains in progress.
 - Resolve T-09/T-10 self-dependency, limit overrides to explicit soft checks, bind immutable sign-off to reviewed snapshot/audit/blocker identities, and specify three readiness/sign-off/lock endpoints. No unchecked generic override can bypass integrity/restatement review.

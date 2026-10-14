@@ -638,3 +638,601 @@ POST `/projects/prj_9f2c41aa07e1/periods/2026-P01/lock`:
 ```
 
 Period is now locked/version 3, dates/created_at preserved, lock_note null because no override was requested. A same-key replay is historical; a fresh key against locked state fails ERR-016. A project mutation between review/sign-off/lock makes the review stale (ERR-080), even if counts happen to remain equal. A lock note alone cannot satisfy a reopened period's current impact approval (ERR-083). Missing force note → ERR-015; force+note still cannot override TB, audit, missing/current sign-off, stale forecast or impact review.
+
+
+## 11. Restatement impact (DEC-021, doc 05 §9)
+Synthetic illustrative values, not sample-corpus expectations. All calls use X-FPA-Token, X-FPA-Project: prj_000000000001 and the permitted Host/Origin. Both POSTs require distinct Idempotency-Key values. No caller-supplied actor/time or arbitrary path. Snapshot hashes illustrate immutable references, not files proved present.
+
+### 11.1 Read context — GET /projects/prj_000000000001/periods/2026-P01/restatement
+<!-- schema: RestatementState -->
+```json
+{
+  "project_id": "prj_000000000001",
+  "period_id": "2026-P01",
+  "period_version": 4,
+  "period_status": "closing",
+  "baseline": {
+    "baseline_id": "baseline_1",
+    "project_id": "prj_000000000001",
+    "period_id": "2026-P01",
+    "unlock_version": 4,
+    "before_snapshot": {
+      "snapshot_id": "snapshot_old",
+      "batch_watermark": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "budget_version": "budget_1",
+      "forecast_run_id": "forecast_old",
+      "layer": "gl"
+    },
+    "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "locked_at": "2026-10-13T10:00:00Z",
+    "lock_note": null,
+    "signoff_id": "signoff_old",
+    "opened_at": "2026-10-14T10:00:00Z",
+    "reason": "Correct April source data."
+  },
+  "current_impact_id": "impact_1",
+  "current_approval_id": "approval_1"
+}
+```
+
+### 11.2 Generate — POST /projects/prj_000000000001/periods/2026-P01/impacts
+<!-- schema: ImpactCreate -->
+```json
+{
+  "expected_version": 4,
+  "baseline_id": "baseline_1",
+  "after_snapshot_id": "snapshot_new"
+}
+```
+<!-- schema: ImpactReport -->
+```json
+{
+  "impact_id": "impact_1",
+  "project_id": "prj_000000000001",
+  "period_id": "2026-P01",
+  "period_version": 4,
+  "baseline_id": "baseline_1",
+  "before_snapshot": {
+    "snapshot_id": "snapshot_old",
+    "batch_watermark": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "budget_version": "budget_1",
+    "forecast_run_id": "forecast_old",
+    "layer": "gl"
+  },
+  "after_snapshot": {
+    "snapshot_id": "snapshot_new",
+    "batch_watermark": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "budget_version": "budget_1",
+    "forecast_run_id": "forecast_new",
+    "layer": "gl"
+  },
+  "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "after_manifest_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "changes_sha256": "ea4dcc1c58bfceee6c0cce5852eadef0feea058032782c46d8f0050f86a8ecaa",
+  "counts": {
+    "statement": 1,
+    "bva": 2,
+    "finding": 1,
+    "forecast": 1,
+    "report": 1
+  },
+  "created_at": "2026-10-14T10:00:00Z"
+}
+```
+
+### 11.3 Read all changes — GET /impacts/impact_1/changes?limit=100
+<!-- schema: ImpactChangePage -->
+```json
+{
+  "items": [
+    {
+      "kind": "bva",
+      "key": "720be8763b801d02a7f652ad1070a802537f3b680a4ff73eb0e4ead6bcbb9829",
+      "statement": null,
+      "line_key": null,
+      "entity_id": "entity_1",
+      "account_id": "account_rev",
+      "cost_centre_id": null,
+      "measure": "actual",
+      "before": {
+        "value": "100.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_before_rev"
+      },
+      "after": {
+        "value": "125.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_after_rev"
+      },
+      "delta": "25.00"
+    },
+    {
+      "kind": "bva",
+      "key": "9ef09f801c999309e27505529401bb4b4fa9b8cf1664356368546201cbd06b56",
+      "statement": null,
+      "line_key": null,
+      "entity_id": "entity_1",
+      "account_id": "account_rev",
+      "cost_centre_id": null,
+      "measure": "var_abs",
+      "before": {
+        "value": "20.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_before_var"
+      },
+      "after": {
+        "value": "45.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_after_var"
+      },
+      "delta": "25.00"
+    },
+    {
+      "kind": "finding",
+      "key": "0a465cecc4adc7c0a5b06d355ba5d040b8f4ef9c2b67f4685450719e9c04b646",
+      "finding_key": "EXC-001|2026-P01|entity_1|account_rev",
+      "change": "added",
+      "before_finding_id": null,
+      "after_finding_id": "finding_1",
+      "before_sha256": null,
+      "after_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "kind": "forecast",
+      "key": "097b0ad9859571649cfb6e4a5d0bc23c922d93ea9059e45891706ea9053be259",
+      "run_id": "forecast_old",
+      "change": "stale"
+    },
+    {
+      "kind": "report",
+      "key": "6192b8cfd7fb481ba1bdf852902fa823c254169cf71cbb729fc460d6e1c996ab",
+      "report_id": "report_old",
+      "change": "superseded"
+    },
+    {
+      "kind": "statement",
+      "key": "8bf8c7b69568387a8f45109eff5238dd65bfd78c1a030fef29578794d0841fdc",
+      "statement": "pl",
+      "line_key": "rev",
+      "entity_id": null,
+      "account_id": null,
+      "cost_centre_id": null,
+      "measure": "amount",
+      "before": {
+        "value": "100.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_before_rev"
+      },
+      "after": {
+        "value": "125.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_after_rev"
+      },
+      "delta": "25.00"
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+### 11.4 Approve — POST /impacts/impact_1/approve
+<!-- schema: ImpactApprovalCreate -->
+```json
+{
+  "expected_version": 4,
+  "signer": "Controller",
+  "attest": true,
+  "note": "Reviewed correction against the original pack."
+}
+```
+<!-- schema: ImpactApproval -->
+```json
+{
+  "approval_id": "approval_1",
+  "project_id": "prj_000000000001",
+  "period_id": "2026-P01",
+  "period_version": 4,
+  "impact_id": "impact_1",
+  "baseline_id": "baseline_1",
+  "before_snapshot_id": "snapshot_old",
+  "after_snapshot_id": "snapshot_new",
+  "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "after_manifest_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "changes_sha256": "ea4dcc1c58bfceee6c0cce5852eadef0feea058032782c46d8f0050f86a8ecaa",
+  "signer": "Controller",
+  "attestation_text": "I reviewed the restatement impact for 2026-P01 and approve these changes",
+  "note": "Reviewed correction against the original pack.",
+  "at": "2026-10-14T10:00:00Z"
+}
+```
+
+POST responses are 201; GET responses 200. §11.1 illustrates the state after §11.4, not permission to skip generation. GET /impacts/impact_1 and GET /impact-approvals/approval_1 return exactly these historical objects even after lock. Re-read readiness after approval, sign off, then re-read readiness again before lock. A second unlock/version change or changed financial manifest makes current ids null; the immutable history is unchanged. A well-shaped attempt to approve an old report fails 422 ERR-083 with {"reason":"approval_note_required"}; a null/blank note fails 400 ERR-002. Same-key replay can return an old success without restoring authority. Empty impact is counts all zero, changes_sha256=SHA256([]), and an empty page; it still needs explicit approval.
+
+GET /restatement-baselines/baseline_1 returns §11.1 baseline, even after a later cycle. Current report/approval selection uses durable audit append order; equal or regressed clock values never resurrect older approval.
+
+
+## 12. Close task/calendar/history (DEC-022, doc 05 §10)
+All calls require token, permitted Host/Origin and X-FPA-Project: prj_9f2c41aa07e1. PUT also requires Idempotency-Key. Synthetic DTO fixtures, not a live finance/HTTP run. Examples in separate subsections are independent states: §12.1 is the ten-default-task case; §12.2 uses a custom task copied from an edited template.
+
+### 12.1 GET /projects/prj_9f2c41aa07e1/close?period_id=2026-P01
+<!-- schema: CloseOverview -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "period_version": 2,
+  "period_status": "closing",
+  "instantiated": true,
+  "template_version": 1,
+  "counts": {
+    "not_started": 2,
+    "in_progress": 0,
+    "blocked": 0,
+    "done": 8,
+    "waived": 0
+  },
+  "evaluated_on": "2026-05-08",
+  "readiness": {
+    "review": {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2026-P01",
+      "period_version": 2,
+      "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "snapshot_close_1",
+      "blocker_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "review_token": "4dae58139f4db3910d02eec2df87b14fab580f74a6a7df512b13fee454c6a0eb",
+    "period_status": "closing",
+    "blockers": [],
+    "current_signoff": null,
+    "ready_to_sign_off": true,
+    "ready_to_lock": false
+  }
+}
+```
+
+### 12.2 GET /projects/prj_9f2c41aa07e1/close/tasks?period_id=2026-P01&limit=1
+<!-- schema: CloseTaskPage -->
+```json
+{
+  "items": [
+    {
+      "task_id": "task_custom",
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2026-P01",
+      "template_key": "C-review",
+      "kind": "manual",
+      "title": "Review supporting schedules",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "due_date": "2026-05-07",
+      "depends_on": null,
+      "version": 1,
+      "created_at": "2026-05-08T09:00:00Z",
+      "updated_at": "2026-05-08T09:00:00Z",
+      "requested_status": "not_started",
+      "status": "not_started",
+      "note": null,
+      "attestation": null,
+      "review_token": "72b90e097d6a3780b6775897effc3d71294c62648c7c98ba435f766ea876a21d",
+      "evaluated_on": "2026-05-08",
+      "overdue": true,
+      "review": {
+        "project_id": "prj_9f2c41aa07e1",
+        "period_id": "2026-P01",
+        "period_version": 2,
+        "task_id": "task_custom",
+        "task_version": 1,
+        "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "statements_fingerprint": null,
+        "dependency_status": null
+      }
+    }
+  ],
+  "next_cursor": "opaque-signed-continuation"
+}
+```
+
+### 12.3 PUT /close/tasks/task_custom
+<!-- schema: CloseTaskTransition -->
+```json
+{
+  "action": "transition",
+  "expected_version": 1,
+  "expected_period_version": 2,
+  "review_token": "72b90e097d6a3780b6775897effc3d71294c62648c7c98ba435f766ea876a21d",
+  "to_status": "done",
+  "signer": "Controller",
+  "attest": true,
+  "note": null
+}
+```
+
+200 response to §12.3 (illustrative injected audit head; no live transaction claimed):
+<!-- schema: CloseTask -->
+```json
+{
+  "task_id": "task_custom",
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "template_key": "C-review",
+  "kind": "manual",
+  "title": "Review supporting schedules",
+  "owner_id": null,
+  "due_offset_business_days": 5,
+  "due_date": "2026-05-07",
+  "depends_on": null,
+  "version": 2,
+  "created_at": "2026-05-08T09:00:00Z",
+  "updated_at": "2026-05-08T09:00:00Z",
+  "requested_status": "done",
+  "status": "done",
+  "note": null,
+  "attestation": {
+    "signer": "Controller",
+    "at": "2026-05-08T09:00:00Z",
+    "note": null,
+    "statements_fingerprint": null
+  },
+  "review": {
+    "project_id": "prj_9f2c41aa07e1",
+    "period_id": "2026-P01",
+    "period_version": 2,
+    "task_id": "task_custom",
+    "task_version": 2,
+    "audit_head": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "statements_fingerprint": null,
+    "dependency_status": null
+  },
+  "review_token": "624948c18911b232ee9fb5e1096eaf43658aa375113eea6ba4cf6f2bd7ee05f0",
+  "evaluated_on": "2026-05-08",
+  "overdue": false
+}
+```
+
+### 12.4 GET and PUT /projects/prj_9f2c41aa07e1/close/template
+<!-- schema: CloseTemplate -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "version": 1,
+  "calendar": {
+    "start_business_day": 1,
+    "target_lock_business_day": 5,
+    "holidays": []
+  },
+  "entries": [
+    {
+      "key": "T-01",
+      "title": "Import GL & subledgers",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-02",
+      "title": "Trial balance balanced",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-03",
+      "title": "Bank/AR/AP/payroll reconciliations signed",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 2,
+      "depends_on": null
+    },
+    {
+      "key": "T-04",
+      "title": "Statements reviewed",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-05",
+      "title": "Material variances explained",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-06",
+      "title": "Exceptions triaged",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-07",
+      "title": "Forecast refreshed & locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-08",
+      "title": "Board pack generated, checks green",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-09",
+      "title": "Close sign-off",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    },
+    {
+      "key": "T-10",
+      "title": "Period locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    }
+  ],
+  "created_at": "2026-05-08T09:00:00Z",
+  "updated_at": "2026-05-08T09:00:00Z"
+}
+```
+<!-- schema: CloseTemplatePut -->
+```json
+{
+  "expected_version": 1,
+  "calendar": {
+    "start_business_day": 1,
+    "target_lock_business_day": 5,
+    "holidays": []
+  },
+  "entries": [
+    {
+      "key": "T-01",
+      "title": "Import GL & subledgers",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-02",
+      "title": "Trial balance balanced",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-03",
+      "title": "Bank/AR/AP/payroll reconciliations signed",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 2,
+      "depends_on": null
+    },
+    {
+      "key": "T-04",
+      "title": "Statements reviewed",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-05",
+      "title": "Material variances explained",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-06",
+      "title": "Exceptions triaged",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-07",
+      "title": "Forecast refreshed & locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-08",
+      "title": "Board pack generated, checks green",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-09",
+      "title": "Close sign-off",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    },
+    {
+      "key": "T-10",
+      "title": "Period locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    }
+  ]
+}
+```
+
+### 12.5 GET /projects/prj_9f2c41aa07e1/close/calendar?period_id=2026-P01
+<!-- schema: CloseCalendar -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "template_version": 1,
+  "instantiated": true,
+  "rules": {
+    "start_business_day": 1,
+    "target_lock_business_day": 5,
+    "holidays": []
+  },
+  "period_end": "2026-04-30",
+  "close_start_date": "2026-05-01",
+  "target_lock_date": "2026-05-07"
+}
+```
+
+### 12.6 GET /projects/prj_9f2c41aa07e1/periods/2026-P01/close-history
+<!-- schema: CloseHistoryPage -->
+```json
+{
+  "items": [
+    {
+      "audit_id": 4,
+      "action": "PERIOD_LOCK",
+      "at": "2026-10-14T09:00:00Z",
+      "evidence_state": "complete",
+      "record": {
+        "project_id": "prj_9f2c41aa07e1",
+        "period_id": "2026-P01",
+        "before_version": 2,
+        "after_version": 3,
+        "signoff_id": "signoff_1",
+        "snapshot": {
+          "snapshot_id": "snapshot_close_1",
+          "batch_watermark": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "budget_version": "budget_1",
+          "forecast_run_id": "forecast_1",
+          "layer": "gl"
+        },
+        "force": false,
+        "note": null,
+        "locked_at": "2026-10-14T09:00:00Z"
+      }
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+All successes are 200. Successful task transition returns CloseTask revision 2, status/requested_status=done, a named injected-time attestation, overdue=false and a new server review_token (re-read before editing again); it does not lock the period. GET /close/tasks/task_custom returns the same current projection. Same-key replay retains the original response even after later changes. A fresh stale version gives ERR-003; system/T-09/T-10 transition gives ERR-080 task_read_only; unmet dependency gives ERR-084 with both task ids. Template PUT creates revision 2 with unchanged created_at; the previously instantiated period calendar is still revision 1. Legacy history records have evidence_state=legacy/record=null, never a fabricated current approval. No financial values or calculations occur in these payloads.
+
+The §12.2 cursor is illustrative opaque data; this first custom-task page has further mandatory task rows. For T-04, display the current statements and match their fingerprint to task.review.statements_fingerprint before the explicit done attestation; a stale display must be refreshed.

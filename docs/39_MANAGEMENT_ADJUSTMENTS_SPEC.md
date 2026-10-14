@@ -16,3 +16,5 @@ Draft → Applied (requires reason; reclass requires balanced group) → Reverse
 
 ## 5. Oracle & tests
 GL expense 6100 = 500,000. Reclass pair: −200,000 (6100) / +200,000 (6200) group sums 0 → applied. PL total unchanged, line split changes; drill on 6200 shows GL rows + 1 adjustment line with reason. Unbalanced group apply → rejected with Δ shown. Board pack Cover stamps "Includes management adjustments: 3 lines, net ₹0 (list in Sources)". Tests: invariant, layer selector consistency across API/Excel/PPT, reversal chain, rules-layer separation.
+
+DEC-024 retention: doc 02 §5.2 / 24 §6 freeze the full adjustment row, including reason/author, status, source, version and reversal/group references. Frozen images do not redefine layer selection, apply/reversal accounting or current permission. A later status/version change never rewrites an earlier image; consumers must use the retained snapshot membership, not a fresh live-row read.

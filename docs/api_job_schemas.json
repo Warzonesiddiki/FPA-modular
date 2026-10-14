@@ -8711,6 +8711,3344 @@
           }
         }
       ]
+    },
+    "RestatementBaseline": {
+      "type": "object",
+      "properties": {
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "unlock_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "before_snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "before_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "locked_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "lock_note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signoff_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opened_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "reason": {
+          "$ref": "#/$defs/PeriodNote"
+        }
+      },
+      "required": [
+        "baseline_id",
+        "project_id",
+        "period_id",
+        "unlock_version",
+        "before_snapshot",
+        "before_manifest_sha256",
+        "locked_at",
+        "lock_note",
+        "signoff_id",
+        "opened_at",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "RestatementState": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "period_status": {
+          "enum": [
+            "open",
+            "closing",
+            "locked"
+          ]
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RestatementBaseline"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_impact_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_approval_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "period_version",
+        "period_status",
+        "baseline",
+        "current_impact_id",
+        "current_approval_id"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "period_status": {
+                "enum": [
+                  "open",
+                  "locked"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_impact_id": {
+                "type": "null"
+              },
+              "current_approval_id": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "baseline": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_impact_id": {
+                "type": "null"
+              },
+              "current_approval_id": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "current_impact_id": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_approval_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactCreate": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "after_snapshot_id": {
+          "$ref": "#/$defs/Id"
+        }
+      },
+      "required": [
+        "expected_version",
+        "baseline_id",
+        "after_snapshot_id"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactCounts": {
+      "type": "object",
+      "properties": {
+        "statement": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "finding": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "forecast": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "report": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "statement",
+        "bva",
+        "finding",
+        "forecast",
+        "report"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactReport": {
+      "type": "object",
+      "properties": {
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "before_snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "after_snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "before_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "after_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "changes_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "counts": {
+          "$ref": "#/$defs/ImpactCounts"
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "impact_id",
+        "project_id",
+        "period_id",
+        "period_version",
+        "baseline_id",
+        "before_snapshot",
+        "after_snapshot",
+        "before_manifest_sha256",
+        "after_manifest_sha256",
+        "changes_sha256",
+        "counts",
+        "created_at"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailable_reason": {
+          "enum": [
+            "absent",
+            "not_available",
+            null
+          ]
+        },
+        "drill_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unavailable_reason",
+        "drill_key"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unavailable_reason": {
+                "enum": [
+                  "absent",
+                  "not_available"
+                ]
+              },
+              "drill_key": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "unavailable_reason": {
+                "type": "null"
+              },
+              "drill_key": {
+                "$ref": "#/$defs/Id"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactMoneyChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "statement",
+            "bva"
+          ]
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "statement": {
+          "enum": [
+            "pl",
+            "bs",
+            "cf",
+            null
+          ]
+        },
+        "line_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entity_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "account_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cost_centre_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "measure": {
+          "enum": [
+            "amount",
+            "actual",
+            "budget",
+            "forecast",
+            "py",
+            "var_abs"
+          ]
+        },
+        "before": {
+          "$ref": "#/$defs/ImpactValue"
+        },
+        "after": {
+          "$ref": "#/$defs/ImpactValue"
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "statement",
+        "line_key",
+        "entity_id",
+        "account_id",
+        "cost_centre_id",
+        "measure",
+        "before",
+        "after",
+        "delta"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "statement"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "statement": {
+                "enum": [
+                  "pl",
+                  "bs",
+                  "cf"
+                ]
+              },
+              "line_key": {
+                "$ref": "#/$defs/Id"
+              },
+              "entity_id": {
+                "type": "null"
+              },
+              "account_id": {
+                "type": "null"
+              },
+              "cost_centre_id": {
+                "type": "null"
+              },
+              "measure": {
+                "const": "amount"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "statement": {
+                "type": "null"
+              },
+              "line_key": {
+                "type": "null"
+              },
+              "entity_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "account_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "measure": {
+                "enum": [
+                  "actual",
+                  "budget",
+                  "forecast",
+                  "py",
+                  "var_abs"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "before": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "after": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "delta": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "delta": {
+                "$ref": "#/$defs/Money"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactFindingChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "finding"
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "finding_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "not": {
+            "pattern": "[\u0000-\u001f]"
+          }
+        },
+        "change": {
+          "enum": [
+            "added",
+            "removed",
+            "changed"
+          ]
+        },
+        "before_finding_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after_finding_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "before_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "finding_key",
+        "change",
+        "before_finding_id",
+        "after_finding_id",
+        "before_sha256",
+        "after_sha256"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "change": {
+                "const": "added"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "before_finding_id": {
+                "type": "null"
+              },
+              "before_sha256": {
+                "type": "null"
+              },
+              "after_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "after_sha256": {
+                "$ref": "#/$defs/Sha256"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "change": {
+                "const": "removed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "before_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "before_sha256": {
+                "$ref": "#/$defs/Sha256"
+              },
+              "after_finding_id": {
+                "type": "null"
+              },
+              "after_sha256": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "change": {
+                "const": "changed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "before_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "before_sha256": {
+                "$ref": "#/$defs/Sha256"
+              },
+              "after_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "after_sha256": {
+                "$ref": "#/$defs/Sha256"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactForecastChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "forecast"
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "change": {
+          "const": "stale"
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "run_id",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactReportChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "report"
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "report_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "change": {
+          "const": "superseded"
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "report_id",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactChange": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ImpactMoneyChange"
+        },
+        {
+          "$ref": "#/$defs/ImpactFindingChange"
+        },
+        {
+          "$ref": "#/$defs/ImpactForecastChange"
+        },
+        {
+          "$ref": "#/$defs/ImpactReportChange"
+        }
+      ]
+    },
+    "ImpactChangeQuery": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "statement",
+            "bva",
+            "finding",
+            "forecast",
+            "report"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "ImpactChangePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImpactChange"
+          },
+          "maxItems": 1000
+        },
+        "next_cursor": {
+          "$ref": "#/$defs/PageCursor"
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactApprovalCreate": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "signer": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "attest": {
+          "type": "boolean",
+          "const": true
+        },
+        "note": {
+          "$ref": "#/$defs/PeriodNote"
+        }
+      },
+      "required": [
+        "expected_version",
+        "signer",
+        "attest",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactApproval": {
+      "type": "object",
+      "properties": {
+        "approval_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "before_snapshot_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "after_snapshot_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "before_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "after_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "changes_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "signer": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "attestation_text": {
+          "type": "string",
+          "pattern": "^I reviewed the restatement impact for [0-9]{4}-P(0[1-9]|1[0-2]) and approve these changes$",
+          "not": {
+            "pattern": "[\r\n]"
+          }
+        },
+        "note": {
+          "$ref": "#/$defs/PeriodNote"
+        },
+        "at": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "approval_id",
+        "project_id",
+        "period_id",
+        "period_version",
+        "impact_id",
+        "baseline_id",
+        "before_snapshot_id",
+        "after_snapshot_id",
+        "before_manifest_sha256",
+        "after_manifest_sha256",
+        "changes_sha256",
+        "signer",
+        "attestation_text",
+        "note",
+        "at"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTaskKey": {
+      "type": "string",
+      "pattern": "^(T-(0[1-9]|10)|C-[a-z][a-z0-9_]{0,23})$",
+      "not": {
+        "pattern": "[\r\n]"
+      }
+    },
+    "CloseTaskStatus": {
+      "enum": [
+        "not_started",
+        "in_progress",
+        "blocked",
+        "done",
+        "waived"
+      ]
+    },
+    "CloseCalendarRules": {
+      "type": "object",
+      "properties": {
+        "start_business_day": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "target_lock_business_day": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 60
+        },
+        "holidays": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CalendarDate"
+          },
+          "maxItems": 1000,
+          "uniqueItems": true
+        }
+      },
+      "required": [
+        "start_business_day",
+        "target_lock_business_day",
+        "holidays"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTemplateEntry": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "$ref": "#/$defs/CloseTaskKey"
+        },
+        "title": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "kind": {
+          "enum": [
+            "system",
+            "attest",
+            "manual"
+          ]
+        },
+        "owner_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "due_offset_business_days": {
+          "type": "integer",
+          "minimum": -60,
+          "maximum": 60
+        },
+        "depends_on": {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/CloseTaskKey"
+                },
+                {
+                  "not": {
+                    "enum": [
+                      "T-09",
+                      "T-10"
+                    ]
+                  }
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "key",
+        "title",
+        "kind",
+        "owner_id",
+        "due_offset_business_days",
+        "depends_on"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "pattern": "^C-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "manual"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-01"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Import GL & subledgers"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-02"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Trial balance balanced"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-03"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Bank/AR/AP/payroll reconciliations signed"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-04"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Statements reviewed"
+              },
+              "kind": {
+                "const": "attest"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-05"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Material variances explained"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-06"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Exceptions triaged"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-07"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Forecast refreshed & locked"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-08"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Board pack generated, checks green"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-09"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Close sign-off"
+              },
+              "kind": {
+                "const": "attest"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "key": {
+                "const": "T-10"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Period locked"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseTemplatePut": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "calendar": {
+          "$ref": "#/$defs/CloseCalendarRules"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CloseTemplateEntry"
+          },
+          "minItems": 10,
+          "maxItems": 1000,
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-01"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-02"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-03"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-04"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-05"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-06"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-07"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-08"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-09"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-10"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
+        }
+      },
+      "required": [
+        "expected_version",
+        "calendar",
+        "entries"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTemplate": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "calendar": {
+          "$ref": "#/$defs/CloseCalendarRules"
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CloseTemplateEntry"
+          },
+          "minItems": 10,
+          "maxItems": 1000,
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-01"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-02"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-03"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-04"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-05"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-06"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-07"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-08"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-09"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "key": {
+                    "const": "T-10"
+                  }
+                }
+              },
+              "minContains": 1,
+              "maxContains": 1
+            }
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "project_id",
+        "version",
+        "calendar",
+        "entries",
+        "created_at",
+        "updated_at"
+      ],
+      "additionalProperties": false
+    },
+    "CloseCalendar": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "template_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "instantiated": {
+          "type": "boolean"
+        },
+        "rules": {
+          "$ref": "#/$defs/CloseCalendarRules"
+        },
+        "period_end": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "close_start_date": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "target_lock_date": {
+          "$ref": "#/$defs/CalendarDate"
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "template_version",
+        "instantiated",
+        "rules",
+        "period_end",
+        "close_start_date",
+        "target_lock_date"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTaskAttestation": {
+      "type": "object",
+      "properties": {
+        "signer": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "statements_fingerprint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "signer",
+        "at",
+        "note",
+        "statements_fingerprint"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTask": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "template_key": {
+          "$ref": "#/$defs/CloseTaskKey"
+        },
+        "kind": {
+          "enum": [
+            "system",
+            "attest",
+            "manual"
+          ]
+        },
+        "title": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "owner_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "due_offset_business_days": {
+          "type": "integer",
+          "minimum": -60,
+          "maximum": 60
+        },
+        "due_date": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "depends_on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "requested_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CloseTaskStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/$defs/CloseTaskStatus"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "attestation": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CloseTaskAttestation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "review_token": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "evaluated_on": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "overdue": {
+          "type": "boolean"
+        },
+        "review": {
+          "$ref": "#/$defs/CloseTaskReview"
+        }
+      },
+      "required": [
+        "task_id",
+        "project_id",
+        "period_id",
+        "template_key",
+        "kind",
+        "title",
+        "owner_id",
+        "due_offset_business_days",
+        "due_date",
+        "depends_on",
+        "version",
+        "created_at",
+        "updated_at",
+        "requested_status",
+        "status",
+        "note",
+        "attestation",
+        "review_token",
+        "evaluated_on",
+        "overdue",
+        "review"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-01"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Import GL & subledgers"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-02"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Trial balance balanced"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-03"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Bank/AR/AP/payroll reconciliations signed"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-04"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Statements reviewed"
+              },
+              "kind": {
+                "const": "attest"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-05"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Material variances explained"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-06"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Exceptions triaged"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-07"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Forecast refreshed & locked"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-08"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Board pack generated, checks green"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-09"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Close sign-off"
+              },
+              "kind": {
+                "const": "attest"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-10"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "title": {
+                "const": "Period locked"
+              },
+              "kind": {
+                "const": "system"
+              },
+              "depends_on": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "pattern": "^C-"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "kind": {
+                "const": "manual"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "enum": [
+                  "T-01",
+                  "T-02",
+                  "T-03",
+                  "T-05",
+                  "T-06",
+                  "T-07",
+                  "T-08",
+                  "T-09",
+                  "T-10"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "requested_status": {
+                "type": "null"
+              },
+              "note": {
+                "type": "null"
+              },
+              "attestation": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "allOf": [
+              {
+                "properties": {
+                  "requested_status": {
+                    "$ref": "#/$defs/CloseTaskStatus"
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "requested_status": {
+                      "enum": [
+                        "done",
+                        "waived"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "attestation": {
+                      "$ref": "#/$defs/CloseTaskAttestation"
+                    }
+                  }
+                },
+                "else": {
+                  "properties": {
+                    "attestation": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "enum": [
+                  "T-09",
+                  "T-10"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "not_started",
+                  "done"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "enum": [
+                  "T-01",
+                  "T-02",
+                  "T-03",
+                  "T-05",
+                  "T-06",
+                  "T-07",
+                  "T-08"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "blocked",
+                  "done"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-04"
+              }
+            }
+          },
+          "then": {
+            "allOf": [
+              {
+                "properties": {
+                  "requested_status": {
+                    "enum": [
+                      "not_started",
+                      "in_progress",
+                      "blocked",
+                      "done"
+                    ]
+                  },
+                  "status": {
+                    "enum": [
+                      "not_started",
+                      "in_progress",
+                      "blocked",
+                      "done"
+                    ]
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "requested_status": {
+                      "const": "done"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "attestation": {
+                      "properties": {
+                        "statements_fingerprint": {
+                          "$ref": "#/$defs/Sha256"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "pattern": "^C-"
+              }
+            }
+          },
+          "then": {
+            "if": {
+              "properties": {
+                "requested_status": {
+                  "enum": [
+                    "done",
+                    "waived"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "attestation": {
+                  "properties": {
+                    "statements_fingerprint": {
+                      "type": "null"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "done",
+                  "waived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "overdue": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_status": {
+                "const": "not_started"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "not_started",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_status": {
+                "const": "in_progress"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "in_progress",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_status": {
+                "const": "blocked"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "blocked",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_status": {
+                "const": "done"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "done",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_status": {
+                "const": "waived"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "waived",
+                  "blocked"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "const": "T-04"
+              },
+              "status": {
+                "const": "done"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "review": {
+                "properties": {
+                  "statements_fingerprint": {
+                    "$ref": "#/$defs/Sha256"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "template_key": {
+                "not": {
+                  "const": "T-04"
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "review": {
+                "properties": {
+                  "statements_fingerprint": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "requested_status": {
+                "const": "waived"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "note": {
+                "$ref": "#/$defs/PeriodNote"
+              },
+              "attestation": {
+                "properties": {
+                  "note": {
+                    "$ref": "#/$defs/PeriodNote"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseTaskDetails": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "details"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expected_period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "review_token": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "title": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "owner_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "due_offset_business_days": {
+          "type": "integer",
+          "minimum": -60,
+          "maximum": 60
+        },
+        "depends_on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "expected_version",
+        "expected_period_version",
+        "review_token",
+        "title",
+        "owner_id",
+        "due_offset_business_days",
+        "depends_on"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTaskTransition": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "const": "transition"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "expected_period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "review_token": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "to_status": {
+          "$ref": "#/$defs/CloseTaskStatus"
+        },
+        "signer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ProjectName"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "attest": {
+          "type": "boolean"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "expected_version",
+        "expected_period_version",
+        "review_token",
+        "to_status",
+        "signer",
+        "attest",
+        "note"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "to_status": {
+                "enum": [
+                  "done",
+                  "waived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "signer": {
+                "$ref": "#/$defs/ProjectName"
+              },
+              "attest": {
+                "const": true
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "signer": {
+                "type": "null"
+              },
+              "attest": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "to_status": {
+                "enum": [
+                  "blocked",
+                  "waived"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "note": {
+                "$ref": "#/$defs/PeriodNote"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseTaskUpdate": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/CloseTaskDetails"
+        },
+        {
+          "$ref": "#/$defs/CloseTaskTransition"
+        }
+      ]
+    },
+    "CloseTaskReview": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "task_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "task_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "audit_head": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "statements_fingerprint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dependency_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CloseTaskStatus"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "period_version",
+        "task_id",
+        "task_version",
+        "audit_head",
+        "statements_fingerprint",
+        "dependency_status"
+      ],
+      "additionalProperties": false
+    },
+    "ClosePeriodQuery": {
+      "type": "object",
+      "properties": {
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        }
+      },
+      "required": [
+        "period_id"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTaskListQuery": {
+      "type": "object",
+      "properties": {
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [
+        "period_id"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTaskPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CloseTask"
+          },
+          "maxItems": 1000
+        },
+        "next_cursor": {
+          "$ref": "#/$defs/PageCursor"
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "CloseTaskCounts": {
+      "type": "object",
+      "properties": {
+        "not_started": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "in_progress": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "blocked": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "done": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "waived": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "not_started",
+        "in_progress",
+        "blocked",
+        "done",
+        "waived"
+      ],
+      "additionalProperties": false
+    },
+    "CloseOverview": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "period_status": {
+          "enum": [
+            "open",
+            "closing",
+            "locked"
+          ]
+        },
+        "instantiated": {
+          "type": "boolean"
+        },
+        "template_version": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "counts": {
+          "$ref": "#/$defs/CloseTaskCounts"
+        },
+        "evaluated_on": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "readiness": {
+          "$ref": "#/$defs/CloseReadiness"
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "period_version",
+        "period_status",
+        "instantiated",
+        "template_version",
+        "counts",
+        "evaluated_on",
+        "readiness"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "instantiated": {
+                "const": false
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "template_version": {
+                "type": "null"
+              },
+              "counts": {
+                "properties": {
+                  "not_started": {
+                    "const": 0
+                  },
+                  "in_progress": {
+                    "const": 0
+                  },
+                  "blocked": {
+                    "const": 0
+                  },
+                  "done": {
+                    "const": 0
+                  },
+                  "waived": {
+                    "const": 0
+                  }
+                }
+              },
+              "readiness": {
+                "properties": {
+                  "ready_to_sign_off": {
+                    "const": false
+                  },
+                  "ready_to_lock": {
+                    "const": false
+                  },
+                  "blockers": {
+                    "contains": {
+                      "properties": {
+                        "code": {
+                          "const": "statements_review"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "template_version": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseLockRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "before_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "after_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "signoff_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "force": {
+          "type": "boolean"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "locked_at": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "before_version",
+        "after_version",
+        "signoff_id",
+        "snapshot",
+        "force",
+        "note",
+        "locked_at"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "force": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "note": {
+                "$ref": "#/$defs/PeriodNote"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseHistoryItem": {
+      "type": "object",
+      "properties": {
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "action": {
+          "enum": [
+            "CLOSE_SIGNOFF",
+            "PERIOD_LOCK",
+            "RESTATE_OPEN"
+          ]
+        },
+        "at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "evidence_state": {
+          "enum": [
+            "complete",
+            "legacy"
+          ]
+        },
+        "record": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CloseSignoff"
+            },
+            {
+              "$ref": "#/$defs/CloseLockRecord"
+            },
+            {
+              "$ref": "#/$defs/RestatementBaseline"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "audit_id",
+        "action",
+        "at",
+        "evidence_state",
+        "record"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "evidence_state": {
+                "const": "legacy"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "record": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "action": {
+                      "const": "CLOSE_SIGNOFF"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "record": {
+                      "$ref": "#/$defs/CloseSignoff"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "action": {
+                      "const": "PERIOD_LOCK"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "record": {
+                      "$ref": "#/$defs/CloseLockRecord"
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "action": {
+                      "const": "RESTATE_OPEN"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "record": {
+                      "$ref": "#/$defs/RestatementBaseline"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "CloseHistoryQuery": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "CLOSE_SIGNOFF",
+            "PERIOD_LOCK",
+            "RESTATE_OPEN"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "CloseHistoryPage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CloseHistoryItem"
+          },
+          "maxItems": 1000
+        },
+        "next_cursor": {
+          "$ref": "#/$defs/PageCursor"
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "InputRevisions": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "statement_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "forecast_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "pack_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "project_id",
+        "statement_revision",
+        "forecast_revision",
+        "pack_revision"
+      ],
+      "additionalProperties": false
+    },
+    "InputRevisionAdvance": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "effects": {
+          "enum": [
+            [
+              "pack_inputs"
+            ],
+            [
+              "forecast_inputs",
+              "pack_inputs"
+            ],
+            [
+              "statement_inputs",
+              "forecast_inputs",
+              "pack_inputs"
+            ]
+          ]
+        },
+        "before": {
+          "$ref": "#/$defs/InputRevisions"
+        },
+        "after": {
+          "$ref": "#/$defs/InputRevisions"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "effects",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "SnapshotInputBinding": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "snapshot_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "revisions": {
+          "$ref": "#/$defs/InputRevisions"
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "statements_fingerprint": {
+          "$ref": "#/$defs/Sha256"
+        }
+      },
+      "required": [
+        "project_id",
+        "snapshot_id",
+        "period_id",
+        "revisions",
+        "manifest_sha256",
+        "statements_fingerprint"
+      ],
+      "additionalProperties": false
+    },
+    "ForecastInputBinding": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "forecast_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "project_id",
+        "run_id",
+        "forecast_revision"
+      ],
+      "additionalProperties": false
+    },
+    "InputInvalidation": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pack_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "project_id",
+        "impact_id",
+        "audit_id",
+        "pack_revision"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedBaselineRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "$ref": "#/$defs/RestatementBaseline"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "record"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedImpactRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "$ref": "#/$defs/ImpactReport"
+        },
+        "after_binding": {
+          "$ref": "#/$defs/SnapshotInputBinding"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "record",
+        "after_binding"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedImpactChange": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "record": {
+          "$ref": "#/$defs/ImpactChange"
+        }
+      },
+      "required": [
+        "project_id",
+        "impact_id",
+        "ordinal",
+        "record"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedApprovalRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "$ref": "#/$defs/ImpactApproval"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "record"
+      ],
+      "additionalProperties": false
     }
   },
   "x-job-results": {
@@ -10776,6 +14114,713 @@
       "same_period_version",
       "same_snapshot",
       "same_blocker_fingerprint"
+    ]
+  },
+  "x-impact-policy": {
+    "current_report_guards": [
+      "closing",
+      "same_scope",
+      "same_cycle",
+      "same_period_version",
+      "same_before_snapshot",
+      "same_before_manifest",
+      "same_after_snapshot",
+      "same_after_manifest",
+      "checked_pack",
+      "never_invalidated",
+      "latest_qualifying_report"
+    ],
+    "approval_binding_fields": [
+      "project_id",
+      "period_id",
+      "period_version",
+      "impact_id",
+      "baseline_id",
+      "before_snapshot_id",
+      "after_snapshot_id",
+      "before_manifest_sha256",
+      "after_manifest_sha256",
+      "changes_sha256"
+    ],
+    "financial_mutation_invalidates_permanently": true,
+    "generation_changes_financial_inputs": false,
+    "approval_changes_financial_inputs": false,
+    "period_version_increment": 0,
+    "current_record_order": "project_audit_append"
+  },
+  "x-impact-endpoints": {
+    "GET /projects/{id}/periods/{period_id}/restatement": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "RestatementState",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "POST /projects/{id}/periods/{period_id}/impacts": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": "ImpactCreate",
+      "response": "ImpactReport",
+      "status": "201",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "080",
+          "090"
+        ]
+      }
+    },
+    "GET /impacts/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "ImpactReport",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "GET /impacts/{id}/changes": {
+      "scope": "project",
+      "token_required": true,
+      "query": "ImpactChangeQuery",
+      "request": null,
+      "response": "ImpactChangePage",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "POST /impacts/{id}/approve": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": "ImpactApprovalCreate",
+      "response": "ImpactApproval",
+      "status": "201",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "083",
+          "090"
+        ]
+      }
+    },
+    "GET /impact-approvals/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "ImpactApproval",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "GET /restatement-baselines/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "RestatementBaseline",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    }
+  },
+  "x-task-policy": {
+    "required_keys": [
+      "T-01",
+      "T-02",
+      "T-03",
+      "T-04",
+      "T-05",
+      "T-06",
+      "T-07",
+      "T-08",
+      "T-09",
+      "T-10"
+    ],
+    "forbidden_dependencies": [
+      "T-09",
+      "T-10"
+    ],
+    "reject_cycles": true,
+    "terminal_transition_guards": [
+      "closing",
+      "same_task_version",
+      "same_period_version",
+      "same_review",
+      "integrity_ok",
+      "not_busy",
+      "human_editable",
+      "dependency_satisfied",
+      "statements_current"
+    ],
+    "weekdays": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "count_anchor_for_nonzero": false,
+    "template_edits_affect_existing_periods": false,
+    "get_writes": false,
+    "t04_binding": "statements_only",
+    "history_grants_authority": false
+  },
+  "x-task-endpoints": {
+    "GET /projects/{id}/close": {
+      "scope": "project",
+      "token_required": true,
+      "request": null,
+      "response": "CloseOverview",
+      "query": "ClosePeriodQuery",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "GET /projects/{id}/close/tasks": {
+      "scope": "project",
+      "token_required": true,
+      "request": null,
+      "response": "CloseTaskPage",
+      "query": "CloseTaskListQuery",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ],
+        "409": [
+          "003"
+        ]
+      }
+    },
+    "GET /close/tasks/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "request": null,
+      "response": "CloseTask",
+      "query": null,
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "PUT /close/tasks/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "request": "CloseTaskUpdate",
+      "response": "CloseTask",
+      "query": null,
+      "status": "200",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "044",
+          "080",
+          "084",
+          "090"
+        ]
+      }
+    },
+    "GET /projects/{id}/close/template": {
+      "scope": "project",
+      "token_required": true,
+      "request": null,
+      "response": "CloseTemplate",
+      "query": null,
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "PUT /projects/{id}/close/template": {
+      "scope": "project",
+      "token_required": true,
+      "request": "CloseTemplatePut",
+      "response": "CloseTemplate",
+      "query": null,
+      "status": "200",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003"
+        ],
+        "422": [
+          "044",
+          "090"
+        ]
+      }
+    },
+    "GET /projects/{id}/close/calendar": {
+      "scope": "project",
+      "token_required": true,
+      "request": null,
+      "response": "CloseCalendar",
+      "query": "ClosePeriodQuery",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "GET /projects/{id}/periods/{period_id}/close-history": {
+      "scope": "project",
+      "token_required": true,
+      "request": null,
+      "response": "CloseHistoryPage",
+      "query": "CloseHistoryQuery",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    }
+  },
+  "x-revision-effects": {
+    "committed_source": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "adjustment_change": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "statement_mapping": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "statement_settings": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "forecast_assumptions": [
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "forecast_publication": [
+      "pack_inputs"
+    ],
+    "finding_change": [
+      "pack_inputs"
+    ],
+    "commentary_change": [
+      "pack_inputs"
+    ],
+    "pack_configuration": [
+      "pack_inputs"
+    ],
+    "project_display": [
+      "pack_inputs"
+    ],
+    "pack_publication": [],
+    "impact_publication": [],
+    "close_metadata": [],
+    "staging_only": [],
+    "job_control": [],
+    "read_only": []
+  },
+  "x-revision-storage": {
+    "input_revisions": {
+      "columns": [
+        "project_id",
+        "statement_revision",
+        "forecast_revision",
+        "pack_revision"
+      ],
+      "owner": "app/store/db.py"
+    },
+    "input_revision_events": {
+      "columns": [
+        "project_id",
+        "audit_id",
+        "advance_json"
+      ],
+      "owner": "app/store/db.py"
+    },
+    "snapshot_input_bindings": {
+      "columns": [
+        "project_id",
+        "snapshot_id",
+        "period_id",
+        "binding_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "forecast_input_bindings": {
+      "columns": [
+        "project_id",
+        "run_id",
+        "forecast_revision"
+      ],
+      "owner": "app/store/forecast_repo.py"
+    },
+    "restatement_baselines": {
+      "columns": [
+        "project_id",
+        "baseline_id",
+        "period_id",
+        "unlock_version",
+        "before_snapshot_id",
+        "audit_id",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "restatement_impacts": {
+      "columns": [
+        "project_id",
+        "impact_id",
+        "period_id",
+        "period_version",
+        "baseline_id",
+        "after_snapshot_id",
+        "audit_id",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "restatement_changes": {
+      "columns": [
+        "project_id",
+        "impact_id",
+        "ordinal",
+        "kind",
+        "change_key",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "restatement_approvals": {
+      "columns": [
+        "project_id",
+        "approval_id",
+        "impact_id",
+        "audit_id",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "impact_invalidations": {
+      "columns": [
+        "project_id",
+        "impact_id",
+        "audit_id",
+        "pack_revision"
+      ],
+      "owner": "app/store/db.py"
+    }
+  },
+  "x-revision-policy": {
+    "required_revision_facts": [
+      "same_project",
+      "same_pack_revision",
+      "no_invalidation",
+      "content_verified",
+      "current_cycle",
+      "current_period_version",
+      "current_checked_pack",
+      "time_guards"
     ]
   }
 }

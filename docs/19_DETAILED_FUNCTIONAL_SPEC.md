@@ -77,7 +77,7 @@
 | ID | Statement | Rule | Err | Scr | API | Test |
 |---|---|---|---|---|---|---|
 | FR-CLO-001 | Close calendar | business-day aware (holiday list per project), due dates relative to period end | — | S16 | close/calendar | close_service |
-| FR-CLO-002 | Task checklist | template (30 §2) instantiated per period; owner, due, dependency, evidence link; states 23 §7 | — | S16 | close/tasks | close_service |
+| FR-CLO-002 | Task checklist | future-only template copied at start-close; owner/due/dependency and guarded human actions, paged evidence/history (30 §§8–9, 05 §10); states 23 §7 | — | S16 | close/tasks | close_service |
 | FR-CLO-003 | Blockers | computed from system state: TB unbalanced, High findings open, forecast stale, exports missing | — | S01, S16 | close GET | close_blockers |
 | FR-CLO-004 | Sign-off | T-01…T-08/custom prerequisites, excluding sign-off/lock outcome tasks; current review + attestation → immutable record/audit; overrides only for High findings/manual tasks, never hard guards (30 §6–§7) | ERR-080 | S16 | close/sign-off | close_signoff |
 | FR-CLO-005 | Close pack | one action → Excel + PPT of the period from one snapshot (shares FR-RPT-006) | ERR-060 | S16 | exports | cross-artifact |
@@ -97,7 +97,7 @@
 | FR-PLN-009 | Integrated 3-statement forecast | PL→BS→CF articulation; ΔCash(CF) = ΔCash(BS); RE roll; imbalance = named check failure, never a plug | ERR-102 | S09, S17 | planning/integrate | integrated_basic |
 | FR-PLN-010 | Assumptions register | one home for assumptions; versions; approval; stale-run list when an assumption changes (48) | — | S17 | assumptions | test_assumptions |
 | FR-PLN-011 | Cost allocations | methods (40 §2), runs create adjustments in `gl_adj`; oracle 40 §4 | ERR-042 | S17 | allocations | test_allocations |
-| FR-PLN-012 | Planning calendar | annual template with milestones, shown S16/S17 (48 §1) | — | S16, S17 | close/calendar | test_assumptions |
+| FR-PLN-012 | Planning calendar | annual template with milestones, shown S16/S17 (48 §1) | — | S16, S17 | planning calendar (WI-0001 expansion pending; distinct from 05 §10 close calendar) | test_assumptions |
 
 ## G. Exceptions (FR-EXC) — owner docs 07, 44, 42
 | ID | Statement | Rule | Err | Scr | API | Test |

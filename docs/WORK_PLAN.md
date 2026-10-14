@@ -20,7 +20,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 | Milestone | Scope | Items | Exit gate |
 |---|---|---|---|
 | **M0** | Spec hardening + bootstrap docs checker — close the audit's P0/P1 contract gaps before product code | 8 | `scripts/docs_check.py` clean (sections, links, IDs, doc/§ references, ERR/FR/settings-key doc parity, FR↔WI↔planned-test matrix, period-id notation, no retired operational multi-agent terms, gate text parity); docs 05/21/44/03/55/31/20 at implementable depth per acceptance lines; every DEC recorded (DEC-007/008/009 accepted under DEC-010); cold M0 audit with no open defects. |
-| **M1** | Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design) | 53 | Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–14) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%. |
+| **M1** | Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design) | 53 | Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–16 and delta 17) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%. |
 | **M2** | Engine — imports (incl. D365 transforms, enrichment, TB tie-out), calc, 28 rules + suggestions, forecast, planning, adjustments; acceptance gate turns green here | 75 | Acceptance gate green (doc 14 §3): recall 36/36, High 19/19, controls 0/13, suggestion exactness, extras justified, two runs identical, 28/28 wired, ERP shape parity; statement/KPI/forecast/planning oracles green; malformed corpus `expected.json` exact. |
 | **M3** | Connector, services, API, CLI, AI — the Dynamics 365 pull lands through the pipeline and the spine runs end-to-end from the command line | 44 | OpenAPI == doc 05 catalogue (incl. connector routes) and doc 90 fields; AI-off and connector-off socket test; connector parity bar (doc 14 §3) green against `tools/mock_d365.py` for both products incl. no-change and the five faults; connector security tests (doc 12 §8, incl. allow-list, redaction, keyring-only, state/PKCE, disconnect) green; CLI golden month-end exit 0 (file route and `fpa pull --mock`); job registry crash-recovery test; desktop shell launches the server and opens the UI placeholder. |
 | **M4** | UI — 19 screens on the frozen API; five states, accessibility, tokens | 51 | 5-state + axe + keyboard tests on all 19 screens; token check zero-undefined; UI numbers == API fixtures; no inline strings; walkthrough (doc 18 §1) passes on the sample project. |
@@ -39,8 +39,8 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/05 (current), docs/90, docs/63, docs/22, docs/02
 - **Inputs:** current tables  ·  **Provides:** complete endpoint catalogue
 - **Acceptance (evidence required):** Every route file in M3 can be written without inventing a field; a parity script (M6) diffs OpenAPI against the catalogue with zero gaps; `/jobs/{id}` result schema defined per job kind (import, rules, forecast, export, allocation, reconcile, year-end).
-- **Paired test:** `tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py`
-- **Notes:** Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema. DEC-016: docs/api_job_schemas.json is the normative job-schema attachment, with document-only tests (test_api_job_contract.py, DEC-017 test_api_project_contract.py DEC-018 test_api_lifecycle_contract.py and DEC-020 test_api_close_contract.py) and tests/docs/requirements.txt (pinned verification dependencies, docs 60/81); product code stays frozen. Full endpoint rewrite still required.
+- **Paired test:** `tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py; tests/docs/test_api_task_contract.py; tests/docs/test_api_revision_contract.py; tests/docs/test_api_source_contract.py`
+- **Notes:** Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema. DEC-016: docs/api_job_schemas.json is the normative job-schema attachment, with document-only tests (test_api_job_contract.py, DEC-017 test_api_project_contract.py DEC-018 test_api_lifecycle_contract.py DEC-020 test_api_close_contract.py DEC-021 test_api_impact_contract.py DEC-022 test_api_task_contract.py and DEC-023 test_api_revision_contract.py and DEC-024 test_api_source_contract.py) and tests/docs/requirements.txt (pinned verification dependencies, docs 60/81); product code stays frozen. Full endpoint rewrite still required.
 
 ### WI-0002 · `docs/21_SCREEN_SPEC_DETAILED.md` · docs0 · _file exists — re-verify against the acceptance line before marking DONE_
 - **Mission:** Expand from one table row per screen to one section per screen S01–S19: route, layout zones (doc 54), every field with source DTO path (doc 05/90), every action with API call + success/failure copy key (doc 55), validations, the five states, keyboard map (doc 57), drill paths, acceptance tests.
@@ -102,7 +102,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 
 ## M1 — Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design)
 
-**Exit gate:** Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–14) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%.
+**Exit gate:** Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–16 and delta 17) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%.
 
 ### WI-0009 · `pyproject.toml` · config · _file exists — re-verify against the acceptance line before marking DONE_
 - **Mission:** Project metadata, EXACT-pinned deps (fastapi, uvicorn, pydantic, openpyxl, python-pptx, reportlab, pywebview, keyring, httpx, msal — the 10 of doc 04 §6; ADR-010), pytest/ruff/mypy config, requires-python 3.11+ (OQ-11).
@@ -266,7 +266,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Mission:** Fiscal calendar: period ids, FY, quarters, period arithmetic, PY/YoY lookups, business days (doc 30), 4-4-5 reserved.
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/02_DATA_DICTIONARY.md (period identity), docs/30
 - **Inputs:** fy_start_month, calendar type  ·  **Provides:** Period objects
-- **Acceptance (evidence required):** Period round-trip; PY mapping; leap years; fy_start_month 1 and 4; shift across FY boundary negative; business-day count with weekend-only calendar.
+- **Acceptance (evidence required):** Period round-trip; PY mapping; leap years; fy_start_month 1 and 4; shift across FY boundary negative; business-day offsets -60..60 with holidays, zero/negative offset, weekend/leap/year-overflow and doc 30 §9 hand-worked oracles; no silent date clipping.
 - **Paired test:** `tests/unit/test_calendar.py`
 
 ### WI-0032 · `app/core/ids.py` · core · _file exists — re-verify against the acceptance line before marking DONE_
@@ -277,10 +277,10 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Paired test:** `tests/unit/test_ids.py`
 
 ### WI-0033 · `app/core/hashing.py` · core · _file exists — re-verify against the acceptance line before marking DONE_
-- **Mission:** SHA-256 file/row hashing (streaming), checksum manifest for reproducibility.
+- **Mission:** SHA-256 file/row hashing (streaming), checksum manifest for reproducibility; DEC-024 canonical source bytes/strict decoding and domain-separated fpa-source-v1 hashes (docs 02 §5.2, 24 §6), no float coercion or duplicate-key acceptance.
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/12
 - **Inputs:** bytes/path  ·  **Provides:** hex digest
-- **Acceptance (evidence required):** Known-vector test; 200MB streaming without loading whole file.
+- **Acceptance (evidence required):** Known-vector test; 200MB streaming without loading whole file; DEC-024 exact UTF-8/integer/control-character bytes, duplicate keys/noncanonical bytes/surrogates/floats reject, literal source digest vectors and codec preservation.
 - **Paired test:** `tests/unit/test_hashing.py`
 
 ### WI-0034 · `app/core/audit.py` · core · _file exists — re-verify against the acceptance line before marking DONE_
@@ -312,7 +312,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Paired test:** `tests/unit/test_license.py`
 
 ### WI-0038 · `app/store/schema.sql` · store · _file exists — re-verify against the acceptance line before marking DONE_
-- **Mission:** SQLite schema: EVERY doc-02 table/column 1:1 (sections 2, 5, 6, 7 — incl. the §7 deltas: gl_rows.posting_layer/source_account_ref/vendor_source, findings.suggestion_json/suggestion_status/suggestion_ref, import_batches tb_check kind + enrichment_json + source/pull_id, tables connector_profiles + connector_pulls and project/period revision metadata — deltas 13/14), FKs, CHECK constraints on enums, indexes, created_by/updated_at where doc 02 §1 requires. Money INTEGER minor units.
+- **Mission:** SQLite schema: EVERY doc-02 table/column 1:1 (sections 2, 5, 6, 7 — incl. the §7 deltas: gl_rows.posting_layer/source_account_ref/vendor_source, findings.suggestion_json/suggestion_status/suggestion_ref, import_batches tb_check kind + enrichment_json + source/pull_id, tables connector_profiles + connector_pulls and project/period revision metadata — deltas 13/14, plus DEC-022 close template/period-copy/task columns and constraints — delta 15, and revision/retained-impact tables — delta 16, retained_source_rows — delta 17), FKs, CHECK constraints on enums, indexes, created_by/updated_at where doc 02 §1 requires. Money INTEGER minor units.
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/02_DATA_DICTIONARY.md (every table/column)
 - **Inputs:** -  ·  **Provides:** DDL applies cleanly
 - **Acceptance (evidence required):** Schema-equality test parses doc 02 tables+columns and diffs against PRAGMA table_info for every table: zero missing, zero extra; FK on; duplicate budget grain with NULL cc rejected.
@@ -320,10 +320,10 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Notes:** Closes audit pass-3 P0-5 (doc 02 ≠ schema). One storage engine only.
 
 ### WI-0039 · `app/store/db.py` · store · _file exists — re-verify against the acceptance line before marking DONE_
-- **Mission:** Connection factory: WAL, FK on, migration runner (doc 61), transaction context manager, integrity check.
+- **Mission:** Connection factory: WAL, FK on, migration runner (doc 61), caller-held transaction boundary, integrity check; DEC-023 trusted effect union, atomic input revisions/events, first impact invalidations and input-driven T-04 stale flags (docs 02 §5, 24 §5). No post-commit repair or caller-supplied effect metadata.
 - **Depends on (WI ids, must be DONE):** WI-0038, WI-0029  ·  **Read first:** schema.sql, core/errors, docs/61
 - **Inputs:** db path  ·  **Provides:** sqlite3 connection
-- **Acceptance (evidence required):** Fresh DB == migrated DB (schema dump equality); crash mid-txn leaves no partial data; backup-before-migrate file exists and hash-verified.
+- **Acceptance (evidence required):** Fresh DB == migrated DB (schema dump equality); crash mid-txn leaves no partial data; backup-before-migrate file exists and hash-verified; normalised revision union increments once, no-effects/replay/rollback leaves counters unchanged, overflow rolls back all writes, fault at each revision/audit/marker/receipt boundary leaves no partial state.
 - **Paired test:** `tests/unit/test_db.py`
 
 ### WI-0040 · `app/store/migrations/__init__.py` · store
@@ -346,7 +346,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** import batches + raw rows filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_import_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0043 · `app/store/gl_repo.py` · store
 - **Mission:** Repository for gl_rows queries: by period/account/entity/cc/voucher/layer. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
@@ -354,7 +354,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** gl_rows queries: by period/account/entity/cc/voucher/layer filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_gl_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0044 · `app/store/mapping_repo.py` · store
 - **Mission:** Repository for mapping profiles + rules + versions. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
@@ -362,7 +362,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** mapping profiles + rules + versions filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_mapping_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0045 · `app/store/master_repo.py` · store
 - **Mission:** Repository for entities/accounts/cost centres/vendors/owners/account_owners. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
@@ -370,7 +370,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** entities/accounts/cost centres/vendors/owners/account_owners filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_master_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0046 · `app/store/budget_repo.py` · store
 - **Mission:** Repository for budget versions + lines. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
@@ -378,15 +378,15 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** budget versions + lines filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_budget_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0047 · `app/store/forecast_repo.py` · store
-- **Mission:** Repository for forecast runs + lines + scenarios. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
+- **Mission:** Repository for forecast runs + lines + scenarios; DEC-023 immutable forecast_input_bindings. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
 - **Depends on (WI ids, must be DONE):** WI-0039, WI-0030, WI-0034  ·  **Read first:** store/db.py, core/money, core/audit, docs/02
-- **Inputs:** forecast runs + lines + scenarios filters  ·  **Provides:** dataclass lists / ids
+- **Inputs:** forecast runs + lines + scenarios; DEC-023 immutable forecast_input_bindings filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_forecast_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0048 · `app/store/exception_repo.py` · store
 - **Mission:** Repository for findings, history, comments. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
@@ -394,23 +394,23 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** findings, history, comments filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_exception_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0049 · `app/store/report_repo.py` · store
-- **Mission:** Repository for reports registry + report_definitions. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
+- **Mission:** Repository for reports registry + report_definitions; DEC-023 snapshot_input_bindings and immutable restatement_baselines/impacts/changes/approvals with scope/hash/count/payload equality (02 §5, 24 §5); no currentness from a binding without retained content; DEC-024 retained_source_rows with closed GL/adjustment row images, canonical-byte/hash/scalar equality, authentic origin, immutable deduplication and same-project access (02 §5.2, 24 §6). Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
 - **Depends on (WI ids, must be DONE):** WI-0039, WI-0030, WI-0034  ·  **Read first:** store/db.py, core/money, core/audit, docs/02
-- **Inputs:** reports registry + report_definitions filters  ·  **Provides:** dataclass lists / ids
+- **Inputs:** reports registry + report_definitions; DEC-023 snapshot_input_bindings and immutable restatement_baselines/impacts/changes/approvals with scope/hash/count/payload equality (02 §5, 24 §5); no currentness from a binding without retained content; DEC-024 retained_source_rows with closed GL/adjustment row images, canonical-byte/hash/scalar equality, authentic origin, immutable deduplication and same-project access (02 §5.2, 24 §6) filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_report_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0050 · `app/store/period_repo.py` · store
-- **Mission:** Repository for period open/closing/lock state + lock log. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
+- **Mission:** Repository for period open/closing/lock state + typed lock history; DEC-022 close_templates, close_period_configs, close_tasks, close_signoffs and audit-backed close history with same-period acyclic dependencies and immutable period copies (docs 02 §5, 05 §10, 30 §§8–9). Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
 - **Depends on (WI ids, must be DONE):** WI-0039, WI-0030, WI-0034  ·  **Read first:** store/db.py, core/money, core/audit, docs/02
-- **Inputs:** period open/closing/lock state + lock log filters  ·  **Provides:** dataclass lists / ids
+- **Inputs:** period open/closing/lock state + typed lock history; DEC-022 close_templates, close_period_configs, close_tasks, close_signoffs and audit-backed close history with same-period acyclic dependencies and immutable period copies (docs 02 §5, 05 §10, 30 §§8–9) filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_period_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0051 · `app/store/connector_repo.py` · store
 - **Mission:** Repository for connector_profiles (versioned, one active) + connector_pulls (status, counts, sha, error code; never a token) + last-successful-pull lookup per period. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
@@ -418,7 +418,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Inputs:** connector_profiles (versioned, one active) + connector_pulls (status, counts, sha, error code; never a token) + last-successful-pull lookup per period filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_connector_repo.py`
-- **Notes:** No business logic here - persistence only.
+- **Notes:** No business logic here - persistence only. Caller-owned transaction; no independent commit. DEC-023 input mutators declare trusted effects for the db.py atomic invalidation primitive (24 §5).
 
 ### WI-0052 · `sample-data/generate_sample_data.py` · data
 - **Mission:** COHERENT corpus generator per doc 42: one plan -> budget and actuals = plan × (1 + controlled noise); balanced vouchers by construction; plants P01–P36 + controls C01–C13 ONLY from the doc-42 §7/§8 registers (vendor roles V05/V08/V21/V26 and cost centres CC-SAL/CC-FIN per doc 42 §1); seed-fixed; writes answer_key.json (incl. expected_suggestion per plant) + hashes.json; also emits the golden period in the ERP shapes of doc 42 §4 (`erp_shapes/`: D365 F&O voucher transactions + vendor transactions + trial balance + budget register, D365 BC G/L entries + budget) and the API shapes `erp_shapes/api/{fo,bc}/*.json` + `fo/$metadata.xml` served by tools/mock_d365.py (same rows, incl. the Tax-layer variant and one hostile-cells BC page).
@@ -1178,10 +1178,10 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Paired test:** `tests/unit/test_dashboard_service.py`
 
 ### WI-0152 · `app/services/close_service.py` · services
-- **Mission:** Close management per doc 30: task instantiation from template, system-verified completion, blockers, sign-off (ERR-080).
-- **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/30, docs/23 §7
+- **Mission:** Close management per doc 30 and doc 05 §§8–10: atomic task/calendar instantiation, system evidence projections, guarded human edits and statement-only T-04 binding/invalidation, blockers, sign-off/lock and historical outcome reads.
+- **Depends on (WI ids, must be DONE):** WI-0001, WI-0050, WI-0049, WI-0047, WI-0031  ·  **Read first:** docs/30, docs/23 §7, docs/05 §§8–10, store/period_repo, store/report_repo, store/forecast_repo, core/calendar
 - **Inputs:** project, period  ·  **Provides:** close state DTO
-- **Acceptance (evidence required):** System tasks derive from real states (test flips each source state); sign-off guard.
+- **Acceptance (evidence required):** System tasks derive from real states (test flips each source state); sign-off guard; no outcome transitions/cycles; statement-only freshness avoids forecast/pack cycles; template edits never rewrite live tasks; optimistic task+period/review races, typed legacy history, injected overdue date; DEC-023 current impact requires revision fence and no first invalidation, rejected/replayed approval creates no extra records, forecast/pack/impact publication preserves the acyclic sequence.
 - **Paired test:** `tests/unit/test_close_service.py`
 
 ### WI-0153 · `app/services/alerts.py` · services

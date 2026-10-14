@@ -54,7 +54,7 @@
 | ERR-071 | AI draft rejected by guardrails | "The draft mentioned a number that isn't in your data, so it wasn't used." | Try again or write the commentary manually | yes |
 | ERR-072 | AI provider unreachable / timed out | "The AI service didn't respond." | Check your connection and try again | yes |
 | ERR-073 | AI payload exceeds provider limit | "There's too much data for one draft." | Narrow the scope (one statement or fewer lines) | no |
-| ERR-080 | Close review/sign-off/lock blocked | "Close blockers are still open." (list) | Refresh a changed review and resolve hard blockers; only permitted exceptions allow an override note | no |
+| ERR-080 | Close/task/impact generation/review/sign-off/lock blocked | "Close blockers are still open." (list) | Refresh a changed review and resolve hard blockers; only permitted exceptions allow an override note | no |
 | ERR-081 | Recon out of tolerance | "Sub-ledger and GL differ by more than your tolerance." (amount) | Review unmatched items on both sides | no |
 | ERR-082 | Year-end checks failed (open periods, TB, rollforward Δ ≠ 0) | "The year can't be closed yet: {reasons}." | Fix each item listed, then run the check again | no |
 | ERR-083 | Restatement without a current approved impact report/note | "Restating a locked period needs an approval note." | Review the current impact report and record who approved it and why; an old approval or lock note does not count | no |

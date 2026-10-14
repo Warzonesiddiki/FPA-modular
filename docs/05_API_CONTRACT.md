@@ -63,7 +63,7 @@ Health, project list/create/detail, period list/create/detail: explicit contract
 
 Remaining project operations awaiting expansion in WI-0001:
 - Sample workspace creation, typed-confirmation deletion and start-close/unlock: §7 (FR-PRJ-002/003/005). Financial sample loading still uses the ordinary import pipeline.
-- Close readiness/sign-off/lock: §8. Version, review binding and current sign-off are mandatory; force is limited. Impact generation/approval transport remains to expand (docs 30/41).
+- Close readiness/sign-off/lock: §8. Version, review binding and current sign-off are mandatory; force is limited. Impact generation/approval, paged changes and retained baseline reads: §9 (docs 30/41). Snapshot persistence/ownership still requires verification.
 - POST `/projects/{id}/backup` and POST `/projects/{id}/restore`: legacy request `{path}` → 202 JobReceipt; results BackupManifest / RestoreResult (doc 64), ERR-012 for unavailable paths. Full input/root-selection/integrity contracts remain to expand (FR-PRJ-004).
 
 ### Imports (doc 06)
@@ -133,7 +133,7 @@ Every endpoint: happy path + each listed error + money-as-string assertion + pag
 | Allocations (40) | CRUD `/projects/{id}/allocations` · POST `/allocations/{id}/run {period_id}` → job → adjustments created · GET run result |
 | Assumptions (48) | CRUD `/projects/{id}/assumptions` · POST `/assumptions/{id}/approve` |
 | Year-end (38) | POST `/projects/{id}/year-end/check {fiscal_year}` · POST `/projects/{id}/year-end/close {fiscal_year}` (creates closing adjustments + opening batch) · GET `/projects/{id}/year-end/rollforward {fiscal_year}` (Δ per account, must be 0) |
-| Close (30) | GET `/projects/{id}/close?period_id` · PUT `/close/tasks/{id}` (task/calendar payloads still pending); readiness and POST `/close/sign-off` are fully specified in §8 |
+| Close (30) | Task/calendar/template and history routes: §10; readiness and POST `/close/sign-off`: §8 |
 | Reconcile (19I) | POST `/projects/{id}/reconcile/run {kind, period_id, batch_id}` → job · GET `/reconcile/{id}` (matches, unmatched both sides) · POST `/reconcile/{id}/sign-off` (ERR-081) |
 | Alerts (19K) | GET `/projects/{id}/alerts?status` · POST `/alerts/{id}/ack|dismiss` |
 | Planning (29) | GET/PUT `/projects/{id}/planning/{drivers|headcount|capex|debt|wc|cash13}` (bulk, versioned; PUT replaces the grid for the given scope and writes one audit row) · POST `/projects/{id}/planning/integrate {base_period_id, budget_version?, assumption_set?}` → job → forecast run (ERR-102 on articulation failure, with `details.link`) · GET `/projects/{id}/sensitivity?driver&from&to&steps&target` → table (ERR-108) · POST `/projects/{id}/goal-seek {target_kpi, target_value, driver}` → `GoalSeekResult` (ERR-108) · budget versions: GET/POST `/projects/{id}/budgets`, POST `/budgets/{version_id}/approve|lock|copy` (ERR-100), PUT `/budgets/{version_id}/lines` (grid edit, audited) · report builder `/projects/{id}/report-definitions` CRUD + POST `/report-definitions/{id}/render {period_id}` → job → report (ERR-062) · KPI builder `/projects/{id}/kpi-definitions` CRUD (ERR-104) |
@@ -169,7 +169,7 @@ These three complete transport contracts use doc 64's closed result union; they 
 - **Example:** running non-cancellable commit → 200 `{"job_id":"job_commit_0001","status":"running","cancel_requested":false,"cancellable":false}`. Queued cancellation → 200 `{"job_id":"job_commit_0001","status":"cancelled","cancel_requested":true,"cancellable":false}`; a repeated request after that returns cancelled with both flags false.
 
 ## 6. Health, project metadata and fiscal-year materialisation (DEC-017)
-These seven endpoint sections replace the corresponding shorthand in §2. Sample workspace/deletion/start-close/unlock are expanded in §7; backup/restore and impact generation/approval still require expansion (lock/sign-off: §8); §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
+These seven endpoint sections replace the corresponding shorthand in §2. Sample workspace/deletion/start-close/unlock are expanded in §7; backup/restore still requires expansion (lock/sign-off: §8; impact review: §9); §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
 
 ### 6.0 Field contracts and shared behaviour
 All properties are required unless explicitly optional; nullable properties must be present. All objects are closed. Dates are validated Gregorian `YYYY-MM-DD`; timestamps use §1.3 UTC Z. No money fields occur here; any reachable error money remains a decimal string. No ledger rows, filesystem paths, connection profiles or credentials are exposed by these DTOs.
@@ -217,7 +217,7 @@ App-scoped project-creation receipts are scoped to **installation + method + can
 ### 6.3 POST `/projects`
 - **Auth / scope:** app-scoped; token required; Idempotency-Key required.
 - **Request:** ProjectCreate (§6.0); no query/path variables. Initial fiscal_year is explicit. Reject unsupported currency/calendar and client-supplied server fields with ERR-002. Compare active names using §6.0's canonical casefold key; duplicate → ERR-010.
-- **Response:** 201 CreatedProject (§6.0), `is_sample=false`, version 1 and equal creation/update timestamps. Also atomically initialise all 12 open periods for the requested FY, doc-62 default settings, and doc-28 COA template. No GL/budget transactions, sample corpus or imported opening balance is invented. Periods are fetched separately, not silently omitted from a promised embedded list.
+- **Response:** 201 CreatedProject (§6.0), `is_sample=false`, version 1 and equal creation/update timestamps. Also atomically initialise all 12 open periods for the requested FY, doc-62 default settings, and doc-28 COA template. Initialise the internal input_revisions row to (1,1,1) in this creation transaction (doc 24 §5); no input event is fabricated for initialisation. No GL/budget transactions, sample corpus or imported opening balance is invented. Periods are fetched separately, not silently omitted from a promised embedded list.
 - **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001 (replay target deleted); 409 ERR-010; 500 ERR-099; 503 ERR-092/ERR-093.
 - **Error distinction:** ERR-012 remains backup/restore-specific, not reused for arbitrary create failures.
 - **Pagination:** none.
@@ -261,7 +261,7 @@ App-scoped project-creation receipts are scoped to **installation + method + can
 - **Example:** GET `/api/v1/projects/prj_9f2c41aa07e1/periods/2026-P01` → 200 the complete April Period in doc 63 §8. A future non-materialised FY returns 404, not zero balances.
 
 ## 7. Sample, deletion and entering/reopening close (DEC-018)
-These four endpoint contracts extend §6; they are documentation, not implemented runtime routes. Lock/sign-off are expanded in §8; impact generation/approval and backup/restore remain WI-0001 work. The schema attachment owns closed DTOs; the behavioural rules below are mandatory M1/M3 tests, not something JSON Schema proves.
+These four endpoint contracts extend §6; they are documentation, not implemented runtime routes. Lock/sign-off are expanded in §8; impact review is expanded in §9; backup/restore remains WI-0001 work. The schema attachment owns closed DTOs; the behavioural rules below are mandatory M1/M3 tests, not something JSON Schema proves.
 
 ### 7.0 Fields, sequencing and lifecycle rules
 All properties are required. Shared ProjectName/ProjectId/Period/PeriodNote/Timestamp types are §6.0. No financial amounts occur in these metadata DTOs; reachable error money stays decimal strings. Input objects reject unknown fields; client actor, timestamps, project paths, sample flags and server revision overrides are never accepted.
@@ -325,7 +325,7 @@ Both period actions reject a known broken audit chain / integrity read-only stat
 - **Example:** locked `2026-P01`, version 3; POST `{"expected_version":3,"note":"Re-import the corrected April ledger; approved by the controller."}` → 200 the version-4 ClosingPeriod in doc 63 §9. It is not version 1 and never silently returns open.
 
 ## 8. Close readiness, sign-off and lock (DEC-020)
-These three contracts extend §7; product code remains frozen. Task/calendar/template editing and impact generation/approval APIs remain incomplete. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
+These three contracts extend §7; product code remains frozen. Task/calendar/template editing and history are specified in §10; impact review in §9. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
 
 ### 8.0 Fields, review token and common sequencing
 | Definition | Fields |
@@ -374,3 +374,160 @@ Mutations: §1.2 auth/ownership and strict syntax → same-key receipt/conflict 
 - **Pagination:** none; one period. Finding details are bounded diagnostics, not a resource-list substitute.
 - **Idempotency:** required; same-key replay returns the old locked response after restart or later unlock; a fresh key against locked state fails ERR-016. Re-read current Period before another mutation.
 - **Example:** doc 63 §10.3.
+
+
+## 9. Restatement impact review (DEC-021)
+Document contracts, not runtime evidence. Doc 41 §6 owns comparison/freshness semantics; doc 24 §4 owns immutable financial manifests. **No client boolean, lock note or historical approval authorises re-lock.** All routes require the token, exact Host/Origin and X-FPA-Project; every period, baseline, snapshot, impact and approval id is checked in that project, and in the selected period where applicable, before state disclosure. No filesystem paths, external networking, AI approval or financial recomputation on GET. All fields below are required, including nulls; all objects are closed. Abbreviated project_id/period_id use ProjectId/PeriodId; all resource ids use Id. Money = Money strings via core/money, never JSON numbers.
+
+### 9.0 Fields and ownership
+| Definition | Fields / constraints |
+|---|---|
+| RestatementBaseline | baseline_id: Id; project_id: ProjectId; period_id: PeriodId; unlock_version: integer ≥2; before_snapshot: SnapshotRef; before_manifest_sha256: Sha256; locked_at: Timestamp; lock_note: PeriodNote or null; signoff_id: Id or null (legacy lock only); opened_at: Timestamp; reason: PeriodNote. Immutable, captured in the unlock transaction from the last lock's retained snapshot, never reconstructed from corrected current data. Missing reproducible snapshot fails unlock atomically (ERR-099). |
+| RestatementState | project_id; period_id; period_version: integer ≥1; period_status: open/closing/locked; baseline: RestatementBaseline or null; current_impact_id: Id or null; current_approval_id: Id or null. Baseline is the latest retained unlock cycle, including while locked. Current ids are null outside closing or when stale; approval id requires current impact id. No baseline → both ids null. Never infer current authority from baseline/history alone. |
+| ImpactCreate | expected_version: integer ≥2; baseline_id: Id; after_snapshot_id: Id. Baseline must be this cycle; after snapshot must be the current checked pack snapshot (not an arbitrary historical selector). |
+| ImpactCounts | statement, bva, finding, forecast, report: integers ≥0 (exact row counts for the five change categories, not a truncated sample). |
+| ImpactReport | impact_id: Id; project_id; period_id; period_version: integer ≥2; baseline_id: Id; before_snapshot, after_snapshot: SnapshotRef; before_manifest_sha256, after_manifest_sha256: Sha256; changes_sha256: Sha256; counts: ImpactCounts; created_at: Timestamp. Immutable metadata; details use the paged route below, never unbounded arrays. before snapshot/hash equals baseline, after matches checked pack. Both snapshots have the same project/period/layer. Report creation does not bump period.version. |
+| ImpactValue | value: Money or null; unavailable_reason: absent/not_available or null; drill_key: Id or null. value non-null requires reason=null and non-null drill_key; null value requires non-null reason and null drill_key. absent means no row in that snapshot, not zero; not_available means a retained labelled unavailable comparator. Drill tokens bind the snapshot and owning project, not live current rows. Explicit zero is a real value with a drill to no-activity explanation. |
+| ImpactMoneyChange | kind: statement/bva; key: Id; statement: pl/bs/cf or null; line_key: Id or null; entity_id, account_id, cost_centre_id: Id or null; measure: amount/actual/budget/forecast/py/var_abs; before, after: ImpactValue; delta: Money or null. statement requires statement+line_key, null grain fields and measure=amount (project total); bva requires statement=line_key=null, non-null entity/account, optional-null cost centre and non-amount measure. delta = after − before in **presented units**, null iff either side unavailable. No percentage/favourability inference from delta. |
+| ImpactFindingChange | kind: literal finding; key: Id; finding_key: string 1..512, no ASCII controls; change: added/removed/changed; before_finding_id, after_finding_id: Id or null; before_sha256, after_sha256: Sha256 or null. added has only after; removed only before; changed has both and differing business-state hashes. No deletion of live/historical finding records is implied by removed. |
+| ImpactForecastChange | kind: literal forecast; key: Id; run_id: Id; change: literal stale. One row per run invalidated by changed inputs since the baseline; generation itself does not stale any run. |
+| ImpactReportChange | kind: literal report; key: Id; report_id: Id; change: literal superseded. One row per prior export for this period/layer whose manifest was replaced by the after snapshot; keep prior files and source refs. Current checked-pack exports are not superseded by impact creation. |
+| ImpactChange | Closed union of ImpactMoneyChange, ImpactFindingChange, ImpactForecastChange, ImpactReportChange. Keys and comparison rules: doc 41 §6. |
+| ImpactChangeQuery | optional kind: statement/bva/finding/forecast/report; optional limit integer 1..1000 (default 100); optional cursor: non-null PageCursor. No other parameters. |
+| ImpactChangePage | items: ImpactChange array, 0..1000; next_cursor: PageCursor or null. At most requested limit, stable ordering (kind,key); cursor binds project, impact_id, changes_sha256, kind and limit. Details are immutable: later project changes do not invalidate this traversal. |
+| ImpactApprovalCreate | expected_version: integer ≥2; signer: ProjectName syntax (display label, not authenticated actor); attest: literal true; note: PeriodNote (required, nonblank). |
+| ImpactApproval | approval_id: Id; project_id; period_id; period_version: integer ≥2; impact_id; baseline_id; before_snapshot_id, after_snapshot_id: Id; before_manifest_sha256, after_manifest_sha256, changes_sha256: Sha256; signer: ProjectName; attestation_text: exact server string `I reviewed the restatement impact for <period_id> and approve these changes`; note: PeriodNote; at: Timestamp. All binding fields copied from the immutable report, not supplied by the client. Human attestation only; actor from local shell context in audit. Immutable and historical after staleness. |
+
+Changes hash = SHA256 of the UTF-8 canonical JSON array of all ImpactChange rows sorted by (kind,key), using §8.0 canonical encoding. Empty array uses the same hash as empty blockers. Compute incrementally; do not load an entire ledger merely to return a page. Counts exactly partition that array. Server-assigned key = SHA256 of the canonical JSON identity tuple in doc 41 §6 (64 lowercase hex, a subset of Id); unique within a report. Hashes are integrity/concurrency evidence, not authentication. Arithmetic, cross-field equality, ownership, counts, sorting, hashing, currency exponent, and actual currentness are runtime checks beyond JSON Schema.
+
+Write sequence: auth/ownership and strict syntax → durable same-key receipt/conflict → expected period version (ERR-003) → closing state (ERR-016), known integrity failure (ERR-090), incompatible job/write/lifecycle lease (ERR-092, excluding own lease) → cycle/pack/manifest checks → atomic publish with audit and receipt. No partial report/pages/approval survives failure. Period-affecting jobs cannot race publication; all input checks repeat inside the project write boundary. Frozen inputs may be compared outside that boundary, but a changed context fails before publication. Period version alone is insufficient for this fence. No forecast/export job starts implicitly.
+
+Current impact requires **all**: closing period, same project/period and unlock cycle, same period revision, before snapshot/hash equals baseline, after snapshot/hash equals current financial manifest and current checked pack. Of qualifying reports choose the latest IMPACT_GENERATE event in durable project audit append order, never wall-clock order or random-id lexical order. Current approval requires that exact current report, identical bindings and a nonblank note; choose the latest IMPACT_APPROVE event in that same durable append order. Publishing another impact replaces the current choice even for identical inputs; previous approvals remain history. A new approval or sign-off audit event is NOT a financial input change. Financial changes invalidate current impact/approval even if batch_watermark is unchanged. Conservative v1: once an input-affecting mutation occurs after report creation, that report never becomes current again even if values later revert; regeneration and approval are required. Persist this invalidation; do not rely only on a hash equality after rollback. Locked approvals remain readable, never permission for another cycle.
+
+### 9.1 GET `/projects/{id}/periods/{period_id}/restatement`
+- **Request:** no body/query. **Response:** 200 RestatementState; null baseline for a never-reopened period. GET creates nothing and projects currentness from trusted retained state.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none, one bounded context. **Idempotency:** read-only, no key. **Example:** doc 63 §11.1.
+
+### 9.2 POST `/projects/{id}/periods/{period_id}/impacts`
+- **Request:** ImpactCreate, no query. **Response:** 201 ImpactReport. Synchronously compares already-retained before/current pack snapshots, streaming pages internally; it does not recalculate financial engines or render files. Publish report, immutable changes, IMPACT_GENERATE audit and durable receipt atomically. This is not a job acceptance or a new doc-64 job kind.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-080/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failure details:** ERR-016 action=generate_impact; no active baseline/old same-period baseline → ERR-080 blockers=[restatement_review]; stale supplied snapshot → ERR-080 blockers=[review_changed]; absent/stale/unchecked pack → ERR-080 blockers=[board_pack]; obsolete forecast → ERR-080 blockers=[forecast]. Check in that order after common guards. No sign-off/lock/impact-approval prerequisite: those are downstream. Missing retained baseline content → ERR-099, or ERR-093 on storage failure; it is never an empty successful comparison.
+- **Pagination:** metadata only; changes via §9.4. **Idempotency:** required §1.3; same key returns historical response without recomputing; fresh key creates a new immutable report. **Example:** doc 63 §11.2.
+
+### 9.3 GET `/impacts/{id}`
+- **Request:** no body/query. **Response:** 200 ImpactReport (historical even if no longer current). Missing/foreign impact is ERR-001.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §11.2's response, unchanged after approval/lock.
+
+### 9.4 GET `/impacts/{id}/changes`
+- **Request:** no body, ImpactChangeQuery. **Response:** 200 ImpactChangePage. Filter kind before paging, never omit changes because a threshold was not met. Empty diff returns empty page, not no report. Cursor/project/report/filter/limit mismatch → ERR-002; no revision conflict for immutable rows. Historical source drill must use the row's frozen snapshot token.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** §9.0; no unbounded nested findings/transactions. **Idempotency:** read-only, no key. **Example:** doc 63 §11.3.
+
+### 9.5 POST `/impacts/{id}/approve`
+- **Request:** ImpactApprovalCreate, no query. UI must display the report and attestation before explicit human approval. A caller-supplied actor, snapshot, impact_approved or force field is ERR-002.
+- **Response:** 201 ImpactApproval; record + IMPACT_APPROVE audit + durable receipt in one transaction; no period version increment, sign-off, lock, financial invalidation or automatic pack generation. Re-read close readiness after approval before signing.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-083/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failure details:** ERR-016 action=approve_impact; missing/null/blank/wrong-type note or attest!=true → ERR-002 (not unlock's ERR-015). Well-shaped approval of a stale/not-current report or cycle → ERR-083 reason=approval_note_required. A retained report id is not enough. Same-key historical replay remains success but does not restore current authorisation.
+- **Pagination:** none. **Idempotency:** required §1.3; a new key may record another reviewed attestation for the still-current report, preserving earlier rows. **Example:** doc 63 §11.4.
+
+### 9.6 GET `/impact-approvals/{id}`
+- **Request:** no body/query. **Response:** 200 ImpactApproval; readable history, never an implicit current=true assertion. Use §9.1 for currentness.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §11.4's immutable response.
+
+
+### 9.7 GET `/restatement-baselines/{id}`
+- **Request:** no body/query. **Response:** 200 RestatementBaseline, including old cycles. Project ownership applies before lookup disclosure; retained baseline is not an assertion of currentness. Use §9.1 for the current cycle.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §11.1 baseline object, unchanged after another unlock.
+
+
+## 10. Close tasks, calendar, template and history (DEC-022)
+Doc 30 §§8–9 owns semantics; doc 02 §5 owns storage. These are document contracts, not implemented HTTP. All eight endpoints require X-FPA-Token, exact Host/Origin and matching X-FPA-Project (§1.2). All task/period/dependency/owner references are checked within the project and selected period before state disclosure. Foreign/missing resource → ERR-001. No GET mutates, materialises templates, completes tasks or runs financial work. No money is computed/exposed here except existing decimal-string errors.
+
+### 10.0 Field definitions and shared rules
+All fields required including nullable fields unless explicitly marked optional. Objects are closed. ProjectId, PeriodId, Id, Sha256, CalendarDate, Timestamp, PeriodNote and ProjectName retain their shared definitions. ProjectName is display text, not identity or uniqueness for a signer/title.
+
+| Definition | Fields / constraints |
+|---|---|
+| CloseTaskKey | T-01…T-10 or C- followed by 1..24 lowercase letters/digits/underscore, first a letter. Project-template key, not a task resource id. |
+| CloseTaskStatus | not_started/in_progress/blocked/done/waived. |
+| CloseCalendarRules | start_business_day: integer 1..60; target_lock_business_day: integer 1..60, ≥start; holidays: sorted unique CalendarDate array 0..1000. |
+| CloseTemplateEntry | key: CloseTaskKey; title: ProjectName; kind: system/attest/manual; owner_id: Id or null; due_offset_business_days: integer -60..60; depends_on: CloseTaskKey or null. Built-ins have exact doc-30 title/kind and null dependency; custom kind=manual. T-09/T-10 cannot be dependencies. |
+| CloseTemplatePut | expected_version: integer ≥1; calendar: CloseCalendarRules; entries: CloseTemplateEntry array 10..1000. Complete replacement for future periods, not a patch. Exactly one of each built-in; unique sorted keys; all referenced custom keys included; no cycles. |
+| CloseTemplate | project_id: ProjectId; version: integer ≥1; calendar; entries (same rules); created_at, updated_at: Timestamp. At creation defaults doc 30 §8, no period task rows yet. |
+| CloseCalendar | project_id; period_id; template_version: integer ≥1; instantiated: boolean; rules: CloseCalendarRules; period_end, close_start_date, target_lock_date: CalendarDate. Preview from current template when not instantiated, otherwise from immutable period copy. No task array. |
+| CloseTaskAttestation | signer: ProjectName; at: Timestamp; note: PeriodNote or null; statements_fingerprint: Sha256 or null (non-null only for T-04 done). It is retained evidence, not current=true. |
+| CloseTask | task_id: Id; project_id; period_id; template_key: CloseTaskKey; kind: system/attest/manual; title: ProjectName; owner_id: Id or null; due_offset_business_days: integer -60..60; due_date: CalendarDate; depends_on: Id or null (task resource id, not template key); version: integer ≥1; created_at, updated_at: Timestamp; requested_status: CloseTaskStatus or null; status: CloseTaskStatus (effective); note: PeriodNote or null; attestation: CloseTaskAttestation or null; review: CloseTaskReview; review_token: Sha256; evaluated_on: CalendarDate; overdue: boolean. System/outcome requested_status, note and attestation are null. Human done/waived requested status requires attestation; nonterminal human requested status has null attestation. T-04 cannot be waived. Unknown/missing template is a hard failure, not a completed empty list. |
+| CloseTaskDetails | action: literal details; expected_version, expected_period_version: integer ≥1; review_token: Sha256; title: ProjectName; owner_id: Id or null; due_offset_business_days: integer -60..60; depends_on: Id or null. Built-in title/dependency must be unchanged; custom graph revalidated atomically. |
+| CloseTaskTransition | action: literal transition; expected_version, expected_period_version: integer ≥1; review_token: Sha256; to_status: CloseTaskStatus; signer: ProjectName or null; attest: boolean; note: PeriodNote or null. done/waived require signer and attest=true; other states require signer=null/attest=false. blocked/waived require note. Reversal note rule is contextual (doc 30 §8). |
+| CloseTaskUpdate | Closed union CloseTaskDetails / CloseTaskTransition. No force, actor, server times, evidence or completed_by accepted. |
+| ClosePeriodQuery | period_id: PeriodId (required); no other keys. |
+| CloseTaskListQuery | period_id required; limit integer 1..1000 default 100 and non-null cursor string 1..4096 optional. No status filters or arbitrary sort. |
+| CloseTaskPage | items: CloseTask array 0..1000; next_cursor: PageCursor. Stable sort (template_key,task_id), at most requested limit. |
+| CloseTaskCounts | not_started, in_progress, blocked, done, waived: integers ≥0, sum = instantiated task count. Outcome tasks counted for display only, not prerequisites. |
+| CloseOverview | project_id; period_id; period_version: integer ≥1; period_status: open/closing/locked; instantiated: boolean; template_version: integer ≥1 or null; counts: CloseTaskCounts; evaluated_on: CalendarDate; readiness: CloseReadiness (§8). Not instantiated → template_version=null and all counts zero, with hard statements_review blocker in readiness. No embedded task list or fake completed percentage. |
+| CloseLockRecord | project_id; period_id; before_version: integer ≥1; after_version: integer ≥2 (before+1); signoff_id: Id; snapshot: SnapshotRef; force: boolean; note: PeriodNote or null (non-null if force); locked_at: Timestamp. Immutable projection from a complete PERIOD_LOCK event and retained lock evidence, not current Period metadata. |
+| CloseHistoryItem | audit_id: integer ≥1; action: CLOSE_SIGNOFF/PERIOD_LOCK/RESTATE_OPEN; at: Timestamp; evidence_state: complete/legacy; record: CloseSignoff/CloseLockRecord/RestatementBaseline according to action, or null iff legacy. Scope equals requested project/period; record timestamp equals at (signoff.at / lock.locked_at / baseline.opened_at). |
+| CloseHistoryQuery | optional action from those three audit actions; optional limit integer 1..1000 default 100; optional non-null cursor string 1..4096. |
+| CloseHistoryPage | items: CloseHistoryItem array 0..1000; next_cursor: PageCursor. Sorted unique audit_id ascending; high-water mark pinned by cursor, append-only new events do not duplicate/shift prior pages. Never infer currentness from latest history row. |
+
+Task review token = SHA256(b"FPA-CLOSE-TASK-v1\n" + canonical({project_id,period_id,period_version,task_id,task_version,audit_head,statements_fingerprint,dependency_status})), canonical encoding as §8.0. Values: owning ids; current revisions; audit_head Sha256 or null; statements_fingerprint current statements Sha256 for T-04 only (null if no current statements and for all other tasks); dependency_status effective CloseTaskStatus or null if no dependency. This named **CloseTaskReview** is exposed as CloseTask.review and is also in the schema attachment. Its ids/revisions equal the containing task and owning period; review_token hashes this exact object. Before T-04 done, the client must have displayed statements whose fingerprint equals review.statements_fingerprint; a newly fetched token is not permission to claim older displayed statements were reviewed. The statement-viewer transport must carry this fingerprint when that endpoint family is expanded in WI-0001. Computing dependency status must detect cycles, not recurse indefinitely. Server recomputes all values under the write boundary, never trusts client facts. Tokens are concurrency digests, not authority. Completion of T-04 stores ONLY its statement binding, not an audit-head binding that downstream forecast/pack work would stale.
+
+All PUT: strict syntax/auth/ownership → same-key receipt/conflict → versions → closing state for task edits → integrity/busy checks → task token → allowed edit/transition, owner, graph, dependency and statement guards → one atomic write/audit/receipt. Task version checked first (ERR-003 expected/actual task version), then period version (same shape for period); template PUT compares its own version. Token changed → ERR-080 blockers=[review_changed]. Period state failures → ERR-016 action=edit_close_task. System/outcome transition → ERR-080 blockers=[task_read_only]; T-04 waived → ERR-080 blockers=[task_not_waivable]. Invalid built-in title/dependency or malformed graph → ERR-002 (details.field=entries or depends_on). Missing/cross-period task dependency → ERR-001; same-period forbidden T-09/T-10 dependency → ERR-002. Unmet dependency at done/waived → ERR-084 details={task:<task_id>,dependency:<task_id>}. Missing reversal note → ERR-002 field=note. T-04 without current statements → ERR-080 blockers=[statements_review]. No error partially applies owner, status or calendar changes.
+
+Live task pages bind project, period, limit, ordering, project audit head and evaluated_on in the signed cursor. Re-evaluate effective guards using that bound civil date; changed project audit head → ERR-003, tampered/expired/wrong-scope cursor → ERR-002. For audit-head conflicts, ERR-003 details.expected_version/actual_version are the bound/current project audit_id + 1 (empty head uses audit_id=0), not invented task revisions. Effective waivers are still evaluated at the real injected instant. The signed task cursor expires at the earlier of §1.3 retention expiry or the next relevant effective waiver expiry; reaching that boundary is an expired cursor (ERR-002), not a fabricated row-version change. Re-start traversal after expiry. A read must never pin a valid waiver beyond its actual expiry. No GET writes a snapshot just to paginate. History cursors instead pin immutable audit_id high-water mark; they bind action/limit/scope and use §1.3 expiry. Reads may expose historical evidence while locked but grant no edit or re-lock permission.
+
+### 10.1 GET `/projects/{id}/close`
+- **Request:** no body; ClosePeriodQuery. **Response:** 200 CloseOverview; counts/readiness from one consistent snapshot, with no task materialisation. Use separate pages for tasks and §8 for readiness-only polling.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none (bounded aggregate). **Idempotency:** read-only, no key. **Example:** doc 63 §12.1.
+
+### 10.2 GET `/projects/{id}/close/tasks`
+- **Request:** no body; CloseTaskListQuery. **Response:** 200 CloseTaskPage; never-started period has empty items, not a synthetic completed checklist. In locked periods use retained lock evidence; reads never complete system tasks in storage.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003; 500 ERR-099; 503 ERR-093.
+- **Pagination:** §10.0 live projection. **Idempotency:** read-only, no key. **Example:** doc 63 §12.2.
+
+### 10.3 GET `/close/tasks/{id}`
+- **Request:** no body/query. **Response:** 200 CloseTask. Ownership includes the task's period; current review token for this one task.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §12.2 task object.
+
+### 10.4 PUT `/close/tasks/{id}`
+- **Request:** CloseTaskUpdate, no query. **Response:** 200 CloseTask with task revision +1 and freshly recomputed review_token; period revision unchanged. No financial calculation, sign-off or lock occurs. All doc 30 §8 edit rules apply, including dependency cycles, human reversal and outcome protections.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-044/ERR-080/ERR-084/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Pagination:** none. **Idempotency:** required; durable §1.3 receipt. Same-key replay is the original result, not new attestation/currentness; fresh key requires current versions/token even if payload otherwise unchanged. **Example:** doc 63 §12.3.
+
+### 10.5 GET `/projects/{id}/close/template`
+- **Request:** no body/query. **Response:** 200 CloseTemplate, current project template. Exactly ten required built-ins plus declared customs; no live-period status rows.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none, one bounded configuration object, not a resource collection. **Idempotency:** read-only, no key. **Example:** doc 63 §12.4.
+
+### 10.6 PUT `/projects/{id}/close/template`
+- **Request:** CloseTemplatePut, no query. **Response:** 200 CloseTemplate, version +1. Entries and close calendar settings update atomically with one CLOSE_TEMPLATE_UPDATE audit + receipt; existing period copies/tasks untouched. May edit future template while periods are locked; never changes those locked periods or bypasses their guards. Missing/foreign owner → ERR-001; newly assigned inactive owner → ERR-044. Reject missing/duplicate built-ins, cycles, dangling keys, bounds or dates with ERR-002 before any write. No DELETE shortcut for removing mandatory tasks.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003; 422 ERR-044/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Pagination:** none. **Idempotency:** required; historical response replay does not reapply a template or rewrite a live period. **Example:** doc 63 §12.4 (body uses expected_version instead of server metadata).
+
+### 10.7 GET `/projects/{id}/close/calendar`
+- **Request:** no body; ClosePeriodQuery. **Response:** 200 CloseCalendar; computed preview for open never-started period, otherwise immutable period calendar. Task dates/overdue status are in paged task reads. On preview date overflow return ERR-002 field=period_id; no partial/clipped dates.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none (two dates/rules, not annual milestones). **Idempotency:** read-only, no key. **Example:** doc 63 §12.5. Annual planning calendar is a separate unfinished WI-0001 family (doc 48), not mixed with close prerequisites.
+
+### 10.8 GET `/projects/{id}/periods/{period_id}/close-history`
+- **Request:** no body; CloseHistoryQuery. **Response:** 200 CloseHistoryPage. Each complete record retains original data; legacy events explicitly labelled. No current=true/approved boolean, live Period substitution, raw audit JSON or implicit mutation.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** §10.0 immutable audit high-water traversal. **Idempotency:** read-only, no key. **Example:** doc 63 §12.6; use readiness/restatement endpoints for current permissions.
+
+
+## 11. Persistence fence obligations behind §§7–10 (DEC-023)
+No new endpoint or caller field is introduced here. Docs 02 §5 and 24 §5 define server-only InputRevisions/InputRevisionAdvance, SnapshotInputBinding, ForecastInputBinding, InputInvalidation and retained baseline/impact/change/approval record layouts. Runtime routes must not accept these as arbitrary requests. Existing error codes and DTO fields are unchanged. For revision mismatches ERR-003 details are exactly `{expected_version: captured relevant counter, actual_version: current relevant counter}` (synchronous HTTP 409, or failed accepted-job envelope); doc 24 §5.2 owns the publication recheck.
+
+A newly generated forecast is published only against the captured forecast_revision (ERR-003 with captured/current revisions on mismatch); publishing its result advances pack_revision, **not** forecast_revision. Pack/impact publication similarly fences the captured pack_revision under the project write boundary, in addition to all existing ownership/state/manifest/content guards. Input writes advance normalised counters once, append permanent impact invalidation and mark statement attestations stale in the same transaction; no post-commit repair. Integrity, busy, note/attestation and scope failures retain their earlier precedence and codes. Counter overflow or unknown internal mutation category is ERR-099 with no surviving effects, never a new public error code.
+
+Same-key replay does not advance counters or create another baseline/impact/approval; it can return historical data but cannot reauthorise it. Reads/pack generation/impact approval/sign-off do not themselves stale the financial state being reviewed. A counter match is necessary, not sufficient: full manifests, cycle/version, current checked outputs, time-dependent blockers and current human attestations still apply. Restore must have an external stale-write fence; replacing a database containing these counters does not prove rollback safety. Complete manifest/view encoding and lifecycle/control-plane receipt storage remain unfinished WI-0001 requirements.
+
+
+### 11.1 Retained source images are not public source-row DTOs (DEC-024)
+Doc 02 §5.2 / doc 24 §6 define the server-only fpa-source-v1 GL/adjustment codec in `retained_source_schemas.json`. It preserves stored integer minor units and origin evidence; no route accepts it as a client-assigned snapshot, path or permission. Public money remains decimal strings via core/money; public row/drill endpoint expansion is still required. Missing authentic retained rows/origin fails ERR-099 (ERR-093 on storage failure), not a fallback to live rows. A row digest does not prove membership/currentness. Complete manifests, file retention and statement/viewer binding remain open.

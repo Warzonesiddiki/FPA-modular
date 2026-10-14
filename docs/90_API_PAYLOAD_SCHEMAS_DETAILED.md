@@ -38,4 +38,20 @@ Field-level parity is enforced by the contract tests (doc 14): the OpenAPI schem
 Doc 64 §3 is the field contract for all asynchronous results. Its normative machine-readable attachment is `api_job_schemas.json`; `$defs` names match that table. Repeated asynchronous result shapes above are references, not independent field definitions. The attachment also defines Job, JobPage, JobReceipt and CancelResponse for doc 05 §5. All public money is a decimal string. Runtime OpenAPI must reference equivalent closed schemas, not untyped `object` results. Endpoint-only input field expansion remains WI-0001 work; this attachment alone does not complete the API.
 
 ## Close review and lock schema index (DEC-020)
-Doc 05 §8 owns fields/endpoints; doc 30 §6–§7 owns guard semantics. Attachment definitions: CloseBlockerCode, CloseBlocker, CloseReview, CloseSignoffEvidence, CloseSignoff, CloseReadiness, CloseSignoffCreate, PeriodLock, LockedPeriod. No generic object payload, no embedded financial/finding/task collection. Impact transport and task/calendar contracts remain unfinished.
+Doc 05 §8 owns fields/endpoints; doc 30 §6–§7 owns guard semantics. Attachment definitions: CloseBlockerCode, CloseBlocker, CloseReview, CloseSignoffEvidence, CloseSignoff, CloseReadiness, CloseSignoffCreate, PeriodLock, LockedPeriod. No generic object payload, no embedded financial/finding/task collection. Task/calendar/history contracts are indexed below; impact transport follows.
+
+
+## Restatement impact schema index (DEC-021)
+Doc 05 §9 owns fields/methods/status/errors, doc 41 §6 comparison semantics. Attachment definitions: RestatementBaseline, RestatementState, ImpactCreate, ImpactCounts, ImpactReport, ImpactValue, ImpactMoneyChange, ImpactFindingChange, ImpactForecastChange, ImpactReportChange, ImpactChange, ImpactChangeQuery, ImpactChangePage, ImpactApprovalCreate, ImpactApproval. Currentness is a contextual projection, never a mutable approved boolean on a historical report. These schemas do not implement snapshot storage or safe rollback fencing.
+
+
+## Close task/calendar/template/history index (DEC-022)
+Doc 05 §10 owns eight endpoint/field contracts; doc 30 §§8–9 owns editing, dates and evidence rules. Attachment definitions: CloseTaskKey, CloseTaskStatus, CloseCalendarRules, CloseTemplateEntry, CloseTemplatePut, CloseTemplate, CloseCalendar, CloseTaskAttestation, CloseTask, CloseTaskDetails, CloseTaskTransition, CloseTaskUpdate, CloseTaskReview, ClosePeriodQuery, CloseTaskListQuery, CloseTaskPage, CloseTaskCounts, CloseOverview, CloseLockRecord, CloseHistoryItem, CloseHistoryQuery, CloseHistoryPage. CloseTask exposes its exact CloseTaskReview and digest, so T-04 can bind the statements actually displayed. None of the history DTOs authorises current mutation. Runtime guards, storage and business-day arithmetic require their own later tests.
+
+
+## Internal persistence-fence schemas (DEC-023; not HTTP request bodies)
+Docs 02 §5.1 / 24 §5 own InputRevisions, InputRevisionAdvance, SnapshotInputBinding, ForecastInputBinding, InputInvalidation, RetainedBaselineRecord, RetainedImpactRecord, RetainedImpactChange and RetainedApprovalRecord in the existing schema attachment. These closed record schemas reuse §§8–9 DTOs; no client may assign counters/effects. Full snapshot content/manifest codec schemas are still required before WI-0001 sign-off.
+
+
+## Internal retained source codec index (DEC-024)
+`retained_source_schemas.json` is separate from public HTTP schemas: RetainedFileOrigin, RetainedGeneratedOrigin, RetainedGLRow, RetainedAdjustmentRow, RetainedSourceImage, RetainedSourceRecord; supporting RetainedText/RetainedMinorUnits and shared primitive constraints. Fields/storage: doc 02 §5.2. Exact canonical bytes/hash/origin and access obligations: doc 24 §6. It is not a public SourceRow or complete snapshot/view codec.
