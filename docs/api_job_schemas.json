@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:fpa:api:job-contract:v1",
   "title": "FPA API v1 job and shared wire contracts (docs 05/64/90, DEC-016/017)",
-  "description": "Normative documentation attachment, not an implemented API. Money is a decimal string in every schema, in project major units. Sibling arithmetic/ownership checks are specified in doc 64 and independently tested as document oracles. Doc 05 §6 owns health/project/period DTO definitions and the x-project-endpoints catalogue. Root validation remains Job; other DTOs use named definitions. Contextual NFC/ownership/calendar and lifecycle/atomicity checks are runtime obligations, not supplied by this schema.",
+  "description": "Normative documentation attachment, not an implemented API. Money is a decimal string in every schema, in project major units. Sibling arithmetic/ownership checks are specified in doc 64 and independently tested as document oracles. Doc 05 §6 owns health/project/period DTO definitions and the x-project-endpoints catalogue. Root validation remains Job; other DTOs use named definitions. Contextual NFC/ownership/calendar and lifecycle/atomicity checks are runtime obligations, not supplied by this schema. Doc 05 §7 (DEC-018) owns the lifecycle DTOs and endpoint/policy annotations; filesystem/lease/keyring/receipt/baseline guarantees require runtime verification.",
   "$defs": {
     "Id": {
       "type": "string",
@@ -7846,6 +7846,140 @@
           }
         }
       ]
+    },
+    "SampleProjectCreate": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "$ref": "#/$defs/ProjectName"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "CreatedSampleProject": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Project"
+        },
+        {
+          "properties": {
+            "is_sample": {
+              "const": true
+            },
+            "base_currency": {
+              "const": "INR"
+            },
+            "currency_exponent": {
+              "const": 2
+            },
+            "fy_start_month": {
+              "const": 4
+            },
+            "calendar_type": {
+              "const": "monthly"
+            },
+            "version": {
+              "const": 1
+            }
+          }
+        }
+      ]
+    },
+    "ProjectDelete": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "confirmation": {
+          "type": "string",
+          "minLength": 0,
+          "maxLength": 80
+        }
+      },
+      "required": [
+        "expected_version",
+        "confirmation"
+      ],
+      "additionalProperties": false
+    },
+    "ProjectDeleted": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "status": {
+          "const": "trashed"
+        },
+        "deleted_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "purge_after": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "project_id",
+        "status",
+        "deleted_at",
+        "purge_after"
+      ],
+      "additionalProperties": false
+    },
+    "PeriodStartClose": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "expected_version"
+      ],
+      "additionalProperties": false
+    },
+    "PeriodUnlock": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "note": {
+          "$ref": "#/$defs/PeriodNote"
+        }
+      },
+      "required": [
+        "expected_version",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "ClosingPeriod": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Period"
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "closing"
+            },
+            "locked_at": {
+              "type": "null"
+            },
+            "lock_note": {
+              "type": "null"
+            }
+          }
+        }
+      ]
     }
   },
   "x-job-results": {
@@ -9602,6 +9736,173 @@
         "503": [
           "092"
         ]
+      }
+    }
+  },
+  "x-lifecycle-endpoints": {
+    "POST /projects/sample": {
+      "scope": "app",
+      "token_required": true,
+      "request": "SampleProjectCreate",
+      "response": "CreatedSampleProject",
+      "status": "201",
+      "idempotency": "required",
+      "query": null,
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "409": [
+          "010"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ]
+      }
+    },
+    "DELETE /projects/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "request": "ProjectDelete",
+      "response": "ProjectDeleted",
+      "status": "200",
+      "idempotency": "required",
+      "query": null,
+      "errors": {
+        "400": [
+          "002",
+          "005",
+          "013"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "409": [
+          "003"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ]
+      }
+    },
+    "POST /projects/{id}/periods/{period_id}/start-close": {
+      "scope": "project",
+      "token_required": true,
+      "request": "PeriodStartClose",
+      "response": "ClosingPeriod",
+      "status": "200",
+      "idempotency": "optional",
+      "query": null,
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "422": [
+          "090"
+        ]
+      }
+    },
+    "POST /projects/{id}/periods/{period_id}/unlock": {
+      "scope": "project",
+      "token_required": true,
+      "request": "PeriodUnlock",
+      "response": "ClosingPeriod",
+      "status": "200",
+      "idempotency": "optional",
+      "query": null,
+      "errors": {
+        "400": [
+          "002",
+          "005",
+          "015"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "422": [
+          "090"
+        ]
+      }
+    }
+  },
+  "x-lifecycle-policies": {
+    "sample_fiscal_years": [
+      2024,
+      2025,
+      2026
+    ],
+    "sample_financial_rows_preloaded": false,
+    "trash_retention_seconds": 2592000,
+    "period_transitions": {
+      "start_close": {
+        "from": "open",
+        "to": "closing"
+      },
+      "unlock": {
+        "from": "locked",
+        "to": "closing"
       }
     }
   }

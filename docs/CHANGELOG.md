@@ -2,6 +2,7 @@
 
 ## 2026-10-14 (g) — DEC-019 private launch state / lifecycle review
 - Move the specified CLI launch-token descriptor out of project folders into private per-user runtime storage (docs 04/12/70), closing a contradiction with backup/no-credentials guarantees. Define safe discovery/ACL/publication/cleanup; no runtime code added.
+- Verification checkpoint: 80 new lifecycle-document tests + 197 prior document tests + 9 unchanged product tests = **286 passing**, with three additional schema mutations caught. Evidence: `evidence/WI-0001_lifecycle_contract_2026-10-14.md`. Conservative recovery timestamps preserve the full trash-retention interval.
 - Period start-close/unlock contracts explicitly preserve audit-broken read-only mode with ERR-090. Clarify that deletion clears local credentials only; it never calls Microsoft to revoke tokens. No new error/job kind or weakened gate.
 
 
