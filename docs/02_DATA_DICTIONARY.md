@@ -109,6 +109,8 @@ These nine server-owned tables are explicit exceptions to the preceding expansio
 | restatement_approvals | project_id TEXT; approval_id TEXT; impact_id TEXT; audit_id INTEGER; record_json TEXT | PK(project_id,approval_id), composite impact FK and same-project audit FK; immutable ImpactApproval, exact report/snapshot/cycle/hash bindings. One impact may have multiple historical approvals; never UPDATE the old record. |
 | impact_invalidations | project_id TEXT; impact_id TEXT; audit_id INTEGER; pack_revision INTEGER | PK(project_id,impact_id), composite impact FK and (project_id,audit_id) FK to input_revision_events; immutable first InputInvalidation, its pack_revision is that event's after.pack_revision and greater than the captured impact binding. |
 
+The composite audit and forecast foreign keys above require parent UNIQUE(project_id,audit_id) on audit_log and UNIQUE(project_id,run_id) on forecast_runs, in addition to their existing primary keys. These are ownership constraints, not optional query-performance indexes. The existing periods PK and the listed binding/baseline/impact composite PKs supply the other parent keys. M1 schema-equality delta 16 includes these constraints; no SQL migration is applied during M0.
+
 #### 5.1 Internal record shapes and write boundary
 Internal shapes in the existing schema attachment (not HTTP requests/endpoints):
 - **InputRevisions**: project_id: ProjectId; statement_revision/forecast_revision/pack_revision: integer 1..9223372036854775807.

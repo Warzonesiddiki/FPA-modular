@@ -2,7 +2,7 @@
 
 ## 2026-10-15 — DEC-023 input revisions and impact persistence (WI-0001 in progress)
 - Replace watermark-only cache authority with statement/forecast/pack revision fences and exact manifest identity; specify union-once atomic invalidation and immutable impact/baseline/approval storage. Derived outputs cannot stale their own inputs.
-- Clarify existing ERR-003 detail field mapping, initial project counters and immutable-table metadata exceptions; index internal policy/effect/storage metadata without introducing caller-set guards.
+- Clarify existing ERR-003 detail field mapping, initial project counters and immutable-table metadata exceptions and required composite FK parent uniques; index internal policy/effect/storage metadata without introducing caller-set guards.
 - Add doc-02 delta 16 and explicit existing-module ownership/acceptance obligations; strengthen only M1 schema delta coverage. Product/SQL/original tests remain frozen. Full manifest/view/finding codecs and project lifecycle/control-plane/restore fencing remain unfinished.
 
 ## 2026-10-14 (j) — DEC-022 close tasks/calendar/history (WI-0001 in progress)
