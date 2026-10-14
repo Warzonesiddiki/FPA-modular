@@ -3,6 +3,7 @@
 ## 2026-10-14 (j) — DEC-022 close tasks/calendar/history (WI-0001 in progress)
 - Specify eight routes, future-only template/calendar revisions, guarded human transitions, acyclic scalar dependencies, immutable outcome history and statement-only T-04 binding. Preserve no-writes-on-GET and non-bypassable close guards.
 - Expose the exact task review context (not only its digest), so T-04 clients can compare the displayed statement fingerprint. Correct the custom-task page example to retain a continuation for the mandatory tasks.
+- Bound live task cursor lifetime by the next relevant waiver expiry; use audit_id+1 for actual audit-revision conflicts, never invent a version increment on a read.
 - Extend doc-02 task storage obligations (delta 15), assign existing period_repo/close_service/calendar owners in the generator and strengthen the matching M1 schema gate. No product/SQL/original-test changes or work-item completion.
 
 ## 2026-10-14 (i) — DEC-021 impact review transport (WI-0001 in progress)
