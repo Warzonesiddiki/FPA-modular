@@ -28,16 +28,18 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **DEC-023** (auto): durable statement/forecast/pack revisions, atomic invalidation requirements and immutable impact persistence shapes; watermark-only cache rejected. Existing module owners and M1 delta 16 explicit. No product SQL/runtime/gate completion. Evidence: `evidence/WI-0001_revision_contract_2026-10-15.md`.
 
+- **DEC-024** (auto): exact retained GL/adjustment source images and strict versioned codec, distinct connector content/file hashes; internal minor units remain separate from public DTOs. Delta 17 required; no runtime/WI completion. Evidence: `evidence/WI-0001_source_contract_2026-10-15.md`.
+
 ## Current position
 - Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-15. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
-- DEC-016…023 checkpoints verified: **858 document tests + 9 unchanged product tests = 867 passing**; 285 definitions, 18 job kinds, 76 errors. Latest bounded revision/impact-storage document slice verified; full retention/lifecycle still incomplete. Product code frozen, no runtime/gate claim.
-- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_revision_contract_2026-10-15.md` §4 (Exact continuation).
+- DEC-016…024 checkpoints verified: **1024 document tests + 9 unchanged product tests = 1033 passing**; public attachment 285 definitions/18 jobs/76 errors, separate internal source codec 15 definitions. Full retention/lifecycle still incomplete. Product code frozen, no runtime/gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_source_contract_2026-10-15.md` (Unfinished scope / exact continuation).
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-023: revision/invalidation and impact storage document slice; 867 tests pass. Full endpoint rewrite, snapshot/view codecs and lifecycle/receipt coordination incomplete. Evidence: WI-0001_revision_contract_2026-10-15.md; latest handover below. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-024: retained source codec; 1033 tests pass. Full snapshot/view/membership and lifecycle/receipt contracts incomplete. Evidence: WI-0001_source_contract_2026-10-15.md; PR checkpoint, not WI completion. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -432,4 +434,10 @@ NEXT: still WI-0001: full snapshot/view/finding codecs and retained drill, exact
 STATUS: in_progress; M0 open (0/8); batch 0/30 complete.
 BASELINE: clean assigned branch at a082578; `.venv/bin/python -m pytest -q` → 867 passed in 20.91s. No checker exists.
 CONTRACT: DEC-024 docs 02 §5.2 / 24 §6 / 05 §11.1: exact retained GL/adjustment images, original file/generated provenance, connector content hash distinct from workbook byte hash, strict versioned canonical bytes, immutable project-scoped row storage. Separate internal integer-money schema; public transport unchanged. No complete snapshot/view/finding or lifecycle claim.
-NEXT: independent fixtures and meaningful red before the internal schema; mutations/edges/full verification and evidence; remain on WI-0001.
+TESTS RUN: initial red 35 passed/108 missing-schema errors; final paired 166 passed in 0.50s, repeat 0.52s; docs 1024 passed in 21.32s; full 1033 passed in 21.04s, repeat 20.51s. Commands/results in evidence/WI-0001_source_contract_2026-10-15.md. No checker exists.
+MUTATIONS: wrong codec constant; remove vendor-source conjunct; source row minimum 1→2 — all caught by unchanged independent oracles on isolated schema copies.
+EDGES/SPEC CHECKS: exact int64/nullable/source-text layouts (02 §5.2); strict byte/hash vectors and rejection cases (24 §6.1); synthetic origin/membership/deduplication checks (24 §§6.2–6.3). Full checklist in evidence; no actual storage/auth/filesystem/financial guarantee.
+FILES TOUCHED: owning/repeating docs 02/04/05/06/17/24/39/41/61/86/90/CHANGELOG; generator/WORK_PLAN; new internal schema and paired document test; TASKBOARD/evidence. App/SQL/prior tests/public attachment unchanged from a082578.
+DEVIATIONS: DEC-024 docs-first 62e235b/38bc085; separate internal attachment keeps public money bar intact. 267 identities/dependencies unchanged; seven gates match; only delta 17 added to M1 coverage. One test column-extractor typo corrected, no expected column removed.
+DECISIONS TAKEN: DEC-024 (auto) · OWNER-ONLY ITEMS: none for this scope.
+NEXT: user requested a PR; continuation paused for this checkpoint. Still WI-0001: full snapshot membership/file retention/manifests/views/finding state, exact T-04 viewer binding/legacy repair, lifecycle/receipts/restore epochs and remaining endpoints. **M0 open 0/8; batch 0/30 complete.**

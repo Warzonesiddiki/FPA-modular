@@ -1,6 +1,7 @@
 # Documentation Changelog (newest first)
 
 ## 2026-10-15 (b) — DEC-024 retained source-row codec (WI-0001 in progress)
+- Verified 166 new document tests; 1033 full tests passing, repeated green. Three schema mutations caught; public attachment/product/SQL/prior tests unchanged. Evidence: `evidence/WI-0001_source_contract_2026-10-15.md`. User requested a PR checkpoint; no WI/gate completion.
 - Specify complete retained GL/adjustment row images, origin evidence, strict canonical bytes and immutable content-addressed storage; distinguish connector content identity from actual workbook bytes.
 - Gate wording explicitly retains deltas 1–16 and adds delta 17; existing document assertions/tests remain unchanged, no prior coverage removed.
 - Separate internal integer-minor-unit schema from public money-string contracts; assign existing hashing/report_repo owners and delta 17. Full snapshots/file membership/views/finding state and lifecycle/restore remain unfinished; no runtime or WI completion.

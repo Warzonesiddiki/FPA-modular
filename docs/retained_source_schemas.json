@@ -1,0 +1,622 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:fpa:retained-source:v1",
+  "title": "Internal retained source rows — fpa-source-v1",
+  "description": "Docs 02 §5.2 and 24 §6. Internal integer-minor-unit storage only; never an HTTP request/response. Canonical bytes, digest, provenance and membership require contextual validation beyond JSON Schema.",
+  "$defs": {
+    "Id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_.:-]*$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "ProjectId": {
+      "type": "string",
+      "minLength": 16,
+      "maxLength": 16,
+      "pattern": "^prj_[0-9a-f]{12}$"
+    },
+    "PeriodId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 8,
+      "pattern": "^(?!0000)[0-9]{4}-P(0[1-9]|1[0-2])$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "Sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "Timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "CalendarDate": {
+      "type": "string",
+      "minLength": 10,
+      "maxLength": 10,
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$",
+      "format": "date"
+    },
+    "DecimalString": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+      "description": "Exact decimal ratio/percentage/driver; not a JSON float.",
+      "not": {
+        "pattern": "[\\r\\n]"
+      }
+    },
+    "RetainedText": {
+      "type": "string",
+      "not": {
+        "pattern": "[\\ud800-\\udfff]"
+      }
+    },
+    "RetainedMinorUnits": {
+      "type": "integer",
+      "minimum": -9223372036854775808,
+      "maximum": 9223372036854775807
+    },
+    "RetainedFileOrigin": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "file"
+        },
+        "source": {
+          "enum": [
+            "file",
+            "connector"
+          ]
+        },
+        "batch_file_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "artifact_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "byte_length": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "sheet_name": {
+          "$ref": "#/$defs/RetainedText"
+        }
+      },
+      "required": [
+        "kind",
+        "source",
+        "batch_file_sha256",
+        "artifact_sha256",
+        "byte_length",
+        "sheet_name"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedGeneratedOrigin": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "generated"
+        },
+        "generator": {
+          "const": "year_end"
+        },
+        "year_end_run_id": {
+          "$ref": "#/$defs/Id"
+        }
+      },
+      "required": [
+        "kind",
+        "generator",
+        "year_end_run_id"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedGLRow": {
+      "type": "object",
+      "properties": {
+        "gl_row_id": {
+          "type": "string",
+          "minLength": 32,
+          "maxLength": 32,
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "batch_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "entity_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "account_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "cost_centre_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "vendor_id": {
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/RetainedText"
+                },
+                {
+                  "minLength": 1
+                }
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "voucher_no": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "minLength": 1
+            }
+          ]
+        },
+        "document_date": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "posting_date": {
+          "$ref": "#/$defs/CalendarDate"
+        },
+        "description": {
+          "$ref": "#/$defs/RetainedText"
+        },
+        "amount_minor": {
+          "$ref": "#/$defs/RetainedMinorUnits"
+        },
+        "quantity_decimal": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecimalString"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fx_currency": {
+          "anyOf": [
+            {
+              "type": "string",
+              "minLength": 3,
+              "maxLength": 3,
+              "pattern": "^[A-Z]{3}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fx_amount_minor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetainedMinorUnits"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "fx_rate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecimalString"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "layer": {
+          "enum": [
+            "gl",
+            "opening"
+          ]
+        },
+        "posted_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "posted_at": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "posting_layer": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source_account_ref": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "vendor_source": {
+          "enum": [
+            null,
+            "column",
+            "ap_match"
+          ]
+        },
+        "source_file": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "minLength": 1
+            }
+          ]
+        },
+        "source_row": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "origin": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/RetainedFileOrigin"
+            },
+            {
+              "$ref": "#/$defs/RetainedGeneratedOrigin"
+            }
+          ]
+        }
+      },
+      "required": [
+        "gl_row_id",
+        "project_id",
+        "period_id",
+        "batch_id",
+        "entity_id",
+        "account_id",
+        "cost_centre_id",
+        "vendor_id",
+        "voucher_no",
+        "document_date",
+        "posting_date",
+        "description",
+        "amount_minor",
+        "quantity_decimal",
+        "fx_currency",
+        "fx_amount_minor",
+        "fx_rate",
+        "layer",
+        "posted_by",
+        "posted_at",
+        "posting_layer",
+        "source_account_ref",
+        "vendor_source",
+        "source_file",
+        "source_row",
+        "origin"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "vendor_id": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "vendor_source": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "vendor_source": {
+                "enum": [
+                  "column",
+                  "ap_match"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "origin": {
+                "properties": {
+                  "kind": {
+                    "const": "generated"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "layer": {
+                "const": "opening"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RetainedAdjustmentRow": {
+      "type": "object",
+      "properties": {
+        "adj_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "entity_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "account_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "cost_centre_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "amount_minor": {
+          "$ref": "#/$defs/RetainedMinorUnits"
+        },
+        "kind": {
+          "enum": [
+            "reclass",
+            "provision",
+            "closing",
+            "correction_view",
+            "other"
+          ]
+        },
+        "label": {
+          "$ref": "#/$defs/RetainedText"
+        },
+        "reason": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "minLength": 1,
+              "pattern": "\\S"
+            }
+          ]
+        },
+        "pair_group_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "contra_account_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "draft",
+            "applied",
+            "reversed"
+          ]
+        },
+        "reverses_adj_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "source": {
+          "enum": [
+            "manual",
+            "system_closing",
+            "allocation"
+          ]
+        },
+        "created_by": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/RetainedText"
+            },
+            {
+              "minLength": 1
+            }
+          ]
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "updated_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "adj_id",
+        "project_id",
+        "period_id",
+        "entity_id",
+        "account_id",
+        "cost_centre_id",
+        "amount_minor",
+        "kind",
+        "label",
+        "reason",
+        "pair_group_id",
+        "contra_account_id",
+        "status",
+        "reverses_adj_id",
+        "source",
+        "created_by",
+        "created_at",
+        "updated_at",
+        "version"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedSourceImage": {
+      "type": "object",
+      "properties": {
+        "codec": {
+          "const": "fpa-source-v1"
+        },
+        "kind": {
+          "enum": [
+            "gl",
+            "adjustment"
+          ]
+        },
+        "row": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/RetainedGLRow"
+            },
+            {
+              "$ref": "#/$defs/RetainedAdjustmentRow"
+            }
+          ]
+        }
+      },
+      "required": [
+        "codec",
+        "kind",
+        "row"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "gl"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "row": {
+                "$ref": "#/$defs/RetainedGLRow"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "row": {
+                "$ref": "#/$defs/RetainedAdjustmentRow"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "RetainedSourceRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "image": {
+          "$ref": "#/$defs/RetainedSourceImage"
+        }
+      },
+      "required": [
+        "project_id",
+        "content_sha256",
+        "image"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "$ref": "#/$defs/RetainedSourceRecord"
+}
