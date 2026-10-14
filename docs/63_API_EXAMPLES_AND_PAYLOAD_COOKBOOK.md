@@ -891,7 +891,7 @@ All calls require token, permitted Host/Origin and X-FPA-Project: prj_9f2c41aa07
 }
 ```
 
-### 12.2 GET /projects/prj_9f2c41aa07e1/close/tasks?period_id=2026-P01&limit=100
+### 12.2 GET /projects/prj_9f2c41aa07e1/close/tasks?period_id=2026-P01&limit=1
 <!-- schema: CloseTaskPage -->
 ```json
 {
@@ -916,10 +916,20 @@ All calls require token, permitted Host/Origin and X-FPA-Project: prj_9f2c41aa07
       "attestation": null,
       "review_token": "72b90e097d6a3780b6775897effc3d71294c62648c7c98ba435f766ea876a21d",
       "evaluated_on": "2026-05-08",
-      "overdue": true
+      "overdue": true,
+      "review": {
+        "project_id": "prj_9f2c41aa07e1",
+        "period_id": "2026-P01",
+        "period_version": 2,
+        "task_id": "task_custom",
+        "task_version": 1,
+        "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "statements_fingerprint": null,
+        "dependency_status": null
+      }
     }
   ],
-  "next_cursor": null
+  "next_cursor": "opaque-signed-continuation"
 }
 ```
 
@@ -935,6 +945,48 @@ All calls require token, permitted Host/Origin and X-FPA-Project: prj_9f2c41aa07
   "signer": "Controller",
   "attest": true,
   "note": null
+}
+```
+
+200 response to §12.3 (illustrative injected audit head; no live transaction claimed):
+<!-- schema: CloseTask -->
+```json
+{
+  "task_id": "task_custom",
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "template_key": "C-review",
+  "kind": "manual",
+  "title": "Review supporting schedules",
+  "owner_id": null,
+  "due_offset_business_days": 5,
+  "due_date": "2026-05-07",
+  "depends_on": null,
+  "version": 2,
+  "created_at": "2026-05-08T09:00:00Z",
+  "updated_at": "2026-05-08T09:00:00Z",
+  "requested_status": "done",
+  "status": "done",
+  "note": null,
+  "attestation": {
+    "signer": "Controller",
+    "at": "2026-05-08T09:00:00Z",
+    "note": null,
+    "statements_fingerprint": null
+  },
+  "review": {
+    "project_id": "prj_9f2c41aa07e1",
+    "period_id": "2026-P01",
+    "period_version": 2,
+    "task_id": "task_custom",
+    "task_version": 2,
+    "audit_head": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "statements_fingerprint": null,
+    "dependency_status": null
+  },
+  "review_token": "624948c18911b232ee9fb5e1096eaf43658aa375113eea6ba4cf6f2bd7ee05f0",
+  "evaluated_on": "2026-05-08",
+  "overdue": false
 }
 ```
 
@@ -1182,3 +1234,5 @@ All calls require token, permitted Host/Origin and X-FPA-Project: prj_9f2c41aa07
 ```
 
 All successes are 200. Successful task transition returns CloseTask revision 2, status/requested_status=done, a named injected-time attestation, overdue=false and a new server review_token (re-read before editing again); it does not lock the period. GET /close/tasks/task_custom returns the same current projection. Same-key replay retains the original response even after later changes. A fresh stale version gives ERR-003; system/T-09/T-10 transition gives ERR-080 task_read_only; unmet dependency gives ERR-084 with both task ids. Template PUT creates revision 2 with unchanged created_at; the previously instantiated period calendar is still revision 1. Legacy history records have evidence_state=legacy/record=null, never a fabricated current approval. No financial values or calculations occur in these payloads.
+
+The §12.2 cursor is illustrative opaque data; this first custom-task page has further mandatory task rows. For T-04, display the current statements and match their fingerprint to task.review.statements_fingerprint before the explicit done attestation; a stale display must be refreshed.
