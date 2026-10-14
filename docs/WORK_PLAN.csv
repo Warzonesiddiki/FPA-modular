@@ -1,5 +1,5 @@
 id,path,layer,milestone,depends_on,read_first,tests
-WI-0001,docs/05_API_CONTRACT.md,docs0,M0,,"docs/05 (current), docs/90, docs/63, docs/22, docs/02",tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py
+WI-0001,docs/05_API_CONTRACT.md,docs0,M0,,"docs/05 (current), docs/90, docs/63, docs/22, docs/02",tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py; tests/docs/test_api_task_contract.py
 WI-0002,docs/21_SCREEN_SPEC_DETAILED.md,docs0,M0,WI-0001,"docs/21, docs/13, docs/53, docs/54, docs/57, docs/05, docs/90",-
 WI-0003,docs/44_RULE_ALGORITHMS_DETAILED.md,docs0,M0,,"docs/44, docs/07, docs/42 §7, docs/62",-
 WI-0004,docs/03_CALCULATION_SPEC.md,docs0,M0,,"docs/03, docs/45, docs/38, docs/43, docs/89",-
@@ -150,7 +150,7 @@ WI-0148,app/jobs/registry.py,services,M3,WI-0001,"docs/64, docs/05 §1",tests/un
 WI-0149,app/services/connector_service.py,services,M3,WI-0144 WI-0145 WI-0143 WI-0064 WI-0066 WI-0068 WI-0072 WI-0070 WI-0071 WI-0051 WI-0148,"connectors/d365fo, connectors/d365bc, connectors/snapshot, imports/parser_xlsx, imports/mapping, imports/validation, imports/commit, imports/enrichment, imports/tb_check, store/connector_repo, jobs/registry, docs/26 §8.4–8.6, docs/23 §11, docs/64",tests/integration/test_connector_pull.py
 WI-0150,app/services/month_end.py,services,M3,,"all engine modules, docs/23 workflow, docs/04 §3",tests/integration/test_month_end.py
 WI-0151,app/services/dashboard.py,services,M3,WI-0016 WI-0075 WI-0076 WI-0077 WI-0078 WI-0079 WI-0080 WI-0013 WI-0038 WI-0039 WI-0040 WI-0041 WI-0042 WI-0043 WI-0044 WI-0045 WI-0046 WI-0047 WI-0048 WI-0049 WI-0050 WI-0051,"calc/*, store/*, docs/90",tests/unit/test_dashboard_service.py
-WI-0152,app/services/close_service.py,services,M3,,"docs/30, docs/23 §7",tests/unit/test_close_service.py
+WI-0152,app/services/close_service.py,services,M3,WI-0001 WI-0050 WI-0031,"docs/30, docs/23 §7, docs/05 §§8–10, store/period_repo, core/calendar",tests/unit/test_close_service.py
 WI-0153,app/services/alerts.py,services,M3,,"docs/19 §K, docs/08 §6, docs/62",tests/unit/test_alerts.py
 WI-0154,app/services/year_end.py,services,M3,WI-0134,"docs/38, app/adjustments/engine",tests/unit/test_year_end.py
 WI-0155,app/api/main.py,api,M3,WI-0001,"docs/05 §1, docs/12",tests/api/test_main.py

@@ -6,3 +6,5 @@ T-minus milestones before FY start: strategy targets (T-90d) → driver assumpti
 `assumptions(assumption_id PK, project_id, scope (project|entity|account_group), key (e.g. `price_increase_pct`, `attrition_pct`, custom), value_decimal TEXT, unit, owner_id, source_note, valid_from_period, version, status draft|approved)` — every driver value (29) and scenario delta may reference an assumption_id; forecast runs record the assumption versions used (snapshot). Assumption change after budget lock → impact list (which runs/scenarios used the old version; marked stale like doc 41).
 ## 3. Governance
 Approval of project-level assumptions = named approver + date (attest, audited); exports' Forecast sheet includes an Assumptions block (key, value, version) — a forecast without visible assumptions must not reach the board.
+
+DEC-022 boundary: doc 05 §10 calendar/tasks cover month-end close only. Annual planning category remains separate; do not import its T-minus milestones as mandatory close prerequisites. Full planning calendar transport/category persistence remains WI-0001 work.

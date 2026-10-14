@@ -20,7 +20,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 | Milestone | Scope | Items | Exit gate |
 |---|---|---|---|
 | **M0** | Spec hardening + bootstrap docs checker — close the audit's P0/P1 contract gaps before product code | 8 | `scripts/docs_check.py` clean (sections, links, IDs, doc/§ references, ERR/FR/settings-key doc parity, FR↔WI↔planned-test matrix, period-id notation, no retired operational multi-agent terms, gate text parity); docs 05/21/44/03/55/31/20 at implementable depth per acceptance lines; every DEC recorded (DEC-007/008/009 accepted under DEC-010); cold M0 audit with no open defects. |
-| **M1** | Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design) | 53 | Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–14) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%. |
+| **M1** | Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design) | 53 | Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–15) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%. |
 | **M2** | Engine — imports (incl. D365 transforms, enrichment, TB tie-out), calc, 28 rules + suggestions, forecast, planning, adjustments; acceptance gate turns green here | 75 | Acceptance gate green (doc 14 §3): recall 36/36, High 19/19, controls 0/13, suggestion exactness, extras justified, two runs identical, 28/28 wired, ERP shape parity; statement/KPI/forecast/planning oracles green; malformed corpus `expected.json` exact. |
 | **M3** | Connector, services, API, CLI, AI — the Dynamics 365 pull lands through the pipeline and the spine runs end-to-end from the command line | 44 | OpenAPI == doc 05 catalogue (incl. connector routes) and doc 90 fields; AI-off and connector-off socket test; connector parity bar (doc 14 §3) green against `tools/mock_d365.py` for both products incl. no-change and the five faults; connector security tests (doc 12 §8, incl. allow-list, redaction, keyring-only, state/PKCE, disconnect) green; CLI golden month-end exit 0 (file route and `fpa pull --mock`); job registry crash-recovery test; desktop shell launches the server and opens the UI placeholder. |
 | **M4** | UI — 19 screens on the frozen API; five states, accessibility, tokens | 51 | 5-state + axe + keyboard tests on all 19 screens; token check zero-undefined; UI numbers == API fixtures; no inline strings; walkthrough (doc 18 §1) passes on the sample project. |
@@ -39,8 +39,8 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/05 (current), docs/90, docs/63, docs/22, docs/02
 - **Inputs:** current tables  ·  **Provides:** complete endpoint catalogue
 - **Acceptance (evidence required):** Every route file in M3 can be written without inventing a field; a parity script (M6) diffs OpenAPI against the catalogue with zero gaps; `/jobs/{id}` result schema defined per job kind (import, rules, forecast, export, allocation, reconcile, year-end).
-- **Paired test:** `tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py`
-- **Notes:** Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema. DEC-016: docs/api_job_schemas.json is the normative job-schema attachment, with document-only tests (test_api_job_contract.py, DEC-017 test_api_project_contract.py DEC-018 test_api_lifecycle_contract.py DEC-020 test_api_close_contract.py and DEC-021 test_api_impact_contract.py) and tests/docs/requirements.txt (pinned verification dependencies, docs 60/81); product code stays frozen. Full endpoint rewrite still required.
+- **Paired test:** `tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py; tests/docs/test_api_task_contract.py`
+- **Notes:** Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema. DEC-016: docs/api_job_schemas.json is the normative job-schema attachment, with document-only tests (test_api_job_contract.py, DEC-017 test_api_project_contract.py DEC-018 test_api_lifecycle_contract.py DEC-020 test_api_close_contract.py DEC-021 test_api_impact_contract.py and DEC-022 test_api_task_contract.py) and tests/docs/requirements.txt (pinned verification dependencies, docs 60/81); product code stays frozen. Full endpoint rewrite still required.
 
 ### WI-0002 · `docs/21_SCREEN_SPEC_DETAILED.md` · docs0 · _file exists — re-verify against the acceptance line before marking DONE_
 - **Mission:** Expand from one table row per screen to one section per screen S01–S19: route, layout zones (doc 54), every field with source DTO path (doc 05/90), every action with API call + success/failure copy key (doc 55), validations, the five states, keyboard map (doc 57), drill paths, acceptance tests.
@@ -102,7 +102,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 
 ## M1 — Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design)
 
-**Exit gate:** Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–14) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%.
+**Exit gate:** Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–15) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%.
 
 ### WI-0009 · `pyproject.toml` · config · _file exists — re-verify against the acceptance line before marking DONE_
 - **Mission:** Project metadata, EXACT-pinned deps (fastapi, uvicorn, pydantic, openpyxl, python-pptx, reportlab, pywebview, keyring, httpx, msal — the 10 of doc 04 §6; ADR-010), pytest/ruff/mypy config, requires-python 3.11+ (OQ-11).
@@ -266,7 +266,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Mission:** Fiscal calendar: period ids, FY, quarters, period arithmetic, PY/YoY lookups, business days (doc 30), 4-4-5 reserved.
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/02_DATA_DICTIONARY.md (period identity), docs/30
 - **Inputs:** fy_start_month, calendar type  ·  **Provides:** Period objects
-- **Acceptance (evidence required):** Period round-trip; PY mapping; leap years; fy_start_month 1 and 4; shift across FY boundary negative; business-day count with weekend-only calendar.
+- **Acceptance (evidence required):** Period round-trip; PY mapping; leap years; fy_start_month 1 and 4; shift across FY boundary negative; business-day offsets -60..60 with holidays, zero/negative offset, weekend/leap/year-overflow and doc 30 §9 hand-worked oracles; no silent date clipping.
 - **Paired test:** `tests/unit/test_calendar.py`
 
 ### WI-0032 · `app/core/ids.py` · core · _file exists — re-verify against the acceptance line before marking DONE_
@@ -312,7 +312,7 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Paired test:** `tests/unit/test_license.py`
 
 ### WI-0038 · `app/store/schema.sql` · store · _file exists — re-verify against the acceptance line before marking DONE_
-- **Mission:** SQLite schema: EVERY doc-02 table/column 1:1 (sections 2, 5, 6, 7 — incl. the §7 deltas: gl_rows.posting_layer/source_account_ref/vendor_source, findings.suggestion_json/suggestion_status/suggestion_ref, import_batches tb_check kind + enrichment_json + source/pull_id, tables connector_profiles + connector_pulls and project/period revision metadata — deltas 13/14), FKs, CHECK constraints on enums, indexes, created_by/updated_at where doc 02 §1 requires. Money INTEGER minor units.
+- **Mission:** SQLite schema: EVERY doc-02 table/column 1:1 (sections 2, 5, 6, 7 — incl. the §7 deltas: gl_rows.posting_layer/source_account_ref/vendor_source, findings.suggestion_json/suggestion_status/suggestion_ref, import_batches tb_check kind + enrichment_json + source/pull_id, tables connector_profiles + connector_pulls and project/period revision metadata — deltas 13/14, plus DEC-022 close template/period-copy/task columns and constraints — delta 15), FKs, CHECK constraints on enums, indexes, created_by/updated_at where doc 02 §1 requires. Money INTEGER minor units.
 - **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/02_DATA_DICTIONARY.md (every table/column)
 - **Inputs:** -  ·  **Provides:** DDL applies cleanly
 - **Acceptance (evidence required):** Schema-equality test parses doc 02 tables+columns and diffs against PRAGMA table_info for every table: zero missing, zero extra; FK on; duplicate budget grain with NULL cc rejected.
@@ -405,9 +405,9 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Notes:** No business logic here - persistence only.
 
 ### WI-0050 · `app/store/period_repo.py` · store
-- **Mission:** Repository for period open/closing/lock state + lock log. Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
+- **Mission:** Repository for period open/closing/lock state + typed lock history; DEC-022 close_templates, close_period_configs, close_tasks, close_signoffs and audit-backed close history with same-period acyclic dependencies and immutable period copies (docs 02 §5, 05 §10, 30 §§8–9). Parameterised SQL only; returns dataclasses; money as int minor units; every mutation writes audit.
 - **Depends on (WI ids, must be DONE):** WI-0039, WI-0030, WI-0034  ·  **Read first:** store/db.py, core/money, core/audit, docs/02
-- **Inputs:** period open/closing/lock state + lock log filters  ·  **Provides:** dataclass lists / ids
+- **Inputs:** period open/closing/lock state + typed lock history; DEC-022 close_templates, close_period_configs, close_tasks, close_signoffs and audit-backed close history with same-period acyclic dependencies and immutable period copies (docs 02 §5, 05 §10, 30 §§8–9) filters  ·  **Provides:** dataclass lists / ids
 - **Acceptance (evidence required):** CRUD round-trip; SQL-injection test (hostile names); money round-trip exact; audit row written per mutation.
 - **Paired test:** `tests/unit/test_period_repo.py`
 - **Notes:** No business logic here - persistence only.
@@ -1178,10 +1178,10 @@ Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or thre
 - **Paired test:** `tests/unit/test_dashboard_service.py`
 
 ### WI-0152 · `app/services/close_service.py` · services
-- **Mission:** Close management per doc 30: task instantiation from template, system-verified completion, blockers, sign-off (ERR-080).
-- **Depends on (WI ids, must be DONE):** —  ·  **Read first:** docs/30, docs/23 §7
+- **Mission:** Close management per doc 30 and doc 05 §§8–10: atomic task/calendar instantiation, system evidence projections, guarded human edits and statement-only T-04 binding/invalidation, blockers, sign-off/lock and historical outcome reads.
+- **Depends on (WI ids, must be DONE):** WI-0001, WI-0050, WI-0031  ·  **Read first:** docs/30, docs/23 §7, docs/05 §§8–10, store/period_repo, core/calendar
 - **Inputs:** project, period  ·  **Provides:** close state DTO
-- **Acceptance (evidence required):** System tasks derive from real states (test flips each source state); sign-off guard.
+- **Acceptance (evidence required):** System tasks derive from real states (test flips each source state); sign-off guard; no outcome transitions/cycles; statement-only freshness avoids forecast/pack cycles; template edits never rewrite live tasks; optimistic task+period/review races, typed legacy history, injected overdue date.
 - **Paired test:** `tests/unit/test_close_service.py`
 
 ### WI-0153 · `app/services/alerts.py` · services

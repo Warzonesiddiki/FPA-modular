@@ -25,7 +25,9 @@
 | `erp.d365fo.ledger_account_format` | `{main_account}-{entity}-{cost_centre}` | how `ACCOUNTDISPLAYVALUE` is composed when no `source_account_ref` exists (26 §7) |
 | `forecast.allow_negative.<group>` | bool false | Doc 08 §7 floors |
 | `forecast.backtest_window` | 3 periods | 08 §3 |
-| `close.target_lock_business_day` | 5 | Doc 30 calendar + KPI |
+| `close.start_business_day` | int 1..60, default 1 | Future close starts; doc 30 §9, close-template endpoint is sole writer |
+| `close.target_lock_business_day` | int 1..60, default 5, ≥start | Future target dates; close-template endpoint is sole writer |
+| `close.holidays` | sorted unique ISO dates, 0..1000, default [] | Explicit project holidays; no network lookup; template writer only |
 | `recon.tolerance_minor` | ₹100 default | FR-REC sign-off guard |
 | `alerts.retention_days` | 90 | FR-ALR purge |
 | `ai.enabled` / `ai.provider` / `ai.model` | false / — / — | Doc 11; key only in keyring, never a setting value |
@@ -45,3 +47,5 @@
 | `exports.include_drilldata` | true | DrillData sheet (09) — off reduces file size, stamped |
 | `privacy.store_import_originals` | true | OQ-10; off = originals deleted post-commit (hashes retained) |
 App-level (not per project): data-root default, log level, UI theme/density, last-opened project. Env overrides for dev only (`FPA_DEV_*`), ignored in release builds.
+
+DEC-022: the three close calendar keys are backed by close_templates.calendar_json (doc 02), not duplicate settings rows. Generic settings GET may project them; generic PUT rejects them with ERR-105 and directs the analyst to Close template. Period copies freeze their values at start-close.

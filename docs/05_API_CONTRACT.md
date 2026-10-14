@@ -133,7 +133,7 @@ Every endpoint: happy path + each listed error + money-as-string assertion + pag
 | Allocations (40) | CRUD `/projects/{id}/allocations` · POST `/allocations/{id}/run {period_id}` → job → adjustments created · GET run result |
 | Assumptions (48) | CRUD `/projects/{id}/assumptions` · POST `/assumptions/{id}/approve` |
 | Year-end (38) | POST `/projects/{id}/year-end/check {fiscal_year}` · POST `/projects/{id}/year-end/close {fiscal_year}` (creates closing adjustments + opening batch) · GET `/projects/{id}/year-end/rollforward {fiscal_year}` (Δ per account, must be 0) |
-| Close (30) | GET `/projects/{id}/close?period_id` · PUT `/close/tasks/{id}` (task/calendar payloads still pending); readiness and POST `/close/sign-off` are fully specified in §8 |
+| Close (30) | Task/calendar/template and history routes: §10; readiness and POST `/close/sign-off`: §8 |
 | Reconcile (19I) | POST `/projects/{id}/reconcile/run {kind, period_id, batch_id}` → job · GET `/reconcile/{id}` (matches, unmatched both sides) · POST `/reconcile/{id}/sign-off` (ERR-081) |
 | Alerts (19K) | GET `/projects/{id}/alerts?status` · POST `/alerts/{id}/ack|dismiss` |
 | Planning (29) | GET/PUT `/projects/{id}/planning/{drivers|headcount|capex|debt|wc|cash13}` (bulk, versioned; PUT replaces the grid for the given scope and writes one audit row) · POST `/projects/{id}/planning/integrate {base_period_id, budget_version?, assumption_set?}` → job → forecast run (ERR-102 on articulation failure, with `details.link`) · GET `/projects/{id}/sensitivity?driver&from&to&steps&target` → table (ERR-108) · POST `/projects/{id}/goal-seek {target_kpi, target_value, driver}` → `GoalSeekResult` (ERR-108) · budget versions: GET/POST `/projects/{id}/budgets`, POST `/budgets/{version_id}/approve|lock|copy` (ERR-100), PUT `/budgets/{version_id}/lines` (grid edit, audited) · report builder `/projects/{id}/report-definitions` CRUD + POST `/report-definitions/{id}/render {period_id}` → job → report (ERR-062) · KPI builder `/projects/{id}/kpi-definitions` CRUD (ERR-104) |
@@ -325,7 +325,7 @@ Both period actions reject a known broken audit chain / integrity read-only stat
 - **Example:** locked `2026-P01`, version 3; POST `{"expected_version":3,"note":"Re-import the corrected April ledger; approved by the controller."}` → 200 the version-4 ClosingPeriod in doc 63 §9. It is not version 1 and never silently returns open.
 
 ## 8. Close readiness, sign-off and lock (DEC-020)
-These three contracts extend §7; product code remains frozen. Task/calendar/template editing remains incomplete; impact review is specified in §9. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
+These three contracts extend §7; product code remains frozen. Task/calendar/template editing and history are specified in §10; impact review in §9. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
 
 ### 8.0 Fields, review token and common sequencing
 | Definition | Fields |
@@ -442,3 +442,80 @@ Current impact requires **all**: closing period, same project/period and unlock 
 - **Request:** no body/query. **Response:** 200 RestatementBaseline, including old cycles. Project ownership applies before lookup disclosure; retained baseline is not an assertion of currentness. Use §9.1 for the current cycle.
 - **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
 - **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §11.1 baseline object, unchanged after another unlock.
+
+
+## 10. Close tasks, calendar, template and history (DEC-022)
+Doc 30 §§8–9 owns semantics; doc 02 §5 owns storage. These are document contracts, not implemented HTTP. All eight endpoints require X-FPA-Token, exact Host/Origin and matching X-FPA-Project (§1.2). All task/period/dependency/owner references are checked within the project and selected period before state disclosure. Foreign/missing resource → ERR-001. No GET mutates, materialises templates, completes tasks or runs financial work. No money is computed/exposed here except existing decimal-string errors.
+
+### 10.0 Field definitions and shared rules
+All fields required including nullable fields unless explicitly marked optional. Objects are closed. ProjectId, PeriodId, Id, Sha256, CalendarDate, Timestamp, PeriodNote and ProjectName retain their shared definitions. ProjectName is display text, not identity or uniqueness for a signer/title.
+
+| Definition | Fields / constraints |
+|---|---|
+| CloseTaskKey | T-01…T-10 or C- followed by 1..24 lowercase letters/digits/underscore, first a letter. Project-template key, not a task resource id. |
+| CloseTaskStatus | not_started/in_progress/blocked/done/waived. |
+| CloseCalendarRules | start_business_day: integer 1..60; target_lock_business_day: integer 1..60, ≥start; holidays: sorted unique CalendarDate array 0..1000. |
+| CloseTemplateEntry | key: CloseTaskKey; title: ProjectName; kind: system/attest/manual; owner_id: Id or null; due_offset_business_days: integer -60..60; depends_on: CloseTaskKey or null. Built-ins have exact doc-30 title/kind and null dependency; custom kind=manual. T-09/T-10 cannot be dependencies. |
+| CloseTemplatePut | expected_version: integer ≥1; calendar: CloseCalendarRules; entries: CloseTemplateEntry array 10..1000. Complete replacement for future periods, not a patch. Exactly one of each built-in; unique sorted keys; all referenced custom keys included; no cycles. |
+| CloseTemplate | project_id: ProjectId; version: integer ≥1; calendar; entries (same rules); created_at, updated_at: Timestamp. At creation defaults doc 30 §8, no period task rows yet. |
+| CloseCalendar | project_id; period_id; template_version: integer ≥1; instantiated: boolean; rules: CloseCalendarRules; period_end, close_start_date, target_lock_date: CalendarDate. Preview from current template when not instantiated, otherwise from immutable period copy. No task array. |
+| CloseTaskAttestation | signer: ProjectName; at: Timestamp; note: PeriodNote or null; statements_fingerprint: Sha256 or null (non-null only for T-04 done). It is retained evidence, not current=true. |
+| CloseTask | task_id: Id; project_id; period_id; template_key: CloseTaskKey; kind: system/attest/manual; title: ProjectName; owner_id: Id or null; due_offset_business_days: integer -60..60; due_date: CalendarDate; depends_on: Id or null (task resource id, not template key); version: integer ≥1; created_at, updated_at: Timestamp; requested_status: CloseTaskStatus or null; status: CloseTaskStatus (effective); note: PeriodNote or null; attestation: CloseTaskAttestation or null; review_token: Sha256; evaluated_on: CalendarDate; overdue: boolean. System/outcome requested_status, note and attestation are null. Human done/waived requested status requires attestation; nonterminal human requested status has null attestation. T-04 cannot be waived. Unknown/missing template is a hard failure, not a completed empty list. |
+| CloseTaskDetails | action: literal details; expected_version, expected_period_version: integer ≥1; review_token: Sha256; title: ProjectName; owner_id: Id or null; due_offset_business_days: integer -60..60; depends_on: Id or null. Built-in title/dependency must be unchanged; custom graph revalidated atomically. |
+| CloseTaskTransition | action: literal transition; expected_version, expected_period_version: integer ≥1; review_token: Sha256; to_status: CloseTaskStatus; signer: ProjectName or null; attest: boolean; note: PeriodNote or null. done/waived require signer and attest=true; other states require signer=null/attest=false. blocked/waived require note. Reversal note rule is contextual (doc 30 §8). |
+| CloseTaskUpdate | Closed union CloseTaskDetails / CloseTaskTransition. No force, actor, server times, evidence or completed_by accepted. |
+| ClosePeriodQuery | period_id: PeriodId (required); no other keys. |
+| CloseTaskListQuery | period_id required; limit integer 1..1000 default 100 and non-null cursor string 1..4096 optional. No status filters or arbitrary sort. |
+| CloseTaskPage | items: CloseTask array 0..1000; next_cursor: PageCursor. Stable sort (template_key,task_id), at most requested limit. |
+| CloseTaskCounts | not_started, in_progress, blocked, done, waived: integers ≥0, sum = instantiated task count. Outcome tasks counted for display only, not prerequisites. |
+| CloseOverview | project_id; period_id; period_version: integer ≥1; period_status: open/closing/locked; instantiated: boolean; template_version: integer ≥1 or null; counts: CloseTaskCounts; evaluated_on: CalendarDate; readiness: CloseReadiness (§8). Not instantiated → template_version=null and all counts zero, with hard statements_review blocker in readiness. No embedded task list or fake completed percentage. |
+| CloseLockRecord | project_id; period_id; before_version: integer ≥1; after_version: integer ≥2 (before+1); signoff_id: Id; snapshot: SnapshotRef; force: boolean; note: PeriodNote or null (non-null if force); locked_at: Timestamp. Immutable projection from a complete PERIOD_LOCK event and retained lock evidence, not current Period metadata. |
+| CloseHistoryItem | audit_id: integer ≥1; action: CLOSE_SIGNOFF/PERIOD_LOCK/RESTATE_OPEN; at: Timestamp; evidence_state: complete/legacy; record: CloseSignoff/CloseLockRecord/RestatementBaseline according to action, or null iff legacy. Scope equals requested project/period; record timestamp equals at (signoff.at / lock.locked_at / baseline.opened_at). |
+| CloseHistoryQuery | optional action from those three audit actions; optional limit integer 1..1000 default 100; optional non-null cursor string 1..4096. |
+| CloseHistoryPage | items: CloseHistoryItem array 0..1000; next_cursor: PageCursor. Sorted unique audit_id ascending; high-water mark pinned by cursor, append-only new events do not duplicate/shift prior pages. Never infer currentness from latest history row. |
+
+Task review token = SHA256(b"FPA-CLOSE-TASK-v1\n" + canonical({project_id,period_id,period_version,task_id,task_version,audit_head,statements_fingerprint,dependency_status})), canonical encoding as §8.0. Values: owning ids; current revisions; audit_head Sha256 or null; statements_fingerprint current statements Sha256 for T-04 only (null if no current statements and for all other tasks); dependency_status effective CloseTaskStatus or null if no dependency. This named **CloseTaskReview** is also in the schema attachment. Computing dependency status must detect cycles, not recurse indefinitely. Server recomputes all values under the write boundary, never trusts client facts. Tokens are concurrency digests, not authority. Completion of T-04 stores ONLY its statement binding, not an audit-head binding that downstream forecast/pack work would stale.
+
+All PUT: strict syntax/auth/ownership → same-key receipt/conflict → versions → closing state for task edits → integrity/busy checks → task token → allowed edit/transition, owner, graph, dependency and statement guards → one atomic write/audit/receipt. Task version checked first (ERR-003 expected/actual task version), then period version (same shape for period); template PUT compares its own version. Token changed → ERR-080 blockers=[review_changed]. Period state failures → ERR-016 action=edit_close_task. System/outcome transition → ERR-080 blockers=[task_read_only]; T-04 waived → ERR-080 blockers=[task_not_waivable]. Invalid built-in title/dependency or malformed graph → ERR-002 (details.field=entries or depends_on). Missing/cross-period task dependency → ERR-001; same-period forbidden T-09/T-10 dependency → ERR-002. Unmet dependency at done/waived → ERR-084 details={task:<task_id>,dependency:<task_id>}. Missing reversal note → ERR-002 field=note. T-04 without current statements → ERR-080 blockers=[statements_review]. No error partially applies owner, status or calendar changes.
+
+Live task pages bind project, period, limit, ordering, project audit head and evaluated_on in the signed cursor. Re-evaluate effective guards using that bound civil date; changed project audit head → ERR-003, tampered/expired/wrong-scope cursor → ERR-002. Existing effective waivers must still be evaluated at the real injected instant; if those facts changed, reject the task cursor with ERR-003 as well. No GET writes a snapshot just to paginate. History cursors instead pin immutable audit_id high-water mark; they bind action/limit/scope and use §1.3 expiry. Reads may expose historical evidence while locked but grant no edit or re-lock permission.
+
+### 10.1 GET `/projects/{id}/close`
+- **Request:** no body; ClosePeriodQuery. **Response:** 200 CloseOverview; counts/readiness from one consistent snapshot, with no task materialisation. Use separate pages for tasks and §8 for readiness-only polling.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none (bounded aggregate). **Idempotency:** read-only, no key. **Example:** doc 63 §12.1.
+
+### 10.2 GET `/projects/{id}/close/tasks`
+- **Request:** no body; CloseTaskListQuery. **Response:** 200 CloseTaskPage; never-started period has empty items, not a synthetic completed checklist. In locked periods use retained lock evidence; reads never complete system tasks in storage.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003; 500 ERR-099; 503 ERR-093.
+- **Pagination:** §10.0 live projection. **Idempotency:** read-only, no key. **Example:** doc 63 §12.2.
+
+### 10.3 GET `/close/tasks/{id}`
+- **Request:** no body/query. **Response:** 200 CloseTask. Ownership includes the task's period; current review token for this one task.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §12.2 task object.
+
+### 10.4 PUT `/close/tasks/{id}`
+- **Request:** CloseTaskUpdate, no query. **Response:** 200 CloseTask with task revision +1 and freshly recomputed review_token; period revision unchanged. No financial calculation, sign-off or lock occurs. All doc 30 §8 edit rules apply, including dependency cycles, human reversal and outcome protections.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-044/ERR-080/ERR-084/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Pagination:** none. **Idempotency:** required; durable §1.3 receipt. Same-key replay is the original result, not new attestation/currentness; fresh key requires current versions/token even if payload otherwise unchanged. **Example:** doc 63 §12.3.
+
+### 10.5 GET `/projects/{id}/close/template`
+- **Request:** no body/query. **Response:** 200 CloseTemplate, current project template. Exactly ten required built-ins plus declared customs; no live-period status rows.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none, one bounded configuration object, not a resource collection. **Idempotency:** read-only, no key. **Example:** doc 63 §12.4.
+
+### 10.6 PUT `/projects/{id}/close/template`
+- **Request:** CloseTemplatePut, no query. **Response:** 200 CloseTemplate, version +1. Entries and close calendar settings update atomically with one CLOSE_TEMPLATE_UPDATE audit + receipt; existing period copies/tasks untouched. May edit future template while periods are locked; never changes those locked periods or bypasses their guards. Missing/foreign owner → ERR-001; newly assigned inactive owner → ERR-044. Reject missing/duplicate built-ins, cycles, dangling keys, bounds or dates with ERR-002 before any write. No DELETE shortcut for removing mandatory tasks.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003; 422 ERR-044/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Pagination:** none. **Idempotency:** required; historical response replay does not reapply a template or rewrite a live period. **Example:** doc 63 §12.4 (body uses expected_version instead of server metadata).
+
+### 10.7 GET `/projects/{id}/close/calendar`
+- **Request:** no body; ClosePeriodQuery. **Response:** 200 CloseCalendar; computed preview for open never-started period, otherwise immutable period calendar. Task dates/overdue status are in paged task reads. On preview date overflow return ERR-002 field=period_id; no partial/clipped dates.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none (two dates/rules, not annual milestones). **Idempotency:** read-only, no key. **Example:** doc 63 §12.5. Annual planning calendar is a separate unfinished WI-0001 family (doc 48), not mixed with close prerequisites.
+
+### 10.8 GET `/projects/{id}/periods/{period_id}/close-history`
+- **Request:** no body; CloseHistoryQuery. **Response:** 200 CloseHistoryPage. Each complete record retains original data; legacy events explicitly labelled. No current=true/approved boolean, live Period substitution, raw audit JSON or implicit mutation.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** §10.0 immutable audit high-water traversal. **Idempotency:** read-only, no key. **Example:** doc 63 §12.6; use readiness/restatement endpoints for current permissions.

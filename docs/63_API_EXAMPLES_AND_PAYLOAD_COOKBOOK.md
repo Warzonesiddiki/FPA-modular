@@ -849,3 +849,336 @@ Synthetic illustrative values, not sample-corpus expectations. All calls use X-F
 POST responses are 201; GET responses 200. §11.1 illustrates the state after §11.4, not permission to skip generation. GET /impacts/impact_1 and GET /impact-approvals/approval_1 return exactly these historical objects even after lock. Re-read readiness after approval, sign off, then re-read readiness again before lock. A second unlock/version change or changed financial manifest makes current ids null; the immutable history is unchanged. A well-shaped attempt to approve an old report fails 422 ERR-083 with {"reason":"approval_note_required"}; a null/blank note fails 400 ERR-002. Same-key replay can return an old success without restoring authority. Empty impact is counts all zero, changes_sha256=SHA256([]), and an empty page; it still needs explicit approval.
 
 GET /restatement-baselines/baseline_1 returns §11.1 baseline, even after a later cycle. Current report/approval selection uses durable audit append order; equal or regressed clock values never resurrect older approval.
+
+
+## 12. Close task/calendar/history (DEC-022, doc 05 §10)
+All calls require token, permitted Host/Origin and X-FPA-Project: prj_9f2c41aa07e1. PUT also requires Idempotency-Key. Synthetic DTO fixtures, not a live finance/HTTP run. Examples in separate subsections are independent states: §12.1 is the ten-default-task case; §12.2 uses a custom task copied from an edited template.
+
+### 12.1 GET /projects/prj_9f2c41aa07e1/close?period_id=2026-P01
+<!-- schema: CloseOverview -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "period_version": 2,
+  "period_status": "closing",
+  "instantiated": true,
+  "template_version": 1,
+  "counts": {
+    "not_started": 2,
+    "in_progress": 0,
+    "blocked": 0,
+    "done": 8,
+    "waived": 0
+  },
+  "evaluated_on": "2026-05-08",
+  "readiness": {
+    "review": {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2026-P01",
+      "period_version": 2,
+      "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "snapshot_close_1",
+      "blocker_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "review_token": "4dae58139f4db3910d02eec2df87b14fab580f74a6a7df512b13fee454c6a0eb",
+    "period_status": "closing",
+    "blockers": [],
+    "current_signoff": null,
+    "ready_to_sign_off": true,
+    "ready_to_lock": false
+  }
+}
+```
+
+### 12.2 GET /projects/prj_9f2c41aa07e1/close/tasks?period_id=2026-P01&limit=100
+<!-- schema: CloseTaskPage -->
+```json
+{
+  "items": [
+    {
+      "task_id": "task_custom",
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2026-P01",
+      "template_key": "C-review",
+      "kind": "manual",
+      "title": "Review supporting schedules",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "due_date": "2026-05-07",
+      "depends_on": null,
+      "version": 1,
+      "created_at": "2026-05-08T09:00:00Z",
+      "updated_at": "2026-05-08T09:00:00Z",
+      "requested_status": "not_started",
+      "status": "not_started",
+      "note": null,
+      "attestation": null,
+      "review_token": "72b90e097d6a3780b6775897effc3d71294c62648c7c98ba435f766ea876a21d",
+      "evaluated_on": "2026-05-08",
+      "overdue": true
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+### 12.3 PUT /close/tasks/task_custom
+<!-- schema: CloseTaskTransition -->
+```json
+{
+  "action": "transition",
+  "expected_version": 1,
+  "expected_period_version": 2,
+  "review_token": "72b90e097d6a3780b6775897effc3d71294c62648c7c98ba435f766ea876a21d",
+  "to_status": "done",
+  "signer": "Controller",
+  "attest": true,
+  "note": null
+}
+```
+
+### 12.4 GET and PUT /projects/prj_9f2c41aa07e1/close/template
+<!-- schema: CloseTemplate -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "version": 1,
+  "calendar": {
+    "start_business_day": 1,
+    "target_lock_business_day": 5,
+    "holidays": []
+  },
+  "entries": [
+    {
+      "key": "T-01",
+      "title": "Import GL & subledgers",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-02",
+      "title": "Trial balance balanced",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-03",
+      "title": "Bank/AR/AP/payroll reconciliations signed",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 2,
+      "depends_on": null
+    },
+    {
+      "key": "T-04",
+      "title": "Statements reviewed",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-05",
+      "title": "Material variances explained",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-06",
+      "title": "Exceptions triaged",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-07",
+      "title": "Forecast refreshed & locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-08",
+      "title": "Board pack generated, checks green",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-09",
+      "title": "Close sign-off",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    },
+    {
+      "key": "T-10",
+      "title": "Period locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    }
+  ],
+  "created_at": "2026-05-08T09:00:00Z",
+  "updated_at": "2026-05-08T09:00:00Z"
+}
+```
+<!-- schema: CloseTemplatePut -->
+```json
+{
+  "expected_version": 1,
+  "calendar": {
+    "start_business_day": 1,
+    "target_lock_business_day": 5,
+    "holidays": []
+  },
+  "entries": [
+    {
+      "key": "T-01",
+      "title": "Import GL & subledgers",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-02",
+      "title": "Trial balance balanced",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 1,
+      "depends_on": null
+    },
+    {
+      "key": "T-03",
+      "title": "Bank/AR/AP/payroll reconciliations signed",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 2,
+      "depends_on": null
+    },
+    {
+      "key": "T-04",
+      "title": "Statements reviewed",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-05",
+      "title": "Material variances explained",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-06",
+      "title": "Exceptions triaged",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 3,
+      "depends_on": null
+    },
+    {
+      "key": "T-07",
+      "title": "Forecast refreshed & locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-08",
+      "title": "Board pack generated, checks green",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 4,
+      "depends_on": null
+    },
+    {
+      "key": "T-09",
+      "title": "Close sign-off",
+      "kind": "attest",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    },
+    {
+      "key": "T-10",
+      "title": "Period locked",
+      "kind": "system",
+      "owner_id": null,
+      "due_offset_business_days": 5,
+      "depends_on": null
+    }
+  ]
+}
+```
+
+### 12.5 GET /projects/prj_9f2c41aa07e1/close/calendar?period_id=2026-P01
+<!-- schema: CloseCalendar -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "template_version": 1,
+  "instantiated": true,
+  "rules": {
+    "start_business_day": 1,
+    "target_lock_business_day": 5,
+    "holidays": []
+  },
+  "period_end": "2026-04-30",
+  "close_start_date": "2026-05-01",
+  "target_lock_date": "2026-05-07"
+}
+```
+
+### 12.6 GET /projects/prj_9f2c41aa07e1/periods/2026-P01/close-history
+<!-- schema: CloseHistoryPage -->
+```json
+{
+  "items": [
+    {
+      "audit_id": 4,
+      "action": "PERIOD_LOCK",
+      "at": "2026-10-14T09:00:00Z",
+      "evidence_state": "complete",
+      "record": {
+        "project_id": "prj_9f2c41aa07e1",
+        "period_id": "2026-P01",
+        "before_version": 2,
+        "after_version": 3,
+        "signoff_id": "signoff_1",
+        "snapshot": {
+          "snapshot_id": "snapshot_close_1",
+          "batch_watermark": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+          "budget_version": "budget_1",
+          "forecast_run_id": "forecast_1",
+          "layer": "gl"
+        },
+        "force": false,
+        "note": null,
+        "locked_at": "2026-10-14T09:00:00Z"
+      }
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+All successes are 200. Successful task transition returns CloseTask revision 2, status/requested_status=done, a named injected-time attestation, overdue=false and a new server review_token (re-read before editing again); it does not lock the period. GET /close/tasks/task_custom returns the same current projection. Same-key replay retains the original response even after later changes. A fresh stale version gives ERR-003; system/T-09/T-10 transition gives ERR-080 task_read_only; unmet dependency gives ERR-084 with both task ids. Template PUT creates revision 2 with unchanged created_at; the previously instantiated period calendar is still revision 1. Legacy history records have evidence_state=legacy/record=null, never a fabricated current approval. No financial values or calculations occur in these payloads.

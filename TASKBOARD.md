@@ -394,3 +394,10 @@ FILES TOUCHED: docs 05/17/22/24/30/41/63/90/CHANGELOG; schema attachment; new te
 DEVIATIONS: DEC-021 docs-first e811c38/6d2bcef. 254 definitions/18 jobs/76 errors; 239 prior definitions unchanged. 267 WI identities/dependencies stable, all seven gates unchanged/equal, regeneration byte-identical. Synchronous generation performance/persistence are not proved; no bar weakened.
 DECISIONS TAKEN: DEC-021 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before real tenant pilot.
 NEXT: still WI-0001: task/calendar/template + sign-off/lock history contracts; impact/snapshot/invalidation and project lifecycle persistence ownership/schema depth; backup/restore safety; remaining families/doc-90 migration. Exact limits/order in evidence §4. **M0 open (0/8), batch 0/30 complete.**
+
+
+## WI-0001 continuation — task/calendar/history contracts, 2026-10-14
+STATUS: in_progress; M0 open (0/8), batch 0/30 complete.
+BASELINE: local Git metadata stale at 4257b5a while files matched pushed d7ddb98. Fetched assigned branch, verified EVERY tracked remote file including the two locally untracked files byte-equal, mixed-reset metadata only, rechecked bytes unchanged. Ignored .venv recreated; `.venv/bin/python -m pytest -q` → 539 passed in 15.10s. No checker exists.
+CONTRACT: DEC-022 docs 05 §10/30 §§8–9: eight task/template/calendar/history routes, future-only template snapshots, acyclic scalar dependencies, outcome protections, task+period/review guards and statement-only T-04 evidence. Doc 02 delta 15/plan name existing persistence/date/service owners; stronger M1 schema gate, no product change.
+NEXT: independent document fixtures/red → schemas → adversarial checks and exact evidence. Not WI completion.
