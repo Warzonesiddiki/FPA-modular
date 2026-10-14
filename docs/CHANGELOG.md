@@ -1,5 +1,10 @@
 # Documentation Changelog (newest first)
 
+## 2026-10-14 (h) — DEC-020 close review and lock contracts
+- Resolve T-09/T-10 self-dependency, limit overrides to explicit soft checks, bind immutable sign-off to reviewed snapshot/audit/blocker identities, and specify three readiness/sign-off/lock endpoints. No unchecked generic override can bypass integrity/restatement review.
+- Align owning/repeating docs and register a document-only paired test; no product/SQL or gate changes, no new error/job/WI. Impact/task/calendar and backup/restore contracts remain unfinished.
+
+
 ## 2026-10-14 (g) — DEC-019 private launch state / lifecycle review
 - Move the specified CLI launch-token descriptor out of project folders into private per-user runtime storage (docs 04/12/70), closing a contradiction with backup/no-credentials guarantees. Define safe discovery/ACL/publication/cleanup; no runtime code added.
 - Verification checkpoint: 80 new lifecycle-document tests + 197 prior document tests + 9 unchanged product tests = **286 passing**, with three additional schema mutations caught. Evidence: `evidence/WI-0001_lifecycle_contract_2026-10-14.md`. Conservative recovery timestamps preserve the full trash-retention interval.

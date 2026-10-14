@@ -79,7 +79,7 @@
 | FR-CLO-001 | Close calendar | business-day aware (holiday list per project), due dates relative to period end | — | S16 | close/calendar | close_service |
 | FR-CLO-002 | Task checklist | template (30 §2) instantiated per period; owner, due, dependency, evidence link; states 23 §7 | — | S16 | close/tasks | close_service |
 | FR-CLO-003 | Blockers | computed from system state: TB unbalanced, High findings open, forecast stale, exports missing | — | S01, S16 | close GET | close_blockers |
-| FR-CLO-004 | Sign-off | all tasks done/waived + zero blockers or override note; attestation text + timestamp → audit | ERR-080 | S16 | close/sign-off | close_signoff |
+| FR-CLO-004 | Sign-off | T-01…T-08/custom prerequisites, excluding sign-off/lock outcome tasks; current review + attestation → immutable record/audit; overrides only for High findings/manual tasks, never hard guards (30 §6–§7) | ERR-080 | S16 | close/sign-off | close_signoff |
 | FR-CLO-005 | Close pack | one action → Excel + PPT of the period from one snapshot (shares FR-RPT-006) | ERR-060 | S16 | exports | cross-artifact |
 | FR-CLO-006 | Year-end | checks, closing adjustments to `eq_re`, opening batch for next FY, rollforward Δ = 0 (38) | ERR-082 | S16 | year-end/* | test_year_end |
 

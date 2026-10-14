@@ -363,3 +363,9 @@ FILES TOUCHED: docs 02/04/05/12/17/18/19/23/30/41/42/63/70/90/CHANGELOG, shared 
 DEVIATIONS: DEC-018/019, docs-first commits e5bb560/438e13d before schema changes. No new error/job kind/WI, no bar or gate change; 267 identities stable, all seven gates equal, regenerated files repeat-identical. Scope is still only WI-0001.
 DECISIONS TAKEN: DEC-018, DEC-019 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before real tenant pilot.
 NEXT: backup/restore archive/transport/rollback/receipt safety; lock/re-lock/sign-off/impact guards without circular dependencies; remaining endpoint families/index/examples; resolve project persistence ownership in plan. Exact gaps in evidence. **WI-0001 in_progress; 0/30 done; M0 open.**
+
+## WI-0001 continuation — close readiness, 2026-10-14
+STATUS: in_progress, M0 open, 0/30 complete.
+BASELINE: fetch/status clean at 7b9a34f; `.venv/bin/python -m pytest -q` → 286 passed in 10.66s.
+CONTRACT: DEC-020, docs 05 §8/30 §6–§7: read-only bounded readiness, immutable explicit sign-off, separate versioned lock; no T-09/T-10 cycle or blanket hard-guard override. Doc 41 requires current impact approval, not arbitrary lock-note text. Product frozen.
+NEXT: independent DTO/token/guard tests before schema extension; evidence and full checks, then continue unresolved WI-0001 contracts.

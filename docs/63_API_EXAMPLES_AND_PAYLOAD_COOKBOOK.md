@@ -486,3 +486,155 @@ HTTP 200:
 ```
 
 Old lock metadata and the immutable pre-unlock baseline are in RESTATE_OPEN history, not discarded. The current period has null lock metadata and revision 4, not open/revision 1. The previous sign-off is historical; this action does not waive impact review or approve re-lock. With a valid expected_version but missing/null/blank note, return 400 ERR-015 (`details.action=unlock`); a missing version, non-string/oversized/control-containing note or unknown field gives ERR-002. Stale version → ERR-003 before lifecycle mutation. Runtime atomicity/leases and baseline persistence remain M1/M3 verification work.
+
+## 10. Review → sign-off → lock (doc 05 §8)
+Synthetic complete fixtures, not executed HTTP calls. Every call requires X-FPA-Token, exact local authority/origin and X-FPA-Project=prj_9f2c41aa07e1. Both POSTs require distinct Idempotency-Key values. No query or client actor is accepted. The project has completed the prerequisites and has a current checked pack; the fixed hashes below stand for immutable synthetic manifests, not actual financial results.
+
+### 10.1 Inspect without side effects
+GET `/projects/prj_9f2c41aa07e1/periods/2026-P01/close-readiness` → 200:
+<!-- contract: CloseReadiness -->
+```json
+{
+  "review": {
+    "project_id": "prj_9f2c41aa07e1",
+    "period_id": "2026-P01",
+    "period_version": 2,
+    "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "snapshot_id": "snapshot_close_1",
+    "blocker_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "review_token": "4dae58139f4db3910d02eec2df87b14fab580f74a6a7df512b13fee454c6a0eb",
+  "period_status": "closing",
+  "blockers": [],
+  "current_signoff": null,
+  "ready_to_sign_off": true,
+  "ready_to_lock": false
+}
+```
+
+The empty blocker fingerprint is SHA256 of the two UTF-8 bytes `[]`. The review token uses the exact domain prefix and canonical CloseReview bytes in doc 05. T-09/T-10 do not appear as impossible prerequisites. ready_to_lock is false because there is not yet a current sign-off.
+
+### 10.2 Attest explicitly
+POST `/close/sign-off`:
+<!-- contract: CloseSignoffCreate -->
+```json
+{
+  "period_id": "2026-P01",
+  "expected_version": 2,
+  "review_token": "4dae58139f4db3910d02eec2df87b14fab580f74a6a7df512b13fee454c6a0eb",
+  "signer": "Controller",
+  "attest": true,
+  "override_note": null
+}
+```
+201:
+<!-- contract: CloseSignoff -->
+```json
+{
+  "signoff_id": "signoff_1",
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "signer": "Controller",
+  "attestation_text": "I confirm the pack for 2026-P01 is complete and reviewed",
+  "at": "2026-10-14T09:00:00Z",
+  "evidence": {
+    "review": {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2026-P01",
+      "period_version": 2,
+      "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "snapshot_id": "snapshot_close_1",
+      "blocker_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "snapshot": {
+      "snapshot_id": "snapshot_close_1",
+      "batch_watermark": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      "budget_version": "budget_1",
+      "forecast_run_id": "forecast_1",
+      "layer": "gl"
+    },
+    "override_note": null,
+    "overridden_blockers": []
+  }
+}
+```
+
+The Period stays closing/version 2. This event advances the audit chain; the old review token must NOT be reused for lock. GET readiness again (the synthetic CLOSE_SIGNOFF event hash is c repeated 64 times) → 200:
+<!-- contract: CloseReadiness -->
+```json
+{
+  "review": {
+    "project_id": "prj_9f2c41aa07e1",
+    "period_id": "2026-P01",
+    "period_version": 2,
+    "audit_head": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "snapshot_id": "snapshot_close_1",
+    "blocker_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "review_token": "03b75d6416cd895a4dcd3a50cab9dd50af6373ca24789b43c73d4aa00ea93f5c",
+  "period_status": "closing",
+  "blockers": [],
+  "current_signoff": {
+    "signoff_id": "signoff_1",
+    "project_id": "prj_9f2c41aa07e1",
+    "period_id": "2026-P01",
+    "signer": "Controller",
+    "attestation_text": "I confirm the pack for 2026-P01 is complete and reviewed",
+    "at": "2026-10-14T09:00:00Z",
+    "evidence": {
+      "review": {
+        "project_id": "prj_9f2c41aa07e1",
+        "period_id": "2026-P01",
+        "period_version": 2,
+        "audit_head": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "snapshot_id": "snapshot_close_1",
+        "blocker_fingerprint": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      "snapshot": {
+        "snapshot_id": "snapshot_close_1",
+        "batch_watermark": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        "budget_version": "budget_1",
+        "forecast_run_id": "forecast_1",
+        "layer": "gl"
+      },
+      "override_note": null,
+      "overridden_blockers": []
+    }
+  },
+  "ready_to_sign_off": true,
+  "ready_to_lock": true
+}
+```
+
+### 10.3 Lock the exact approved state
+POST `/projects/prj_9f2c41aa07e1/periods/2026-P01/lock`:
+<!-- contract: PeriodLock -->
+```json
+{
+  "expected_version": 2,
+  "review_token": "03b75d6416cd895a4dcd3a50cab9dd50af6373ca24789b43c73d4aa00ea93f5c",
+  "signoff_id": "signoff_1",
+  "force": false,
+  "note": null
+}
+```
+200:
+<!-- contract: LockedPeriod -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "fiscal_year": 2026,
+  "period_no": 1,
+  "start_date": "2026-04-01",
+  "end_date": "2026-04-30",
+  "status": "locked",
+  "locked_at": "2026-10-14T09:00:00Z",
+  "lock_note": null,
+  "version": 3,
+  "created_at": "2026-10-14T09:00:00Z",
+  "updated_at": "2026-10-14T09:00:00Z"
+}
+```
+
+Period is now locked/version 3, dates/created_at preserved, lock_note null because no override was requested. A same-key replay is historical; a fresh key against locked state fails ERR-016. A project mutation between review/sign-off/lock makes the review stale (ERR-080), even if counts happen to remain equal. A lock note alone cannot satisfy a reopened period's current impact approval (ERR-083). Missing force note → ERR-015; force+note still cannot override TB, audit, missing/current sign-off, stale forecast or impact review.

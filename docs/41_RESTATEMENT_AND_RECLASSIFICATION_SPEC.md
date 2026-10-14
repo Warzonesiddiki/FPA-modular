@@ -13,3 +13,8 @@ No silent history rewrite: every number ever exported remains reproducible from 
 
 ## 4. Tests
 Restate a locked golden period: impact report Δ matches hand-computed change; stale forecast flagged; re-lock blocked until attestation; as-reported vs as-reclassified toggle reproduces both statement versions; audit chain contains full sequence.
+
+## 5. Current approval is not a reusable checkbox (DEC-020)
+Sign-off and re-lock both require a nonblank approval note attached to a reviewed impact report for the exact immutable pre-unlock baseline and current after-input snapshot. The approval must identify that report and both snapshots in its retained history. Later source/mapping/layer/budget/forecast/commentary/finding changes that alter the report's inputs invalidate it; a different report or an earlier unlock cycle cannot satisfy it. A note on lock or generic close override is **not** this approval. Missing/stale approval remains ERR-083, reason=approval_note_required (no new code); refresh/regenerate impact and review it. Doc 05 §8 guards are specified, but impact generation/approval routes and field schemas still require WI-0001 work and must not be invented in a route implementation.
+
+The acyclic re-lock sequence is: corrected inputs → current forecast/approved commentary → checked pack → impact report for the original baseline and that current after-input snapshot → impact approval → sign-off → lock. Impact generation/reading does not itself alter financial inputs. Only forecasts based on superseded inputs are stale; a newly regenerated run matching current inputs must not be invalidated merely because impact is generated, or this would create another cycle. Later financial changes require refreshed impact and approval before the next sign-off.

@@ -79,7 +79,7 @@ Design point: 250k gl_rows/project/year, 5M lifetime. Indexes: gl_rows(period_id
 
 ## 5. Expansion tables (docs 19/29/30 — same conventions §1; schema.sql must include all)
 - **close_tasks**: task_id PK · project_id · period_id · template_key · title · owner_id NULL · due_offset_days INT · depends_on NULL · kind (`system|attest|manual`) · status (doc 23 §7) · completed_by/at · note.
-- **close_signoffs**: signoff_id PK · project_id · period_id · signer · attestation_text · snapshot_json · at.
+- **close_signoffs**: signoff_id PK · project_id · period_id · signer · attestation_text · snapshot_json · at. Immutable. DEC-020: snapshot_json stores exactly CloseSignoffEvidence (doc 05 §8.0); public evidence decodes this JSON, not a second copy/table. Its CLOSE_SIGNOFF audit event identifies the row via entity_type=close_signoff/entity_id=signoff_id. The event hash is read from audit_log, never hashed into itself. Legacy evidence without this binding is historical only and cannot authorise lock; no fabricated approval during migration.
 - **headcount_plans**: plan_id PK · project_id · period_id · cost_centre_id · opening_hc INT · joiners INT · leavers INT · avg_cost_minor INT · increment_pct TEXT · bonus_pct TEXT.
 - **capex_assets**: asset_id PK · project_id · class_label · cost_minor INT · addition_period · useful_life_months INT · method (`slm|wdv`) · residual_pct TEXT · disposal_period NULL · proceeds_minor NULL.
 - **debt_schedules**: facility_id PK · project_id · label · opening_minor INT · rate_pct TEXT · kind (`fixed|floating`) — movements in **debt_movements**(facility_id, period_id, kind `draw|repay`, amount_minor).

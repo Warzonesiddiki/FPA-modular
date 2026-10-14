@@ -63,7 +63,7 @@ Health, project list/create/detail, period list/create/detail: explicit contract
 
 Remaining project operations awaiting expansion in WI-0001:
 - Sample workspace creation, typed-confirmation deletion and start-close/unlock: §7 (FR-PRJ-002/003/005). Financial sample loading still uses the ordinary import pipeline.
-- POST `/projects/{id}/periods/{period_id}/lock`: legacy request `{note, force?}` → Period; ERR-011 for open High findings unless forced with an audited note. Lock/re-lock and impact-review guards remain to expand (FR-PRJ-003; docs 23/41).
+- Close readiness/sign-off/lock: §8. Version, review binding and current sign-off are mandatory; force is limited. Impact generation/approval transport remains to expand (docs 30/41).
 - POST `/projects/{id}/backup` and POST `/projects/{id}/restore`: legacy request `{path}` → 202 JobReceipt; results BackupManifest / RestoreResult (doc 64), ERR-012 for unavailable paths. Full input/root-selection/integrity contracts remain to expand (FR-PRJ-004).
 
 ### Imports (doc 06)
@@ -133,7 +133,7 @@ Every endpoint: happy path + each listed error + money-as-string assertion + pag
 | Allocations (40) | CRUD `/projects/{id}/allocations` · POST `/allocations/{id}/run {period_id}` → job → adjustments created · GET run result |
 | Assumptions (48) | CRUD `/projects/{id}/assumptions` · POST `/assumptions/{id}/approve` |
 | Year-end (38) | POST `/projects/{id}/year-end/check {fiscal_year}` · POST `/projects/{id}/year-end/close {fiscal_year}` (creates closing adjustments + opening batch) · GET `/projects/{id}/year-end/rollforward {fiscal_year}` (Δ per account, must be 0) |
-| Close (30) | GET `/projects/{id}/close?period_id` · PUT `/close/tasks/{id}` · POST `/close/sign-off` (ERR-080) |
+| Close (30) | GET `/projects/{id}/close?period_id` · PUT `/close/tasks/{id}` (task/calendar payloads still pending); readiness and POST `/close/sign-off` are fully specified in §8 |
 | Reconcile (19I) | POST `/projects/{id}/reconcile/run {kind, period_id, batch_id}` → job · GET `/reconcile/{id}` (matches, unmatched both sides) · POST `/reconcile/{id}/sign-off` (ERR-081) |
 | Alerts (19K) | GET `/projects/{id}/alerts?status` · POST `/alerts/{id}/ack|dismiss` |
 | Planning (29) | GET/PUT `/projects/{id}/planning/{drivers|headcount|capex|debt|wc|cash13}` (bulk, versioned; PUT replaces the grid for the given scope and writes one audit row) · POST `/projects/{id}/planning/integrate {base_period_id, budget_version?, assumption_set?}` → job → forecast run (ERR-102 on articulation failure, with `details.link`) · GET `/projects/{id}/sensitivity?driver&from&to&steps&target` → table (ERR-108) · POST `/projects/{id}/goal-seek {target_kpi, target_value, driver}` → `GoalSeekResult` (ERR-108) · budget versions: GET/POST `/projects/{id}/budgets`, POST `/budgets/{version_id}/approve|lock|copy` (ERR-100), PUT `/budgets/{version_id}/lines` (grid edit, audited) · report builder `/projects/{id}/report-definitions` CRUD + POST `/report-definitions/{id}/render {period_id}` → job → report (ERR-062) · KPI builder `/projects/{id}/kpi-definitions` CRUD (ERR-104) |
@@ -169,7 +169,7 @@ These three complete transport contracts use doc 64's closed result union; they 
 - **Example:** running non-cancellable commit → 200 `{"job_id":"job_commit_0001","status":"running","cancel_requested":false,"cancellable":false}`. Queued cancellation → 200 `{"job_id":"job_commit_0001","status":"cancelled","cancel_requested":true,"cancellable":false}`; a repeated request after that returns cancelled with both flags false.
 
 ## 6. Health, project metadata and fiscal-year materialisation (DEC-017)
-These seven endpoint sections replace the corresponding shorthand in §2. Sample workspace/deletion/start-close/unlock are expanded in §7; backup/restore, lock/re-lock and impact review still require expansion; §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
+These seven endpoint sections replace the corresponding shorthand in §2. Sample workspace/deletion/start-close/unlock are expanded in §7; backup/restore and impact generation/approval still require expansion (lock/sign-off: §8); §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
 
 ### 6.0 Field contracts and shared behaviour
 All properties are required unless explicitly optional; nullable properties must be present. All objects are closed. Dates are validated Gregorian `YYYY-MM-DD`; timestamps use §1.3 UTC Z. No money fields occur here; any reachable error money remains a decimal string. No ledger rows, filesystem paths, connection profiles or credentials are exposed by these DTOs.
@@ -261,7 +261,7 @@ App-scoped project-creation receipts are scoped to **installation + method + can
 - **Example:** GET `/api/v1/projects/prj_9f2c41aa07e1/periods/2026-P01` → 200 the complete April Period in doc 63 §8. A future non-materialised FY returns 404, not zero balances.
 
 ## 7. Sample, deletion and entering/reopening close (DEC-018)
-These four endpoint contracts extend §6; they are documentation, not implemented runtime routes. Lock/re-lock, sign-off, impact review and backup/restore remain WI-0001 work. The schema attachment owns closed DTOs; the behavioural rules below are mandatory M1/M3 tests, not something JSON Schema proves.
+These four endpoint contracts extend §6; they are documentation, not implemented runtime routes. Lock/sign-off are expanded in §8; impact generation/approval and backup/restore remain WI-0001 work. The schema attachment owns closed DTOs; the behavioural rules below are mandatory M1/M3 tests, not something JSON Schema proves.
 
 ### 7.0 Fields, sequencing and lifecycle rules
 All properties are required. Shared ProjectName/ProjectId/Period/PeriodNote/Timestamp types are §6.0. No financial amounts occur in these metadata DTOs; reachable error money stays decimal strings. Input objects reject unknown fields; client actor, timestamps, project paths, sample flags and server revision overrides are never accepted.
@@ -323,3 +323,54 @@ Both period actions reject a known broken audit chain / integrity read-only stat
 - **Pagination:** none.
 - **Idempotency:** optional key; one transition/baseline/audit. Same-key replay precedes business state/version checks but not auth/ownership; a new/no-key request against open/closing is ERR-016 if its version is current (otherwise ERR-003).
 - **Example:** locked `2026-P01`, version 3; POST `{"expected_version":3,"note":"Re-import the corrected April ledger; approved by the controller."}` → 200 the version-4 ClosingPeriod in doc 63 §9. It is not version 1 and never silently returns open.
+
+## 8. Close readiness, sign-off and lock (DEC-020)
+These three contracts extend §7; product code remains frozen. Task/calendar/template editing and impact generation/approval APIs remain incomplete. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
+
+### 8.0 Fields, review token and common sequencing
+| Definition | Fields |
+|---|---|
+| CloseBlockerCode | Exactly the 16 codes in doc 30 §6. |
+| CloseBlocker | code: CloseBlockerCode; count: integer ≥1; overridable: boolean, true **iff** code is high_findings or manual_tasks. |
+| CloseReview | project_id: ProjectId; period_id: PeriodId; period_version: integer ≥1; audit_head: Sha256 or null; snapshot_id: Id or null; blocker_fingerprint: Sha256. |
+| CloseSignoffEvidence | review: CloseReview with non-null snapshot_id; snapshot: SnapshotRef (doc 64, same snapshot_id as review); override_note: PeriodNote or null; overridden_blockers: sorted unique-by-code CloseBlocker array, 0..2, only overridable rows, empty without an override. |
+| CloseSignoff | signoff_id: Id; project_id: ProjectId; period_id: PeriodId; signer: ProjectName syntax (label only, no uniqueness rule); attestation_text: exact server string `I confirm the pack for <period_id> is complete and reviewed`; at: Timestamp; evidence: CloseSignoffEvidence. Scope equals evidence.review. This label is not authenticated identity or statutory certification; actor comes from shell context. |
+| CloseReadiness | review: CloseReview; review_token: Sha256; period_status: open/closing/locked; blockers: CloseBlocker array 0..16, unique code/sorted; current_signoff: CloseSignoff or null; ready_to_sign_off, ready_to_lock: boolean. ready_to_sign_off iff closing, non-null snapshot and no blockers. ready_to_lock iff closing, current_signoff valid, non-null snapshot and no remaining blocker except manual_tasks already explicitly covered by that sign-off. High findings require force, so make normal ready_to_lock false even when previously overridden. |
+| CloseSignoffCreate | period_id: PeriodId; expected_version: integer ≥1; review_token: Sha256; signer: ProjectName syntax; attest: literal true; override_note: PeriodNote or null. Null means no override requested, not approval. Blank/control/wrong-type note → ERR-002; actual blocking conditions with no override → ERR-080. |
+| PeriodLock | expected_version: integer ≥1; review_token: Sha256; signoff_id: Id; force: boolean; note: PeriodNote or null. force=true requires a nonblank, control-free note (missing/null/blank note → ERR-015 if all other fields are well-shaped; wrong type/length/controls → ERR-002). force=false permits null. No implicit force default. |
+| LockedPeriod | Period (§6) restricted to status=locked, non-null locked_at and version≥2 (response to a version-incrementing command, including a migrated closing period at version 1). lock_note equals request note. |
+
+`blocker_fingerprint` is SHA256 of the UTF-8 canonical JSON array of pairs `[code, resource_id]` for all currently offending resources, sorted lexically by code then id, duplicates removed. For aggregate checks use the period_id as resource_id; for high_findings/custom manual tasks/jobs use their actual IDs. No resource-id list is exposed in this bounded response; resource screens retain paged drill. An empty set hashes canonical `[]`. Counts alone are not a review binding.
+
+`review_token = SHA256(b"FPA-CLOSE-REVIEW-v1\n" + canonical(CloseReview))`. Canonical JSON here is UTF-8, object keys sorted lexically, no insignificant whitespace, no ASCII escaping of Unicode, no NaN/Infinity; arrays retain their specified ordering (Python reference: ensure_ascii=False, sort_keys=True, separators=(',', ':'), allow_nan=False). It is a concurrency digest, **not authentication**. Null audit_head means an empty chain, not successful verification of a broken one. The server recomputes from trusted data, never accepts a client-supplied review/snapshot as authoritative.
+
+Mutations: §1.2 auth/ownership and strict syntax → same-key receipt/conflict → expected period version (ERR-003) → state/integrity/busy checks → recomputed review token (ERR-080 `blockers:["review_changed"]`) → current sign-off/impact/hard/soft guards → atomic write. All guards run again at the write boundary. Retained same-key successes replay historical results, not fresh permission to mutate. Foreign signoff_id returns ERR-001 before business checks. A sign-off record is immutable: changing signer/note requires a new explicitly reviewed sign-off, not PUT. Polling performs no writes, exports, imports, audit verification walk or network.
+
+### 8.1 GET `/projects/{id}/periods/{period_id}/close-readiness`
+- **Auth / scope:** token, exact Host/Origin, project header/path and period ownership (§1.2).
+- **Request:** no body; no query parameters.
+- **Response:** 200 CloseReadiness. Uses consistent committed state; no template materialisation. Known audit-integrity/busy/non-closing conditions appear as non-overridable blockers, never false ready flags. Absent usable current pack → snapshot_id=null and board_pack blocker. A current sign-off is derived per doc 30 §7, not merely the latest row in close_signoffs.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none; at most one row for each of 16 fixed aggregate codes. No ledger/task/finding array is embedded.
+- **Idempotency:** read-only; key not required or consumed.
+- **Example:** doc 63 §10.1.
+
+### 8.2 POST `/close/sign-off`
+- **Auth / scope:** token, exact Host/Origin, explicit X-FPA-Project; body period must belong to it.
+- **Request:** CloseSignoffCreate; no query. The client must have displayed the attestation text and exact readiness before sending attest=true; this remains an explicit human business attestation, not AI approval.
+- **Response:** 201 CloseSignoff. Creates record/audit/receipt atomically, period version unchanged, no lock. Server copies the reviewed snapshot and only actually overridden blockers. Ordinary sign-off has null override_note and empty overridden_blockers. Same-key replay does not make an old sign-off current after a later change. Read readiness again before locking: sign-off itself advances the audit head/token.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-080/ERR-083/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failure details:** ERR-016 action=sign_off. Missing/stale current impact approval → ERR-083 (reason=approval_note_required); a free-text override is not impact approval. Other hard blockers or unapproved soft blockers → ERR-080 with sorted blocker codes. State/version failures precede record creation.
+- **Pagination:** none; one immutable record.
+- **Idempotency:** required; project + method/path + key (§1.3). A new key can create a replacement only with a fresh review, never silently reuse the last approval.
+- **Example:** doc 63 §10.2.
+
+### 8.3 POST `/projects/{id}/periods/{period_id}/lock`
+- **Auth / scope:** token, exact Host/Origin, project header/path, period and signoff ownership (§1.2).
+- **Request:** PeriodLock; no query. Legacy note/force-only requests without version/review/signoff are invalid, not a bypass.
+- **Response:** 200 LockedPeriod. Only closing→locked, version +1, timestamps injected; dates/created_at unchanged. Snapshot/signoff link, period change, PERIOD_LOCK audit and receipt commit together. GET and sign-off never perform this action. Force never waives audit, current sign-off, TB, forecasts, export checks or current restatement approval.
+- **Failures:** 400 ERR-002/ERR-005/ERR-015; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-011/ERR-080/ERR-083/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failure details:** ERR-016 action=lock. Review changed/current sign-off missing → ERR-080 (`review_changed`/`signoff_required`). Restatement approval missing/stale → ERR-083. Other hard blockers → ERR-080. Open High without force → ERR-011; details.n is the full positive count (≥1), finding_ids carries exactly the first min(n,100) distinct sorted IDs, not the whole ledger. These guards precede every effect.
+- **Pagination:** none; one period. Finding details are bounded diagnostics, not a resource-list substitute.
+- **Idempotency:** required; same-key replay returns the old locked response after restart or later unlock; a fresh key against locked state fails ERR-016. Re-read current Period before another mutation.
+- **Example:** doc 63 §10.3.

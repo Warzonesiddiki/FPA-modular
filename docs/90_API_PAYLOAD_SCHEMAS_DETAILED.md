@@ -36,3 +36,6 @@ Field-level parity is enforced by the contract tests (doc 14): the OpenAPI schem
 
 ## Job schema attachment (DEC-016)
 Doc 64 §3 is the field contract for all asynchronous results. Its normative machine-readable attachment is `api_job_schemas.json`; `$defs` names match that table. Repeated asynchronous result shapes above are references, not independent field definitions. The attachment also defines Job, JobPage, JobReceipt and CancelResponse for doc 05 §5. All public money is a decimal string. Runtime OpenAPI must reference equivalent closed schemas, not untyped `object` results. Endpoint-only input field expansion remains WI-0001 work; this attachment alone does not complete the API.
+
+## Close review and lock schema index (DEC-020)
+Doc 05 §8 owns fields/endpoints; doc 30 §6–§7 owns guard semantics. Attachment definitions: CloseBlockerCode, CloseBlocker, CloseReview, CloseSignoffEvidence, CloseSignoff, CloseReadiness, CloseSignoffCreate, PeriodLock, LockedPeriod. No generic object payload, no embedded financial/finding/task collection. Impact transport and task/calendar contracts remain unfinished.
