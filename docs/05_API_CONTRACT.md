@@ -282,7 +282,7 @@ For mutations: local auth/origin → project/resource ownership → syntactic re
 
 `unlock`: only locked→closing; version +1, updated_at from the injected clock, clear current locked_at/lock_note (the old lock is retained in audit). Record `RESTATE_OPEN` with the note, old period version/lock metadata and the immutable pre-unlock snapshot references needed by doc 41, **before** any correction can write. Failure to retain that baseline fails atomically; never unlock first and try to capture the old numbers later. Keep prior exports, historical sign-offs and finding/audit history; previous sign-offs are no longer current for the reopened period. Existing task rows/history are not re-created or silently approved. Do not generate an impact report or post a correcting entry inside this metadata action; the full doc-41 review is still mandatory before re-lock. Missing note is ERR-015 here; ERR-083 remains the separate restatement-approval guard, not a substitute for unlock input validation.
 
-Both period actions arbitrate against active/queued period-affecting jobs or another write lease. Busy → ERR-092; a job checks period/version again at its eventual write boundary. Zero side effects on failed validation/version/state/lease checks. Session-derived actor, before/after and note are audited atomically; no client actor override. No new job kind or job receipt is invented for these short transactions.
+Both period actions reject a known broken audit chain / integrity read-only state with 422/ERR-090 before any new mutation (doc 12 §3); reading historical receipts does not repair or bypass it. Both period actions arbitrate against active/queued period-affecting jobs or another write lease. Busy → ERR-092; a job checks period/version again at its eventual write boundary. Zero side effects on failed validation/version/state/lease checks. Session-derived actor, before/after and note are audited atomically; no client actor override. No new job kind or job receipt is invented for these short transactions.
 
 ### 7.1 POST `/projects/sample`
 - **Auth / scope:** app-scoped, token and exact Host/Origin required; no selected project. The literal `sample` route is registered before `/{id}`. Idempotency-Key required, installation-scoped as §6.0.
@@ -308,7 +308,7 @@ Both period actions arbitrate against active/queued period-affecting jobs or ano
 - **Auth / scope:** token + matching project header; path `id`: ProjectId, `period_id`: PeriodId; check composite ownership.
 - **Request:** PeriodStartClose (§7.0); no query. No implicit current period, forced status or client timestamp.
 - **Response:** 200 ClosingPeriod; state open→closing and version +1, task initialisation/audit atomic (§7.0). Imports into closing remain permitted with the doc-23 banner. Merely opening S16/reading GET close must not start this action.
-- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
 - **Failure details:** ERR-016 details are `{state:<actual>,action:"start_close"}`.
 - **Pagination:** none.
 - **Idempotency:** optional key under §1.3; successful replay returns the original ClosingPeriod, no second template or audit. Without a key this is not repeat-safe as a successful action: a fresh request must meet state/version guards.
@@ -318,7 +318,7 @@ Both period actions arbitrate against active/queued period-affecting jobs or ano
 - **Auth / scope:** token + matching project header; `id`: ProjectId; `period_id`: PeriodId. Not a direct update to a status string.
 - **Request:** PeriodUnlock (§7.0); no query; a nonblank explanatory note is mandatory even if there are no findings or the project is a sample.
 - **Response:** 200 ClosingPeriod, locked→closing, version +1, baseline capture + RESTATE_OPEN audit as §7.0. Old locked_at/lock_note survive in history only, not as misleading current metadata. This response makes no claim that doc-41 impact review or re-lock is complete.
-- **Failures:** 400 ERR-002/ERR-005/ERR-015; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failures:** 400 ERR-002/ERR-005/ERR-015; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
 - **Failure details:** ERR-015 details `{action:"unlock"}`; ERR-016 `{state:<actual>,action:"unlock"}`. Failure to retain the immutable baseline is ERR-099 (or ERR-093 for storage failure), with the period still locked.
 - **Pagination:** none.
 - **Idempotency:** optional key; one transition/baseline/audit. Same-key replay precedes business state/version checks but not auth/ownership; a new/no-key request against open/closing is ERR-016 if its version is current (otherwise ERR-003).
