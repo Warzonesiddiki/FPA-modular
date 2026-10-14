@@ -1,5 +1,9 @@
 # Documentation Changelog (newest first)
 
+## 2026-10-14 (i) — DEC-021 impact review transport (WI-0001 in progress)
+- Specify immutable baseline/report/approval bindings, six scoped endpoints, paged monetary/finding/stale-forecast/superseded-report changes, currentness/invalidation and durable replay. No lock note or boolean replaces impact approval; report generation does not stale its checked pack.
+- Align docs 30/41/24/90, add cookbook examples and register independent document tests. Product code/SQL/original tests frozen; persistence/manifest ownership remains unfinished, no WI/gate completed.
+
 ## 2026-10-14 (h) — DEC-020 close review and lock contracts
 - Verified checkpoint: 108 new close-contract tests; full **394 passing** (385 docs + 9 unchanged product), including three additional caught mutations. Evidence: `evidence/WI-0001_close_contract_2026-10-14.md`. WI-0001 remains in progress.
 - Resolve T-09/T-10 self-dependency, limit overrides to explicit soft checks, bind immutable sign-off to reviewed snapshot/audit/blocker identities, and specify three readiness/sign-off/lock endpoints. No unchecked generic override can bypass integrity/restatement review.

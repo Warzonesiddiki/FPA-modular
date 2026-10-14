@@ -378,3 +378,10 @@ FILES TOUCHED: docs 02/05/17/19/21/22/23/24/30/41/63/90/CHANGELOG, shared schema
 DEVIATIONS: DEC-020; docs-first 2b8162a, refinement 6e5ad92. 239 definitions / 18 jobs / 76 errors, three new endpoint contracts; no new WI, dependency, bar or gate change. Regeneration repeat-identical, 267 identities stable, 7/7 gate texts equal. Old zero-count/unbounded ERR-011 corrected, not a new code.
 DECISIONS TAKEN: DEC-020 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before a real tenant pilot.
 NEXT: impact generation/approval fields/transport; task/calendar/template/history contracts; backup/restore safety; remaining endpoint families; persistence/coordination ownership in plan. Exact gaps in evidence §4. **WI-0001 in_progress; 0/30 done; M0 open.**
+
+
+## WI-0001 continuation — impact review transport, 2026-10-14
+STATUS: in_progress; M0 open, 0/30 complete.
+BASELINE: clean assigned branch arena/5165fe46-fpa-modular at merge 4257b5a; ignored .venv installed from pinned requirements; full suite 394 passed in 11.94s before edits. No checker exists.
+CONTRACT: DEC-021, docs 05 §9 / 41 §6: six scoped endpoints; immutable baseline/current pack/report/approval; paged typed changes; explicit human attest+note; exact cycle/version/manifest binding and permanent input-change invalidation. No generation-induced financial staleness or implicit sign-off/lock. Product remains frozen; persistence ownership/schema verification still unfinished.
+NEXT: independent test-first fixtures, missing-contract red, schema implementation, adversarial verification and exact evidence. This is not WI completion.

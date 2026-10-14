@@ -638,3 +638,191 @@ POST `/projects/prj_9f2c41aa07e1/periods/2026-P01/lock`:
 ```
 
 Period is now locked/version 3, dates/created_at preserved, lock_note null because no override was requested. A same-key replay is historical; a fresh key against locked state fails ERR-016. A project mutation between review/sign-off/lock makes the review stale (ERR-080), even if counts happen to remain equal. A lock note alone cannot satisfy a reopened period's current impact approval (ERR-083). Missing force note → ERR-015; force+note still cannot override TB, audit, missing/current sign-off, stale forecast or impact review.
+
+
+## 11. Restatement impact (DEC-021, doc 05 §9)
+Synthetic illustrative values, not sample-corpus expectations. All calls use X-FPA-Token, X-FPA-Project: prj_000000000001 and the permitted Host/Origin. Both POSTs require distinct Idempotency-Key values. No caller-supplied actor/time or arbitrary path. Snapshot hashes illustrate immutable references, not files proved present.
+
+### 11.1 Read context — GET /projects/prj_000000000001/periods/2026-P01/restatement
+<!-- schema: RestatementState -->
+```json
+{
+  "project_id": "prj_000000000001",
+  "period_id": "2026-P01",
+  "period_version": 4,
+  "period_status": "closing",
+  "baseline": {
+    "baseline_id": "baseline_1",
+    "project_id": "prj_000000000001",
+    "period_id": "2026-P01",
+    "unlock_version": 4,
+    "before_snapshot": {
+      "snapshot_id": "snapshot_old",
+      "batch_watermark": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "budget_version": "budget_1",
+      "forecast_run_id": "forecast_old",
+      "layer": "gl"
+    },
+    "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "locked_at": "2026-10-13T10:00:00Z",
+    "lock_note": null,
+    "signoff_id": "signoff_old",
+    "opened_at": "2026-10-14T10:00:00Z",
+    "reason": "Correct April source data."
+  },
+  "current_impact_id": "impact_1",
+  "current_approval_id": "approval_1"
+}
+```
+
+### 11.2 Generate — POST /projects/prj_000000000001/periods/2026-P01/impacts
+<!-- schema: ImpactCreate -->
+```json
+{
+  "expected_version": 4,
+  "baseline_id": "baseline_1",
+  "after_snapshot_id": "snapshot_new"
+}
+```
+<!-- schema: ImpactReport -->
+```json
+{
+  "impact_id": "impact_1",
+  "project_id": "prj_000000000001",
+  "period_id": "2026-P01",
+  "period_version": 4,
+  "baseline_id": "baseline_1",
+  "before_snapshot": {
+    "snapshot_id": "snapshot_old",
+    "batch_watermark": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "budget_version": "budget_1",
+    "forecast_run_id": "forecast_old",
+    "layer": "gl"
+  },
+  "after_snapshot": {
+    "snapshot_id": "snapshot_new",
+    "batch_watermark": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "budget_version": "budget_1",
+    "forecast_run_id": "forecast_new",
+    "layer": "gl"
+  },
+  "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "after_manifest_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "changes_sha256": "33c44dcb8e226601ae3e97038099c0c7449f444f2f766dc6808dea82a1d92788",
+  "counts": {
+    "statement": 1,
+    "bva": 1,
+    "finding": 1,
+    "forecast": 1,
+    "report": 1
+  },
+  "created_at": "2026-10-14T10:00:00Z"
+}
+```
+
+### 11.3 Read all changes — GET /impacts/impact_1/changes?limit=100
+<!-- schema: ImpactChangePage -->
+```json
+{
+  "items": [
+    {
+      "kind": "bva",
+      "key": "9ef09f801c999309e27505529401bb4b4fa9b8cf1664356368546201cbd06b56",
+      "statement": null,
+      "line_key": null,
+      "entity_id": "entity_1",
+      "account_id": "account_rev",
+      "cost_centre_id": null,
+      "measure": "var_abs",
+      "before": {
+        "value": "20.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_before_var"
+      },
+      "after": {
+        "value": "45.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_after_var"
+      },
+      "delta": "25.00"
+    },
+    {
+      "kind": "finding",
+      "key": "0a465cecc4adc7c0a5b06d355ba5d040b8f4ef9c2b67f4685450719e9c04b646",
+      "finding_key": "EXC-001|2026-P01|entity_1|account_rev",
+      "change": "added",
+      "before_finding_id": null,
+      "after_finding_id": "finding_1",
+      "before_sha256": null,
+      "after_sha256": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+    },
+    {
+      "kind": "forecast",
+      "key": "097b0ad9859571649cfb6e4a5d0bc23c922d93ea9059e45891706ea9053be259",
+      "run_id": "forecast_old",
+      "change": "stale"
+    },
+    {
+      "kind": "report",
+      "key": "6192b8cfd7fb481ba1bdf852902fa823c254169cf71cbb729fc460d6e1c996ab",
+      "report_id": "report_old",
+      "change": "superseded"
+    },
+    {
+      "kind": "statement",
+      "key": "8bf8c7b69568387a8f45109eff5238dd65bfd78c1a030fef29578794d0841fdc",
+      "statement": "pl",
+      "line_key": "rev",
+      "entity_id": null,
+      "account_id": null,
+      "cost_centre_id": null,
+      "measure": "amount",
+      "before": {
+        "value": "100.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_before_rev"
+      },
+      "after": {
+        "value": "125.00",
+        "unavailable_reason": null,
+        "drill_key": "drill_after_rev"
+      },
+      "delta": "25.00"
+    }
+  ],
+  "next_cursor": null
+}
+```
+
+### 11.4 Approve — POST /impacts/impact_1/approve
+<!-- schema: ImpactApprovalCreate -->
+```json
+{
+  "expected_version": 4,
+  "signer": "Controller",
+  "attest": true,
+  "note": "Reviewed correction against the original pack."
+}
+```
+<!-- schema: ImpactApproval -->
+```json
+{
+  "approval_id": "approval_1",
+  "project_id": "prj_000000000001",
+  "period_id": "2026-P01",
+  "period_version": 4,
+  "impact_id": "impact_1",
+  "baseline_id": "baseline_1",
+  "before_snapshot_id": "snapshot_old",
+  "after_snapshot_id": "snapshot_new",
+  "before_manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "after_manifest_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "changes_sha256": "33c44dcb8e226601ae3e97038099c0c7449f444f2f766dc6808dea82a1d92788",
+  "signer": "Controller",
+  "attestation_text": "I reviewed the restatement impact for 2026-P01 and approve these changes",
+  "note": "Reviewed correction against the original pack.",
+  "at": "2026-10-14T10:00:00Z"
+}
+```
+
+POST responses are 201; GET responses 200. §11.1 illustrates the state after §11.4, not permission to skip generation. GET /impacts/impact_1 and GET /impact-approvals/approval_1 return exactly these historical objects even after lock. Re-read readiness after approval, sign off, then re-read readiness again before lock. A second unlock/version change or changed financial manifest makes current ids null; the immutable history is unchanged. A well-shaped attempt to approve an old report fails 422 ERR-083 with {"reason":"approval_note_required"}; a null/blank note fails 400 ERR-002. Same-key replay can return an old success without restoring authority. Empty impact is counts all zero, changes_sha256=SHA256([]), and an empty page; it still needs explicit approval.

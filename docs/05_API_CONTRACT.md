@@ -169,7 +169,7 @@ These three complete transport contracts use doc 64's closed result union; they 
 - **Example:** running non-cancellable commit → 200 `{"job_id":"job_commit_0001","status":"running","cancel_requested":false,"cancellable":false}`. Queued cancellation → 200 `{"job_id":"job_commit_0001","status":"cancelled","cancel_requested":true,"cancellable":false}`; a repeated request after that returns cancelled with both flags false.
 
 ## 6. Health, project metadata and fiscal-year materialisation (DEC-017)
-These seven endpoint sections replace the corresponding shorthand in §2. Sample workspace/deletion/start-close/unlock are expanded in §7; backup/restore and impact generation/approval still require expansion (lock/sign-off: §8); §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
+These seven endpoint sections replace the corresponding shorthand in §2. Sample workspace/deletion/start-close/unlock are expanded in §7; backup/restore still requires expansion (lock/sign-off: §8; impact review: §9); §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
 
 ### 6.0 Field contracts and shared behaviour
 All properties are required unless explicitly optional; nullable properties must be present. All objects are closed. Dates are validated Gregorian `YYYY-MM-DD`; timestamps use §1.3 UTC Z. No money fields occur here; any reachable error money remains a decimal string. No ledger rows, filesystem paths, connection profiles or credentials are exposed by these DTOs.
@@ -261,7 +261,7 @@ App-scoped project-creation receipts are scoped to **installation + method + can
 - **Example:** GET `/api/v1/projects/prj_9f2c41aa07e1/periods/2026-P01` → 200 the complete April Period in doc 63 §8. A future non-materialised FY returns 404, not zero balances.
 
 ## 7. Sample, deletion and entering/reopening close (DEC-018)
-These four endpoint contracts extend §6; they are documentation, not implemented runtime routes. Lock/sign-off are expanded in §8; impact generation/approval and backup/restore remain WI-0001 work. The schema attachment owns closed DTOs; the behavioural rules below are mandatory M1/M3 tests, not something JSON Schema proves.
+These four endpoint contracts extend §6; they are documentation, not implemented runtime routes. Lock/sign-off are expanded in §8; impact review is expanded in §9; backup/restore remains WI-0001 work. The schema attachment owns closed DTOs; the behavioural rules below are mandatory M1/M3 tests, not something JSON Schema proves.
 
 ### 7.0 Fields, sequencing and lifecycle rules
 All properties are required. Shared ProjectName/ProjectId/Period/PeriodNote/Timestamp types are §6.0. No financial amounts occur in these metadata DTOs; reachable error money stays decimal strings. Input objects reject unknown fields; client actor, timestamps, project paths, sample flags and server revision overrides are never accepted.
@@ -325,7 +325,7 @@ Both period actions reject a known broken audit chain / integrity read-only stat
 - **Example:** locked `2026-P01`, version 3; POST `{"expected_version":3,"note":"Re-import the corrected April ledger; approved by the controller."}` → 200 the version-4 ClosingPeriod in doc 63 §9. It is not version 1 and never silently returns open.
 
 ## 8. Close readiness, sign-off and lock (DEC-020)
-These three contracts extend §7; product code remains frozen. Task/calendar/template editing and impact generation/approval APIs remain incomplete. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
+These three contracts extend §7; product code remains frozen. Task/calendar/template editing remains incomplete; impact review is specified in §9. Docs 30 §6–§7 and 41 §2 own guards. All objects are closed, all fields required (including nullable fields). No body field can set actor, server time, chosen state or a system task's completion. No money is calculated here; reachable errors retain decimal-string money.
 
 ### 8.0 Fields, review token and common sequencing
 | Definition | Fields |
@@ -374,3 +374,65 @@ Mutations: §1.2 auth/ownership and strict syntax → same-key receipt/conflict 
 - **Pagination:** none; one period. Finding details are bounded diagnostics, not a resource-list substitute.
 - **Idempotency:** required; same-key replay returns the old locked response after restart or later unlock; a fresh key against locked state fails ERR-016. Re-read current Period before another mutation.
 - **Example:** doc 63 §10.3.
+
+
+## 9. Restatement impact review (DEC-021)
+Document contracts, not runtime evidence. Doc 41 §6 owns comparison/freshness semantics; doc 24 §4 owns immutable financial manifests. **No client boolean, lock note or historical approval authorises re-lock.** All routes require the token, exact Host/Origin and X-FPA-Project; every period, baseline, snapshot, impact and approval id is checked in that project, and in the selected period where applicable, before state disclosure. No filesystem paths, external networking, AI approval or financial recomputation on GET. All fields below are required, including nulls; all objects are closed. Money = Money strings via core/money, never JSON numbers.
+
+### 9.0 Fields and ownership
+| Definition | Fields / constraints |
+|---|---|
+| RestatementBaseline | baseline_id: Id; project_id: ProjectId; period_id: PeriodId; unlock_version: integer ≥2; before_snapshot: SnapshotRef; before_manifest_sha256: Sha256; locked_at: Timestamp; lock_note: PeriodNote or null; signoff_id: Id or null (legacy lock only); opened_at: Timestamp; reason: PeriodNote. Immutable, captured in the unlock transaction from the last lock's retained snapshot, never reconstructed from corrected current data. Missing reproducible snapshot fails unlock atomically (ERR-099). |
+| RestatementState | project_id; period_id; period_version: integer ≥1; period_status: open/closing/locked; baseline: RestatementBaseline or null; current_impact_id: Id or null; current_approval_id: Id or null. Baseline is the latest retained unlock cycle, including while locked. Current ids are null outside closing or when stale; approval id requires current impact id. No baseline → both ids null. Never infer current authority from baseline/history alone. |
+| ImpactCreate | expected_version: integer ≥2; baseline_id: Id; after_snapshot_id: Id. Baseline must be this cycle; after snapshot must be the current checked pack snapshot (not an arbitrary historical selector). |
+| ImpactCounts | statement, bva, finding, forecast, report: integers ≥0 (exact row counts for the five change categories, not a truncated sample). |
+| ImpactReport | impact_id: Id; project_id; period_id; period_version: integer ≥2; baseline_id: Id; before_snapshot, after_snapshot: SnapshotRef; before_manifest_sha256, after_manifest_sha256: Sha256; changes_sha256: Sha256; counts: ImpactCounts; created_at: Timestamp. Immutable metadata; details use the paged route below, never unbounded arrays. before snapshot/hash equals baseline, after matches checked pack. Both snapshots have the same project/period/layer. Report creation does not bump period.version. |
+| ImpactValue | value: Money or null; unavailable_reason: absent/not_available or null; drill_key: Id or null. value non-null requires reason=null and non-null drill_key; null value requires non-null reason and null drill_key. absent means no row in that snapshot, not zero; not_available means a retained labelled unavailable comparator. Drill tokens bind the snapshot and owning project, not live current rows. Explicit zero is a real value with a drill to no-activity explanation. |
+| ImpactMoneyChange | kind: statement/bva; key: Id; statement: pl/bs/cf or null; line_key: Id or null; entity_id, account_id, cost_centre_id: Id or null; measure: amount/actual/budget/forecast/py/var_abs; before, after: ImpactValue; delta: Money or null. statement requires statement+line_key, null grain fields and measure=amount (project total); bva requires statement=line_key=null, non-null entity/account, optional-null cost centre and non-amount measure. delta = after − before in **presented units**, null iff either side unavailable. No percentage/favourability inference from delta. |
+| ImpactFindingChange | kind: literal finding; key: Id; finding_key: string 1..512, no ASCII controls; change: added/removed/changed; before_finding_id, after_finding_id: Id or null; before_sha256, after_sha256: Sha256 or null. added has only after; removed only before; changed has both and differing business-state hashes. No deletion of live/historical finding records is implied by removed. |
+| ImpactForecastChange | kind: literal forecast; key: Id; run_id: Id; change: literal stale. One row per run invalidated by changed inputs since the baseline; generation itself does not stale any run. |
+| ImpactReportChange | kind: literal report; key: Id; report_id: Id; change: literal superseded. One row per prior export for this period/layer whose manifest was replaced by the after snapshot; keep prior files and source refs. Current checked-pack exports are not superseded by impact creation. |
+| ImpactChange | Closed union of ImpactMoneyChange, ImpactFindingChange, ImpactForecastChange, ImpactReportChange. Keys and comparison rules: doc 41 §6. |
+| ImpactChangeQuery | optional kind: statement/bva/finding/forecast/report; optional limit integer 1..1000 (default 100); optional cursor: PageCursor. No other parameters. |
+| ImpactChangePage | items: ImpactChange array, 0..1000; next_cursor: PageCursor or null. At most requested limit, stable ordering (kind,key); cursor binds project, impact_id, changes_sha256, kind and limit. Details are immutable: later project changes do not invalidate this traversal. |
+| ImpactApprovalCreate | expected_version: integer ≥2; signer: ProjectName syntax (display label, not authenticated actor); attest: literal true; note: PeriodNote (required, nonblank). |
+| ImpactApproval | approval_id: Id; project_id; period_id; period_version: integer ≥2; impact_id; baseline_id; before_snapshot_id, after_snapshot_id: Id; before_manifest_sha256, after_manifest_sha256, changes_sha256: Sha256; signer: ProjectName; attestation_text: exact server string `I reviewed the restatement impact for <period_id> and approve these changes`; note: PeriodNote; at: Timestamp. All binding fields copied from the immutable report, not supplied by the client. Human attestation only; actor from local shell context in audit. Immutable and historical after staleness. |
+
+Changes hash = SHA256 of the UTF-8 canonical JSON array of all ImpactChange rows sorted by (kind,key), using §8.0 canonical encoding. Empty array uses the same hash as empty blockers. Compute incrementally; do not load an entire ledger merely to return a page. Counts exactly partition that array. Server-assigned key = SHA256 of the canonical JSON identity tuple in doc 41 §6 (64 lowercase hex, a subset of Id); unique within a report. Hashes are integrity/concurrency evidence, not authentication. Arithmetic, cross-field equality, ownership, counts, sorting, hashing, currency exponent, and actual currentness are runtime checks beyond JSON Schema.
+
+Write sequence: auth/ownership and strict syntax → durable same-key receipt/conflict → expected period version (ERR-003) → closing state (ERR-016), known integrity failure (ERR-090), incompatible job/write/lifecycle lease (ERR-092, excluding own lease) → cycle/pack/manifest checks → atomic publish with audit and receipt. No partial report/pages/approval survives failure. Period-affecting jobs cannot race publication; all input checks repeat inside the project write boundary. Frozen inputs may be compared outside that boundary, but a changed context fails before publication. Period version alone is insufficient for this fence. No forecast/export job starts implicitly.
+
+Current impact requires **all**: closing period, same project/period and unlock cycle, same period revision, before snapshot/hash equals baseline, after snapshot/hash equals current financial manifest and current checked pack. Of qualifying reports choose greatest (created_at,impact_id). Current approval requires that exact current report, identical bindings and a nonblank note; choose greatest (at,approval_id). Publishing another impact replaces the current choice even for identical inputs; previous approvals remain history. A new approval or sign-off audit event is NOT a financial input change. Financial changes invalidate current impact/approval even if batch_watermark is unchanged. Conservative v1: once an input-affecting mutation occurs after report creation, that report never becomes current again even if values later revert; regeneration and approval are required. Persist this invalidation; do not rely only on a hash equality after rollback. Locked approvals remain readable, never permission for another cycle.
+
+### 9.1 GET `/projects/{id}/periods/{period_id}/restatement`
+- **Request:** no body/query. **Response:** 200 RestatementState; null baseline for a never-reopened period. GET creates nothing and projects currentness from trusted retained state.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none, one bounded context. **Idempotency:** read-only, no key. **Example:** doc 63 §11.1.
+
+### 9.2 POST `/projects/{id}/periods/{period_id}/impacts`
+- **Request:** ImpactCreate, no query. **Response:** 201 ImpactReport. Synchronously compares already-retained before/current pack snapshots, streaming pages internally; it does not recalculate financial engines or render files. Publish report, immutable changes, IMPACT_GENERATE audit and durable receipt atomically. This is not a job acceptance or a new doc-64 job kind.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-080/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failure details:** ERR-016 action=generate_impact; no active baseline/old same-period baseline → ERR-080 blockers=[restatement_review]; stale supplied snapshot → ERR-080 blockers=[review_changed]; absent/stale/unchecked pack → ERR-080 blockers=[board_pack]; obsolete forecast → ERR-080 blockers=[forecast]. Check in that order after common guards. No sign-off/lock/impact-approval prerequisite: those are downstream. Missing retained baseline content is an integrity/storage failure, never an empty successful comparison.
+- **Pagination:** metadata only; changes via §9.4. **Idempotency:** required §1.3; same key returns historical response without recomputing; fresh key creates a new immutable report. **Example:** doc 63 §11.2.
+
+### 9.3 GET `/impacts/{id}`
+- **Request:** no body/query. **Response:** 200 ImpactReport (historical even if no longer current). Missing/foreign impact is ERR-001.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §11.2's response, unchanged after approval/lock.
+
+### 9.4 GET `/impacts/{id}/changes`
+- **Request:** no body, ImpactChangeQuery. **Response:** 200 ImpactChangePage. Filter kind before paging, never omit changes because a threshold was not met. Empty diff returns empty page, not no report. Cursor/project/report/filter/limit mismatch → ERR-002; no revision conflict for immutable rows. Historical source drill must use the row's frozen snapshot token.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** §9.0; no unbounded nested findings/transactions. **Idempotency:** read-only, no key. **Example:** doc 63 §11.3.
+
+### 9.5 POST `/impacts/{id}/approve`
+- **Request:** ImpactApprovalCreate, no query. UI must display the report and attestation before explicit human approval. A caller-supplied actor, snapshot, impact_approved or force field is ERR-002.
+- **Response:** 201 ImpactApproval; record + IMPACT_APPROVE audit + durable receipt in one transaction; no period version increment, sign-off, lock, financial invalidation or automatic pack generation. Re-read close readiness after approval before signing.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 409 ERR-003/ERR-016; 422 ERR-083/ERR-090; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Failure details:** ERR-016 action=approve_impact; missing/null/blank/wrong-type note or attest!=true → ERR-002 (not unlock's ERR-015). Well-shaped approval of a stale/not-current report or cycle → ERR-083 reason=approval_note_required. A retained report id is not enough. Same-key historical replay remains success but does not restore current authorisation.
+- **Pagination:** none. **Idempotency:** required §1.3; a new key may record another reviewed attestation for the still-current report, preserving earlier rows. **Example:** doc 63 §11.4.
+
+### 9.6 GET `/impact-approvals/{id}`
+- **Request:** no body/query. **Response:** 200 ImpactApproval; readable history, never an implicit current=true assertion. Use §9.1 for currentness.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-093.
+- **Pagination:** none. **Idempotency:** read-only, no key. **Example:** doc 63 §11.4's immutable response.
