@@ -19,8 +19,8 @@ Why local FastAPI, not direct file access from UI (ADR-003): one contract (doc 0
 | Module | Owns | Must never |
 |---|---|---|
 | `app/core/money.py` | All money parse/format/round/allocate | Be bypassed (AST/static check in scripts/check) |
-| `app/core/*` | errors, calendar, ids, hashing, audit, config, logging | Import from engine modules (core depends on nothing app-level) |
-| `app/store/*` | Persistence only (parameterised SQL, dataclasses out); db.py owns transaction/revision/invalidation primitives; report_repo owns retained binding/impact rows; forecast_repo owns forecast bindings (24 §5) | Contain financial classification/formulas, commit independently of the caller, or accept client revision/effect assignments |
+| `app/core/*` | errors, calendar, ids, hashing (including doc-24 §6 canonical source codec), audit, config, logging | Import from engine modules (core depends on nothing app-level) |
+| `app/store/*` | Persistence only (parameterised SQL, dataclasses out); db.py owns transaction/revision/invalidation primitives; report_repo owns retained binding/impact/source-image rows (24 §6); forecast_repo owns forecast bindings (24 §5) | Contain financial classification/formulas, commit independently of the caller, or accept client revision/effect assignments |
 | `app/imports/*` | Parse→profile→map→validate→commit pipeline | Write GL rows except via commit.py |
 | `app/connectors/*` | Dynamics 365 pull: Entra ID auth (msal), allow-listed HTTPS transport (httpx), OData/BC API paging, profile entity check, deterministic snapshot workbook (doc 26 §8) | Touch the store except `connector_pulls`/`connector_profiles` via the service; write `gl_rows` or staging tables (it produces a *file* that `app/imports` ingests); hold a token anywhere but the OS keyring; call any host outside the allow-list |
 | `app/calc/*` | Statements, KPI, BvA, bridge, drilldown (pure over store reads) | Write anything |

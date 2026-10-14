@@ -7,3 +7,5 @@
 5. **Sample project** is regenerated, never migrated (flag `is_sample` → rebuild on version change).
 
 6. **DEC-023 revision/retention migration:** doc 02 delta 16 creates input counters at 1, not fresh evidence. Never synthesise old snapshot/forecast/impact/approval bindings from live data. Unbound old objects stay historical/stale; preserve their audit/data, require regeneration and explicit review for current close. Mark unbound T-04 stale in the migration transaction. Restoring older counters needs the separately specified external restore epoch; migration success alone is not rollback fencing. Authentic legacy baseline/calendar repair remains WI-0001 work.
+
+7. **DEC-024 source codec migration:** delta 17 adds immutable retained_source_rows. Preserve fpa-source-v1 bytes/hash semantics; do not backfill historical rows or provenance from current data. A new codec needs a new identifier and retained old decoder; schema migration cannot make missing legacy content authentic.

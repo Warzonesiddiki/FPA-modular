@@ -426,3 +426,10 @@ FILES TOUCHED: docs 02/04/05/17/24/30/41/61/86/90/CHANGELOG; schema; new tests/d
 DEVIATIONS: DEC-023 docs-first dc15d23/b9f36cf/ddd2fd2. 9 new definitions, all 276 previous definitions/top-level metadata unchanged. 267 WI identities stable; WI-0152 adds report_repo/forecast_repo dependencies. M1 gate delta coverage strengthens 1–15→1–16, other clauses/gates preserved; seven gate texts match doc 86; regeneration byte-identical.
 DECISIONS TAKEN: DEC-023 (auto) · OWNER-ONLY ITEMS: none for this scope.
 NEXT: still WI-0001: full snapshot/view/finding codecs and retained drill, exact statement/viewer/layer fingerprint and authentic legacy repair, project lifecycle/receipt coordinator/control-plane schema and safe backup/restore epoch fencing, remaining endpoint families/annual planning/doc-90 migration. Exact continuation: evidence §4. **M0 open (0/8), batch 0/30 complete.**
+
+
+## WI-0001 continuation — retained source-row codec, 2026-10-15
+STATUS: in_progress; M0 open (0/8); batch 0/30 complete.
+BASELINE: clean assigned branch at a082578; `.venv/bin/python -m pytest -q` → 867 passed in 20.91s. No checker exists.
+CONTRACT: DEC-024 docs 02 §5.2 / 24 §6 / 05 §11.1: exact retained GL/adjustment images, original file/generated provenance, connector content hash distinct from workbook byte hash, strict versioned canonical bytes, immutable project-scoped row storage. Separate internal integer-money schema; public transport unchanged. No complete snapshot/view/finding or lifecycle claim.
+NEXT: independent fixtures and meaningful red before the internal schema; mutations/edges/full verification and evidence; remain on WI-0001.

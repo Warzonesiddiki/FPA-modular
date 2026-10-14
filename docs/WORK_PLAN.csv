@@ -1,5 +1,5 @@
 id,path,layer,milestone,depends_on,read_first,tests
-WI-0001,docs/05_API_CONTRACT.md,docs0,M0,,"docs/05 (current), docs/90, docs/63, docs/22, docs/02",tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py; tests/docs/test_api_task_contract.py; tests/docs/test_api_revision_contract.py
+WI-0001,docs/05_API_CONTRACT.md,docs0,M0,,"docs/05 (current), docs/90, docs/63, docs/22, docs/02",tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py; tests/docs/test_api_impact_contract.py; tests/docs/test_api_task_contract.py; tests/docs/test_api_revision_contract.py; tests/docs/test_api_source_contract.py
 WI-0002,docs/21_SCREEN_SPEC_DETAILED.md,docs0,M0,WI-0001,"docs/21, docs/13, docs/53, docs/54, docs/57, docs/05, docs/90",-
 WI-0003,docs/44_RULE_ALGORITHMS_DETAILED.md,docs0,M0,,"docs/44, docs/07, docs/42 §7, docs/62",-
 WI-0004,docs/03_CALCULATION_SPEC.md,docs0,M0,,"docs/03, docs/45, docs/38, docs/43, docs/89",-

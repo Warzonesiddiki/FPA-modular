@@ -51,3 +51,7 @@ Doc 05 §10 owns eight endpoint/field contracts; doc 30 §§8–9 owns editing, 
 
 ## Internal persistence-fence schemas (DEC-023; not HTTP request bodies)
 Docs 02 §5.1 / 24 §5 own InputRevisions, InputRevisionAdvance, SnapshotInputBinding, ForecastInputBinding, InputInvalidation, RetainedBaselineRecord, RetainedImpactRecord, RetainedImpactChange and RetainedApprovalRecord in the existing schema attachment. These closed record schemas reuse §§8–9 DTOs; no client may assign counters/effects. Full snapshot content/manifest codec schemas are still required before WI-0001 sign-off.
+
+
+## Internal retained source codec index (DEC-024)
+`retained_source_schemas.json` is separate from public HTTP schemas: RetainedFileOrigin, RetainedGeneratedOrigin, RetainedGLRow, RetainedAdjustmentRow, RetainedSourceImage, RetainedSourceRecord; supporting RetainedText/RetainedMinorUnits and shared primitive constraints. Fields/storage: doc 02 §5.2. Exact canonical bytes/hash/origin and access obligations: doc 24 §6. It is not a public SourceRow or complete snapshot/view codec.
