@@ -410,3 +410,10 @@ FILES TOUCHED: docs 02/05/17/19/22/23/24/30/48/62/63/86/90/CHANGELOG; schema; ne
 DEVIATIONS: DEC-022 docs-first 58759fc/e17e96c/44bef75. 22 new definitions, all 254 prior definitions unchanged; 267 WI identities stable. WI-0152 now explicitly depends on WI-0001/0050/0031. M1 gate only strengthens delta coverage 1–14→1–15, other clauses/gates retained and equal to doc 86; plan regeneration byte-identical.
 DECISIONS TAKEN: DEC-022 (auto) · OWNER-ONLY ITEMS: none for this scope; Entra setup only before real tenant pilot.
 NEXT: still WI-0001: complete retained statement/financial manifests, impact storage/invalidation and legacy repair, project lifecycle/receipt coordination; then backup/restore and remaining endpoint families including annual planning/doc-90 migration. Exact gaps in evidence §4. **M0 open (0/8), batch 0/30 complete.**
+
+
+## WI-0001 continuation — durable input revision/impact records, 2026-10-15
+STATUS: in_progress; M0 open (0/8); batch 0/30 complete.
+BASELINE: clean assigned branch at 6d68929; `.venv/bin/python -m pytest -q` → 694 passed in 21.18s before edits. No checker exists.
+CONTRACT: DEC-023 docs 02 §5 / 24 §5 / 05 §11: trusted three-domain effect union, one atomic advance per input command, permanent first impact invalidation, statement-only stale marks, immutable baseline/impact/change/approval records with typed bindings. Correct watermark-only cache contradiction. Full snapshot/view/finding codecs, legacy repair and project lifecycle/receipts/restore epoch remain explicit open scope.
+NEXT: write independent document fixtures/model oracles before schemas, run red, implement closed layouts, adversarial verification and evidence. No product code or WI completion.

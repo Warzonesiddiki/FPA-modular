@@ -47,3 +47,7 @@ Doc 05 §9 owns fields/methods/status/errors, doc 41 §6 comparison semantics. A
 
 ## Close task/calendar/template/history index (DEC-022)
 Doc 05 §10 owns eight endpoint/field contracts; doc 30 §§8–9 owns editing, dates and evidence rules. Attachment definitions: CloseTaskKey, CloseTaskStatus, CloseCalendarRules, CloseTemplateEntry, CloseTemplatePut, CloseTemplate, CloseCalendar, CloseTaskAttestation, CloseTask, CloseTaskDetails, CloseTaskTransition, CloseTaskUpdate, CloseTaskReview, ClosePeriodQuery, CloseTaskListQuery, CloseTaskPage, CloseTaskCounts, CloseOverview, CloseLockRecord, CloseHistoryItem, CloseHistoryQuery, CloseHistoryPage. CloseTask exposes its exact CloseTaskReview and digest, so T-04 can bind the statements actually displayed. None of the history DTOs authorises current mutation. Runtime guards, storage and business-day arithmetic require their own later tests.
+
+
+## Internal persistence-fence schemas (DEC-023; not HTTP request bodies)
+Docs 02 §5.1 / 24 §5 own InputRevisions, InputRevisionAdvance, SnapshotInputBinding, ForecastInputBinding, InputInvalidation, RetainedBaselineRecord, RetainedImpactRecord, RetainedImpactChange and RetainedApprovalRecord in the existing schema attachment. These closed record schemas reuse §§8–9 DTOs; no client may assign counters/effects. Full snapshot content/manifest codec schemas are still required before WI-0001 sign-off.

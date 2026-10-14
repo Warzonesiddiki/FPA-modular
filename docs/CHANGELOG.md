@@ -1,5 +1,9 @@
 # Documentation Changelog (newest first)
 
+## 2026-10-15 — DEC-023 input revisions and impact persistence (WI-0001 in progress)
+- Replace watermark-only cache authority with statement/forecast/pack revision fences and exact manifest identity; specify union-once atomic invalidation and immutable impact/baseline/approval storage. Derived outputs cannot stale their own inputs.
+- Add doc-02 delta 16 and explicit existing-module ownership/acceptance obligations; strengthen only M1 schema delta coverage. Product/SQL/original tests remain frozen. Full manifest/view/finding codecs and project lifecycle/control-plane/restore fencing remain unfinished.
+
 ## 2026-10-14 (j) — DEC-022 close tasks/calendar/history (WI-0001 in progress)
 - Verified **155 new task document tests; 694 full tests passing** (685 docs + 9 unchanged product), with three new caught mutations and four corrected adversarial failures. Evidence: `evidence/WI-0001_task_contract_2026-10-14.md`. No WI/gate completion or runtime claim.
 - Specify eight routes, future-only template/calendar revisions, guarded human transitions, acyclic scalar dependencies, immutable outcome history and statement-only T-04 binding. Preserve no-writes-on-GET and non-bypassable close guards.

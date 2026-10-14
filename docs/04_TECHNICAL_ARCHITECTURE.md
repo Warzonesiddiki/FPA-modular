@@ -20,7 +20,7 @@ Why local FastAPI, not direct file access from UI (ADR-003): one contract (doc 0
 |---|---|---|
 | `app/core/money.py` | All money parse/format/round/allocate | Be bypassed (AST/static check in scripts/check) |
 | `app/core/*` | errors, calendar, ids, hashing, audit, config, logging | Import from engine modules (core depends on nothing app-level) |
-| `app/store/*` | Persistence only (parameterised SQL, dataclasses out) | Contain business rules |
+| `app/store/*` | Persistence only (parameterised SQL, dataclasses out); db.py owns transaction/revision/invalidation primitives; report_repo owns retained binding/impact rows; forecast_repo owns forecast bindings (24 §5) | Contain financial classification/formulas, commit independently of the caller, or accept client revision/effect assignments |
 | `app/imports/*` | Parse→profile→map→validate→commit pipeline | Write GL rows except via commit.py |
 | `app/connectors/*` | Dynamics 365 pull: Entra ID auth (msal), allow-listed HTTPS transport (httpx), OData/BC API paging, profile entity check, deterministic snapshot workbook (doc 26 §8) | Touch the store except `connector_pulls`/`connector_profiles` via the service; write `gl_rows` or staging tables (it produces a *file* that `app/imports` ingests); hold a token anywhere but the OS keyring; call any host outside the allow-list |
 | `app/calc/*` | Statements, KPI, BvA, bridge, drilldown (pure over store reads) | Write anything |
@@ -35,7 +35,7 @@ Dependency rule: arrows point one way (transport → services → engine → sto
 Files (dropped by the analyst **or** written by the Dynamics 365 connector as a snapshot workbook — the pipeline cannot tell the difference) → staging tables (raw preserved) → validated staging → atomic commit → gl_rows → calc snapshots → rules (findings persisted) → forecast run → export snapshot (report registry stores the exact run/version ids) → files on disk. Every stage writes audit + status; the month-end checklist (S01/S03) is a view over real stage records, resumable after crash at stage granularity.
 
 ## 4. Concurrency & performance posture
-Single user; background jobs for import/rules/forecast/exports behind a job registry with progress + cancel; UI never blocks >100ms on request thread. Budgets in doc 14 §4 (250k rows). No caching layer in v1 except statement snapshot memoisation keyed by (period, batch watermark) — cache invalidation by watermark change only.
+Single user; background jobs for import/rules/forecast/exports behind a job registry with progress + cancel; UI never blocks >100ms on request thread. Budgets in doc 14 §4 (250k rows). No caching layer in v1 except statement memoisation keyed by project/period/layer, durable statement_revision and exact calculation selector/manifest identity (doc 24 §5, DEC-023). Batch watermark alone is forbidden: mappings, adjustments and prior-period inputs can change without it. Reads never repair caches by mutating financial state.
 
 ## 5. Configuration & project layout
 Project folder: `project.db`, `imports/` (original files, hash-named), `exports/`, `backups/`, `logs/`, `settings.json` (non-secret). App install dir holds no user data (upgrade-safe, doc 16). The desktop owns a separate per-user private runtime descriptor `%LocalAppData%/FPA Month-End Copilot/runtime/session.json` (doc 12 §1, DEC-019), never in a project or installer payload; one active desktop/API instance per OS user, with second-launch focus. Settings precedence: project settings > user settings > defaults in config.py; every value validated with plain-language errors.
