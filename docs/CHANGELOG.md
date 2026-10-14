@@ -3,7 +3,7 @@
 ## 2026-10-14 (e) — DEC-017 project/period API contracts (WI-0001 still in progress)
 - Expand seven health/project/period operations in doc 05 §6; move Project/Period field ownership out of doc 90 shorthand. Explicit FY creation, bounded metadata, paged periods, canonical names, currency registry and app-scoped creation receipts.
 - Align docs 02/18/19/27/90/63; document M1 metadata delta 14 and preserve all gate requirements. Existing product code unchanged; sample/delete/backup/restore/transitions and other route families remain incomplete.
-- Extend the existing normative schema attachment and author independent project-contract document tests under WI-0001; no runtime API or gate pass claimed.
+- Keep CreatedProject separate from general Project reads so a creation response cannot impersonate a sample or later metadata revision. Extend the existing normative schema attachment and author independent project-contract document tests under WI-0001; no runtime API or gate pass claimed.
 
 ## 2026-10-14 (d) — WI-0001 shared protocol hardening (DEC-016)
 - Docs 05/12: explicit token/project/Host/Origin rules, safe root OAuth callback exception, paging, monetary boundary types, idempotency, optimistic versions and job lifecycle. Doc 22 adds ERR-006/007/008 (76 total), ERR-046 gains already_consumed; docs 07/19 align suggestion replay and connector lock semantics; doc 26 links the callback security contract.
