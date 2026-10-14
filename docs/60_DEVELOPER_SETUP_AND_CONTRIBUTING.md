@@ -16,3 +16,6 @@ To exercise the connector by hand: `python tools/mock_d365.py --port 8765` then 
 Commit `WI-####: <path>` (the builder) / branch `feat-<slug>` (humans) → spec-first if behaviour changes (doc 17 §6) → tests → `scripts/check.py` → PR with template (87): WI/FR ids, spec sections, tests+output, evidence. Reviews: the self-verification block (doc 34 §1) for the builder; one human reviewer for humans. Main protected: check + acceptance green, no direct pushes.
 ## Repo hygiene
 No real financial data in repo, ever (78). No binaries except installer artefacts in releases. Generated files (`docs/WORK_PLAN.*`, OpenAPI snapshot) changed only via their generators. Scratch work in `scratch/` (gitignored).
+
+## M0 documentation tests (DEC-016; before the product toolchain exists)
+Use Python 3.11+ and `python -m pip install -r tests/docs/requirements.txt`, then `python -m pytest tests/docs -q`. The pinned file includes the JSON Schema validator and its transitive dependencies; these are verification-only, not product runtime dependencies. The schema uses local references only; validation must never fetch a URL. M1 still owns the product pyproject pin/lock correction. Do not run missing M6 gates or treat their absence as a pass.

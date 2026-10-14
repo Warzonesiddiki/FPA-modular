@@ -29,3 +29,5 @@ settings/audit_log *─1 projects
 
 ## 4. Snapshot & reproducibility
 Every report/commentary/forecast stores the ids+hashes of its inputs; "regenerate" on the same snapshot must produce numerically identical output (file bytes may differ only in timestamps, which are listed in the Checks/Sources stamp — acceptance stability bar applies to findings and numbers, doc 14).
+
+DEC-020 close review: snapshot_id resolves the immutable financial input manifest, including used batch hashes, mapping/master versions, selected budget/forecast/layers/adjustments, settings affecting the output, findings and approved commentary. A batch watermark alone cannot prove the pack current after a mapping or commentary change. Close-task completion and CLOSE_SIGNOFF/PERIOD_LOCK events are not financial input changes requiring pack regeneration; their concurrency is instead fenced by the project audit head and doc-05 review token. Sign-off never hashes its own resulting audit hash into its input. The snapshot manifest must retain enough provenance to reproduce the report and the reviewed blocker identities without embedding unbounded IDs in the public readiness DTO.

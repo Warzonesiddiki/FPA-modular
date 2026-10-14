@@ -1,6 +1,6 @@
 # 20 — REQUIREMENTS TRACEABILITY MATRIX
 
-> No orphan anything: every FR ↔ spec section ↔ screen ↔ API ↔ work item ↔ test ↔ acceptance evidence. **Status:** family-level today; the FR-level matrix (one row per FR id of doc 19 → WI id → test) is M0 work item `docs/20_TRACEABILITY_MATRIX.md` in `docs/WORK_PLAN.md`, and `scripts/docs_check.py` regenerates/diffs it from M6. A row with an empty cell blocks release (doc 14 §6). FR id ranges per family: PRJ 001–007 · MDM 001–005 · IMP 001–015 · CAL 001–010 · CLO 001–006 · PLN 001–012 · EXC 001–011 · FOR 001–009 · REC 001–005 · RPT 001–010 · ALR 001–003 · AI 001–006 · GOV 001–009 · HLP 001–003 · PKG 001–003 (doc 19).
+> No orphan anything: every FR ↔ spec section ↔ screen ↔ API ↔ work item ↔ test ↔ acceptance evidence. **Status:** family-level today; the FR-level matrix (one row per FR id of doc 19 → WI id → test) is M0 work item `docs/20_TRACEABILITY_MATRIX.md` in `docs/WORK_PLAN.md`, and `scripts/docs_check.py` checks its planned references in M0 and `scripts/docs_check_release.py` regenerates/diffs its implemented references from M6 (DEC-014). A row with an empty cell blocks release (doc 14 §6). FR id ranges per family: PRJ 001–007 · MDM 001–005 · IMP 001–015 · CAL 001–010 · CLO 001–006 · PLN 001–012 · EXC 001–011 · FOR 001–009 · REC 001–005 · RPT 001–010 · ALR 001–003 · AI 001–006 · GOV 001–009 · HLP 001–003 · PKG 001–003 (doc 19).
 
 | FR family | Spec | Screens | API (doc 05) | Work items (WORK_PLAN layer / paths) | Tests | Acceptance evidence |
 |---|---|---|---|---|---|---|

@@ -5,7 +5,7 @@
 ## 1. Conventions
 - `*_minor` INTEGER NOT NULL: money in minor units. Sign convention: debit positive, credit negative in `gl_rows.amount_minor` (doc 03 owns statement sign presentation).
 - Every user-editable table carries `version INTEGER`, `created_at`, `updated_at` and writes an `audit_log` row on mutation (the actor is recorded in `audit_log.actor`; tables carry `created_by` only where listed below — `adjustments`, `report_definitions`, `close_tasks.completed_by`).
-- Soft-delete only via `is_active=0`; financial rows are never deleted — a batch is superseded (`import_batches.status='superseded'`).
+- Within an active project, soft-delete only via `is_active=0`; financial rows are never deleted — a batch is superseded (`import_batches.status='superseded'`). Explicit whole-project deletion is the separate typed-confirmation/trash/purge operation of doc 12 §2.1, not a row-deletion API (DEC-018).
 
 ## 2. Tables
 
@@ -20,9 +20,12 @@
 | calendar_type | TEXT | `monthly` (v1); `445` reserved |
 | created_at/updated_at | TEXT | UTC |
 | is_sample | INTEGER 0/1 | sample company flagged everywhere |
+| version | INTEGER ≥1 | metadata revision; required by §1 and doc 05 §6 |
 
 ### periods
-| period_id TEXT (`2026-P01`) · project_id FK · fiscal_year INT · period_no INT 1–12 · start_date/end_date DATE · status TEXT `open|closing|locked` · locked_at TEXT NULL · lock_note TEXT NULL · **PK (project_id, period_id)** — period ids repeat across projects, so the key is composite; every FK to a period is logically `(project_id, period_id)` |
+| period_id TEXT (`2026-P01`) · project_id FK · fiscal_year INT · period_no INT 1–12 · start_date/end_date DATE · status TEXT `open|closing|locked` · locked_at TEXT NULL · lock_note TEXT NULL · version INTEGER ≥1 · created_at/updated_at TEXT UTC · **PK (project_id, period_id)** — period ids repeat across projects, so the key is composite; every FK to a period is logically `(project_id, period_id)` |
+
+**Materialisation (DEC-017, doc 05 §6):** Project creation requires an explicit initial fiscal_year; it creates exactly 12 open periods atomically. Later years are explicitly ensured through POST periods (201 new / 200 unchanged); reads never create periods. Full-year creation accepts FY 1..9998; display ids zero-pad the year to four digits. Existing period status and lock history are never reset by ensuring a year.
 
 **Period identity (normative):** `fiscal_year` = calendar year in which the fiscal year *starts*. `period_id = <fiscal_year>-P<period_no 01..12>`; with fy_start_month=4, `2026-P01` = April 2026, `2026-P12` = March 2027. PY of `2026-P01` = `2025-P01`. All docs' examples follow this.
 
@@ -76,7 +79,7 @@ Design point: 250k gl_rows/project/year, 5M lifetime. Indexes: gl_rows(period_id
 
 ## 5. Expansion tables (docs 19/29/30 — same conventions §1; schema.sql must include all)
 - **close_tasks**: task_id PK · project_id · period_id · template_key · title · owner_id NULL · due_offset_days INT · depends_on NULL · kind (`system|attest|manual`) · status (doc 23 §7) · completed_by/at · note.
-- **close_signoffs**: signoff_id PK · project_id · period_id · signer · attestation_text · snapshot_json · at.
+- **close_signoffs**: signoff_id PK · project_id · period_id · signer · attestation_text · snapshot_json · at. Immutable. DEC-020: snapshot_json stores exactly CloseSignoffEvidence (doc 05 §8.0); public evidence decodes this JSON, not a second copy/table. Its CLOSE_SIGNOFF audit event identifies the row via entity_type=close_signoff/entity_id=signoff_id. The event hash is read from audit_log, never hashed into itself. Legacy evidence without this binding is historical only and cannot authorise lock; no fabricated approval during migration.
 - **headcount_plans**: plan_id PK · project_id · period_id · cost_centre_id · opening_hc INT · joiners INT · leavers INT · avg_cost_minor INT · increment_pct TEXT · bonus_pct TEXT.
 - **capex_assets**: asset_id PK · project_id · class_label · cost_minor INT · addition_period · useful_life_months INT · method (`slm|wdv`) · residual_pct TEXT · disposal_period NULL · proceeds_minor NULL.
 - **debt_schedules**: facility_id PK · project_id · label · opening_minor INT · rate_pct TEXT · kind (`fixed|floating`) — movements in **debt_movements**(facility_id, period_id, kind `draw|repay`, amount_minor).
@@ -114,3 +117,4 @@ Schema-equality test (doc 14) compares this doc's full table list (sections 2, 5
 | 11 | `findings` lacks `suggestion_json`, `suggestion_status`, `suggestion_ref` (DEC-011: rectification suggestions, doc 07 §7) | add in v2 (NOT NULL with default `{}`/`proposed` for the migration of any pre-existing rows) |
 | 12 | `import_batches.source_kind` CHECK lacks `tb_check`; `subledger_kind` values must include `ap|ar|bank|payroll`; new nullable `enrichment_json` (vendor-enrichment counts, doc 06 §2 step 9) | add in v2 |
 | 13 | `import_batches` lacks `source` (`file|connector`) and `pull_id`; tables `connector_profiles`, `connector_pulls` absent (DEC-013, doc 26 §8) | add in v2 (`source` NOT NULL DEFAULT `file` so existing rows migrate unchanged) |
+| 14 | `projects.version`; `periods.version/created_at/updated_at` are required by §1 but missing from the frozen schema/explicit field lists | add in M1 schema migration; existing rows version 1 with migration-clock timestamps, preserve existing locked_at/lock_note (DEC-017) |

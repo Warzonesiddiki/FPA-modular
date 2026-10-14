@@ -13,6 +13,9 @@
 | ERR-003 | Version conflict (row changed since it was read) | "This item was changed by another action since you opened it." | Refresh and apply your change again | yes |
 | ERR-004 | Job cancelled by the analyst | "This task was cancelled." | Start it again when you're ready | yes |
 | ERR-005 | `Idempotency-Key` reused with a different payload | "This request was already made with different details." | Use a new request | no |
+| ERR-006 | Missing or invalid per-launch API token | "This app session could not be verified." | Reopen the app and try again | no |
+| ERR-007 | Request Origin or Host is not the local app origin/authority | "This request did not come from this app." | Use the app window opened on this computer | no |
+| ERR-008 | Job interrupted by app/process restart | "This task stopped when the app closed." | Start it again; completed imports and reports are unchanged | yes |
 | ERR-010 | Duplicate project name | "A project with this name already exists." | Choose a different name | no |
 | ERR-011 | Lock blocked by open High findings | "{n} high-severity items are still open." | Review them in Exceptions, or record an override note | no |
 | ERR-012 | Backup/restore path not writable or not found | "That folder can't be written to." | Pick another folder | yes |
@@ -39,7 +42,7 @@
 | ERR-043 | Adjustment or reclass on a locked period outside the restatement workflow | "This period is locked. Use Restate to change it." | Open the restatement workflow (it keeps the audit trail) | no |
 | ERR-044 | Assignment to an unknown or inactive owner | "{owner} can't be assigned items right now." | Pick an active owner, or reactivate them in Master data | no |
 | ERR-045 | Allocation basis empty or sums to zero | "This allocation has nothing to allocate on ({basis})." | Check the driver or basis values for the period | no |
-| ERR-046 | Suggested fix can't be applied or exported (doc 07 §7) — details.reason ∈ `no_journal_lines` (kind investigate/commentary/none), `target_period_locked`, `queue_empty` | "This suggestion can't be turned into an entry: {reason_text}." | Add a note or handle it in the ERP; for a locked period use Restate; for an empty queue add suggestions to the journal first | no |
+| ERR-046 | Suggested fix can't be applied or exported (doc 07 §7) — details.reason ∈ `no_journal_lines` (kind investigate/commentary/none), `target_period_locked`, `queue_empty`, `already_consumed` | "This suggestion can't be turned into an entry: {reason_text}." | Add a note or handle it in the ERP; for a locked period use Restate; for an empty queue add suggestions to the journal first | no |
 | ERR-050 | Duplicate master code | "That {kind} code is already used." | Use a unique code | no |
 | ERR-051 | Invalid account metadata (calc line as mapping target, unknown tag, bad normal side) | "That setting isn't valid for an account: {detail}." | Choose a value from the list | no |
 | ERR-052 | Delete of a master record that is referenced | "{kind} {code} is used by {n} rows, so it can't be deleted." | Deactivate it instead | no |
@@ -51,10 +54,10 @@
 | ERR-071 | AI draft rejected by guardrails | "The draft mentioned a number that isn't in your data, so it wasn't used." | Try again or write the commentary manually | yes |
 | ERR-072 | AI provider unreachable / timed out | "The AI service didn't respond." | Check your connection and try again | yes |
 | ERR-073 | AI payload exceeds provider limit | "There's too much data for one draft." | Narrow the scope (one statement or fewer lines) | no |
-| ERR-080 | Close sign-off blocked | "Close blockers are still open." (list) | Resolve them or record an override note | no |
+| ERR-080 | Close review/sign-off/lock blocked | "Close blockers are still open." (list) | Refresh a changed review and resolve hard blockers; only permitted exceptions allow an override note | no |
 | ERR-081 | Recon out of tolerance | "Sub-ledger and GL differ by more than your tolerance." (amount) | Review unmatched items on both sides | no |
 | ERR-082 | Year-end checks failed (open periods, TB, rollforward Δ ≠ 0) | "The year can't be closed yet: {reasons}." | Fix each item listed, then run the check again | no |
-| ERR-083 | Restatement without an approval note | "Restating a locked period needs an approval note." | Add who approved it and why | no |
+| ERR-083 | Restatement without a current approved impact report/note | "Restating a locked period needs an approval note." | Review the current impact report and record who approved it and why; an old approval or lock note does not count | no |
 | ERR-084 | Close task dependency unmet | "'{task}' can't be completed until '{dependency}' is done." | Finish the earlier task first | no |
 | ERR-085 | Recon kind not supported for this batch | "This file isn't a {kind} extract." | Import it with the matching sub-ledger kind | no |
 | ERR-090 | Audit chain verification failed | "The audit trail check failed for this project." | Stop, restore your latest backup, then run Diagnostics | no |
@@ -87,3 +90,5 @@
 - Import **row-level** problems are *quarantine reasons* (doc 06 §4), not errors: a bad amount in row 412 quarantines the row; ERR-025/026 are for values the analyst typed or declared, or batch-level fields.
 - Every code has a test asserting message + hint non-empty and the retryable flag; the parity test asserts code-set equality between this table and `errors.py`.
 - Message tone: doc 13 §copy — plain, says what happened, never blames, no jargon, no code in the sentence.
+
+DEC-020: ERR-011 is emitted only with n≥1; finding_ids contains the first min(n,100) distinct IDs in lexical order. A zero-count lock-block error is invalid, not a neutral success. Details are bounded diagnostics; use paged findings for the full set. ERR-080 may carry review_changed or signoff_required, or the sorted doc-30 blocker codes. ERR-083 retains reason=approval_note_required when no approval is valid for the current report/baseline.

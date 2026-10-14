@@ -29,13 +29,13 @@ def add(path, layer, purpose, deps="", inputs="", outputs="", acceptance="", tes
 
 
 # =====================================================================================
-# M0 — SPEC HARDENING (docs only; the P0/P1 gaps of audit/BRUTAL_AUDIT_PASS3_2026-10-14.md)
+# M0 — SPEC HARDENING (docs + docs-only verification tooling; the P0/P1 gaps of audit/BRUTAL_AUDIT_PASS3_2026-10-14.md)
 # =====================================================================================
 add("docs/05_API_CONTRACT.md", "docs0",
     "Rewrite to OpenAPI-grade: every endpoint with method, path, auth, request schema, response schema, status codes (200/201/202/204/400/404/409/422), error codes, pagination, idempotency, example. Merge doc 90 field tables into per-endpoint sections (doc 90 stays as the schema index).",
     "docs/05 (current), docs/90, docs/63, docs/22, docs/02", "current tables", "complete endpoint catalogue",
     "Every route file in M3 can be written without inventing a field; a parity script (M6) diffs OpenAPI against the catalogue with zero gaps; `/jobs/{id}` result schema defined per job kind (import, rules, forecast, export, allocation, reconcile, year-end).",
-    "-", "Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema.")
+    "tests/docs/test_api_job_contract.py; tests/docs/test_api_project_contract.py; tests/docs/test_api_lifecycle_contract.py; tests/docs/test_api_close_contract.py", "Audit pass-3 finding P0-8. Keep the 'money is a decimal string' rule in every schema. DEC-016: docs/api_job_schemas.json is the normative job-schema attachment, with document-only tests (test_api_job_contract.py, DEC-017 test_api_project_contract.py DEC-018 test_api_lifecycle_contract.py and DEC-020 test_api_close_contract.py) and tests/docs/requirements.txt (pinned verification dependencies, docs 60/81); product code stays frozen. Full endpoint rewrite still required.")
 add("docs/21_SCREEN_SPEC_DETAILED.md", "docs0",
     "Expand from one table row per screen to one section per screen S01–S19: route, layout zones (doc 54), every field with source DTO path (doc 05/90), every action with API call + success/failure copy key (doc 55), validations, the five states, keyboard map (doc 57), drill paths, acceptance tests.",
     "docs/21, docs/13, docs/53, docs/54, docs/57, docs/05, docs/90", "current table", "19 implementable screen specs",
@@ -63,6 +63,15 @@ add("docs/20_TRACEABILITY_MATRIX.md", "docs0",
     "Convert from family-level to FR-level: one row per FR in doc 19 (statement → spec § → screen → endpoint → WI → test → acceptance evidence).",
     "docs/19, docs/20, docs/05, docs/21, docs/WORK_PLAN.md", "doc 19 FR register", "FR-level matrix", "Zero empty cells for v1 FRs; script in M6 regenerates and diffs.", "-", "Audit pass-3 finding P0-4 (FR register rebuilt in pass 3; matrix follows).")
 
+# DEC-014: the M0 exit check must be buildable before the M0 gate; no product imports.
+add("scripts/docs_check.py", "docs0",
+    "Bootstrap documentation gate using only the Python standard library; section/ID/doc-section-reference/link checks plus ERR/FR/settings-key reference parity against docs 22/19/62. Validate doc 20 FR-to-WI-to-planned-test coverage, period notation, retired operational terminology and milestone gate text parity (doc 86 section 1.1).",
+    "docs/05, docs/21, docs/44, docs/03, docs/55, docs/31, docs/20, docs/86 §1.1, docs/91, docs/22, docs/19, docs/62",
+    "normative docs + WORK_PLAN.csv (future files are planned, not required to exist)",
+    "deterministically ordered file:line diagnostics; exit 0 only with zero defects",
+    "Runs clean on the hardened set; every check has a planted-defect test; unknown IDs/keys and unresolved section references fail; checks are not skipped because product code does not exist; no app imports or runtime dependencies; two runs identical. ERR/FR/settings parity is doc-to-doc in M0, not equality to the frozen nucleus; M6 release checker adds code parity.",
+    "tests/unit/test_docs_check.py", "DEC-014; build only after WI-0007. No product code authorised in M0.")
+
 # =====================================================================================
 # M1 — CORE & TRUTH
 # =====================================================================================
@@ -81,7 +90,7 @@ add("app/core/audit.py", "core", "Append-only audit log writer: who/when/what/be
 add("app/core/config.py", "core", "Settings: doc-62 keys with types/defaults/ranges, precedence project > user > defaults, validation with plain-language errors, AI off by default.", "docs/62, docs/04 §5", "env/file/db settings", "Settings object", "Every doc-62 key present with its default; out-of-range value -> AppError with hint; unknown key rejected.", "tests/unit/test_config.py")
 add("app/core/logging.py", "core", "Structured local logging per doc 65: levels, rotation, redaction of amounts/names at INFO and of secrets/tokens everywhere (Bearer, JWT `eyJ…`, client_secret=, code=/state= query values, Authorization headers), connector.log request lines without query values or bodies, diagnostics bundle manifest, zero network.", "docs/65, docs/12 §5", "-", "log files in project dir", "No network call; redaction test for amounts/names; token-redaction test with a synthetic JWT + fake secret in message, ctx and exception text; rotation test with injected clock.", "tests/unit/test_logging.py")
 add("app/core/license.py", "core", "Offline licence verification per doc 79: Ed25519-signed licence file, trial expiry, perpetual core never expires.", "docs/79, docs/12", "licence file", "licence state", "Forged/expired licence fixtures; core access never blocked for perpetual; clock injected.", "tests/unit/test_license.py")
-add("app/store/schema.sql", "store", "SQLite schema: EVERY doc-02 table/column 1:1 (sections 2, 5, 6, 7 — incl. the §7 deltas: gl_rows.posting_layer/source_account_ref/vendor_source, findings.suggestion_json/suggestion_status/suggestion_ref, import_batches tb_check kind + enrichment_json + source/pull_id, tables connector_profiles + connector_pulls — delta 13), FKs, CHECK constraints on enums, indexes, created_by/updated_at where doc 02 §1 requires. Money INTEGER minor units.", "docs/02_DATA_DICTIONARY.md (every table/column)", "-", "DDL applies cleanly", "Schema-equality test parses doc 02 tables+columns and diffs against PRAGMA table_info for every table: zero missing, zero extra; FK on; duplicate budget grain with NULL cc rejected.", "tests/unit/test_schema.py", "Closes audit pass-3 P0-5 (doc 02 ≠ schema). One storage engine only.")
+add("app/store/schema.sql", "store", "SQLite schema: EVERY doc-02 table/column 1:1 (sections 2, 5, 6, 7 — incl. the §7 deltas: gl_rows.posting_layer/source_account_ref/vendor_source, findings.suggestion_json/suggestion_status/suggestion_ref, import_batches tb_check kind + enrichment_json + source/pull_id, tables connector_profiles + connector_pulls and project/period revision metadata — deltas 13/14), FKs, CHECK constraints on enums, indexes, created_by/updated_at where doc 02 §1 requires. Money INTEGER minor units.", "docs/02_DATA_DICTIONARY.md (every table/column)", "-", "DDL applies cleanly", "Schema-equality test parses doc 02 tables+columns and diffs against PRAGMA table_info for every table: zero missing, zero extra; FK on; duplicate budget grain with NULL cc rejected.", "tests/unit/test_schema.py", "Closes audit pass-3 P0-5 (doc 02 ≠ schema). One storage engine only.")
 add("app/store/db.py", "store", "Connection factory: WAL, FK on, migration runner (doc 61), transaction context manager, integrity check.", "schema.sql, core/errors, docs/61", "db path", "sqlite3 connection", "Fresh DB == migrated DB (schema dump equality); crash mid-txn leaves no partial data; backup-before-migrate file exists and hash-verified.", "tests/unit/test_db.py")
 add("app/store/migrations/__init__.py", "store", "Migration registry per doc 61: ordered m0001.. steps with up(conn), description, app version.", "docs/61", "-", "registry", "Migration list ordered + unique + contiguous test.", "tests/unit/test_migrations.py")
 add("app/store/migrations/m0001_initial.py", "store", "Initial schema migration: applies schema.sql as migration 1.", "docs/61, docs/02", "schema.sql", "tables", "Fresh vs migrated schema equality test.", "tests/unit/test_migrations.py")
@@ -236,17 +245,17 @@ add("tests/integration/test_cross_artifact.py", "test", "Cross-artifact consiste
 # =====================================================================================
 # M6 — SHIP
 # =====================================================================================
-add("scripts/check.py", "scripts", "One-command gate per doc 14 §5: ruff, mypy, pytest (not perf), coverage thresholds, UI lint/type/test, token check, money-AST check, docs link/ID check, schema↔doc-02 equality, secret/telemetry scan, outbound-host scan (only app/ai/client.py and app/connectors/transport.py may open sockets; literal hosts outside doc 12 §1 allow-lists fail), ERP-write scan (no POST/PATCH/DELETE/PUT to ERP hosts anywhere in app/connectors). Honest exit code.", "docs/14 §5, docs/15, docs/66, docs/12 §1", "-", "report", "Clean tree -> exit 0; each sub-check failure -> non-zero with the failing check named; no skip flags exist; a planted `requests.get('https://example.com')` in app/calc fails the host scan.", "-")
+add("scripts/check.py", "scripts", "One-command gate per doc 14 §5: ruff, mypy, pytest (not perf), coverage thresholds, UI lint/type/test, token check, money-AST check, full docs gate (scripts/docs_check_release.py, including bootstrap checks), schema↔doc-02 equality, secret/telemetry scan, outbound-host scan (only app/ai/client.py and app/connectors/transport.py may open sockets; literal hosts outside doc 12 §1 allow-lists fail), ERP-write scan (no POST/PATCH/DELETE/PUT to ERP hosts anywhere in app/connectors). Honest exit code.", "docs/14 §5, docs/15, docs/66, docs/12 §1", "-", "report", "Clean tree -> exit 0; each sub-check failure -> non-zero with the failing check named; no skip flags exist; a planted `requests.get('https://example.com')` in app/calc fails the host scan.", "-")
 add("scripts/acceptance.py", "scripts", "Runs acceptance harness twice, diffs, writes evidence/acceptance_report.{json,md} + extras.json; verifies acceptance_justifications.json.", "test_acceptance, docs/14 §3", "-", "evidence pack", "Two runs byte-identical findings; report format per doc 14 §3.", "-")
-add("scripts/docs_check.py", "scripts", "Docs gate: numbered-section presence, dangling doc/§ references, ID spaces (FR/EXC/ERR/S/OQ/DEC/WI), duplicate headings, glossary coverage, WORK_PLAN ↔ repo tree diff.", "docs/14 §5, docs/00_INDEX", "-", "report", "Runs clean on the baselined doc set; each check individually testable with a planted defect.", "tests/unit/test_docs_check.py")
+add("scripts/docs_check_release.py", "scripts", "Full release docs gate: run every bootstrap check from scripts/docs_check.py, then numbered sections across docs 00–91, glossary coverage, WORK_PLAN-to-built-tree parity, FR-to-implemented-test/evidence parity, ERR/settings-to-code parity and OpenAPI-to-doc-05/90 parity. No skip flags; no bootstrap-only success advertised as a release pass.", "scripts/docs_check.py, docs/14 §5, docs/86 §1.1, docs/00_INDEX", "built repository + all docs", "release docs report", "Runs clean on the baselined doc set and built product; each check individually testable with a planted defect; a bootstrap failure propagates non-zero; missing product artefacts fail release checks.", "tests/unit/test_docs_check_release.py", "DEC-014 splits old M6 docs-check item without duplicating a deliverable path; bootstrap is WI-0008.")
 add("scripts/build.py", "scripts", "Build: UI build -> PyInstaller -> Inno Setup installer; payload audit (no data/secrets, no tests/fixtures/connectors/tokens); bundles tools/mock_d365.py + erp_shapes/api + connector profiles + certifi CA bundle; SBOM + licence report (doc 81).", "packaging/*, docs/16, docs/81", "-", "installer .exe", "Fresh-VM install -> first month-end on sample project succeeds (doc 16 §4 checklist).", "-")
 add("packaging/fpa.spec", "packaging", "PyInstaller spec: one-folder, pinned, reproducible paths.", "docs/16", "-", "app bundle", "Build on clean machine.", "-")
 add("packaging/installer.iss", "packaging", "Inno Setup script: install/upgrade/uninstall, data preserved on upgrade (P15).", "docs/16 §2", "-", "installer", "Upgrade from prior version keeps projects (fixture test plan).", "-")
-add(".github/workflows/ci.yml", "ci", "CI per doc 66: windows-latest, python+node, scripts/check.py, acceptance, docs_check, build smoke. No skipped gates.", "docs/66, docs/15", "-", "CI verdict", "Red CI blocks merge (branch protection documented in doc 66).", "-")
+add(".github/workflows/ci.yml", "ci", "CI per doc 66: windows-latest, python+node, scripts/check.py, acceptance, docs_check_release, build smoke. No skipped gates.", "docs/66, docs/15", "-", "CI verdict", "Red CI blocks merge (branch protection documented in doc 66).", "-")
 add("tests/perf/test_perf.py", "test", "Performance: 250k-row import + rules + exports within doc 14 §4 budgets on the reference profile, plus a 250k-row connector pull from the local mock (NFR-17: <= 300 s, <= 1 page resident); doc 67 §5 feasibility spike first.", "docs/14 §4, docs/67", "250k fixture (generated)", "timings", "Budgets asserted as numbers; regression > 10% fails CI.", "-")
 add("docs/18_USER_GUIDE.md", "docs6", "Final user guide: first month-end walkthrough with real screenshots, month-2 rhythm, troubleshooting mapped to doc 22, tuning thresholds (doc 17 R2).", "docs/18, docs/52, docs/22, docs/55", "built product", "complete guide", "Tabletop (doc 14 §7): a stranger completes a month-end on the sample project using only this doc.", "-")
 # Baseline verification of the remaining spec docs (cross-refs/IDs/depth) is one M6 docs-gate item, not 80 separate ones:
-add("docs/00_INDEX.md", "docs6", "Final docs gate: run scripts/docs_check.py over docs 00–91; update §10 status; verify every doc's claims against gates (doc 34 truth audit).", "scripts/docs_check.py, docs/34", "all docs", "clean docs gate", "docs_check exit 0; README/00_INDEX status lines each trace to a gate artefact in evidence/.", "-")
+add("docs/00_INDEX.md", "docs6", "Final docs gate: run scripts/docs_check_release.py over docs 00–91; update §10 status; verify every doc's claims against gates (doc 34 truth audit).", "scripts/docs_check_release.py, docs/34", "all docs", "clean docs gate", "docs_check_release exit 0; README/00_INDEX status lines each trace to a gate artefact in evidence/.", "-")
 
 # =====================================================================================
 MILESTONE = {"docs0": "M0", "config": "M1", "core": "M1", "store": "M1", "data": "M1",
@@ -254,7 +263,7 @@ MILESTONE = {"docs0": "M0", "config": "M1", "core": "M1", "store": "M1", "data":
              "connectors": "M3", "services": "M3", "api": "M3", "cli": "M3", "desktop": "M3", "ai": "M3",
              "ui": "M4", "exports": "M5", "test": None, "scripts": "M6", "packaging": "M6", "ci": "M6", "docs6": "M6"}
 MILESTONE_TITLES = {
-    "M0": "Spec hardening (docs only) — close the audit's P0/P1 contract gaps before any new code",
+    "M0": "Spec hardening + bootstrap docs checker — close the audit's P0/P1 contract gaps before product code",
     "M1": "Core & truth — foundations, schema = doc 02, coherent corpus + answer key, fixtures, acceptance harness (red by design)",
     "M2": "Engine — imports (incl. D365 transforms, enrichment, TB tie-out), calc, 28 rules + suggestions, forecast, planning, adjustments; acceptance gate turns green here",
     "M3": "Connector, services, API, CLI, AI — the Dynamics 365 pull lands through the pipeline and the spine runs end-to-end from the command line",
@@ -263,14 +272,15 @@ MILESTONE_TITLES = {
     "M6": "Ship — gates, packaging, CI, perf, user guide, final audits",
 }
 GATES = {
-    "M0": "docs_check clean on the hardened set; docs 05/21/44/03/55/31/20 at implementable depth (acceptance per item); every DEC recorded (owner delegated decisions, DEC-010).",
-    "M1": "Schema-equality (doc 02 ↔ schema.sql incl. the §7 deltas 1–13) green; corpus regenerates byte-identical; TB balanced per entity×period; answer key 36/19/13 asserted; ERP shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥95%.",
-    "M2": "Acceptance gate green (doc 14 §3): recall 36/36, high 19/19, controls 0/13, suggestion exactness, extras justified, two runs identical, 28/28 wired, ERP shape parity; statement/KPI/forecast/planning oracles green.",
-    "M3": "OpenAPI == doc 05 catalogue (incl. connector routes); AI-off and connector-off socket test; connector parity bar (doc 14 §3) green against tools/mock_d365.py for both products incl. no-change path and the five faults; connector security tests (doc 12 §8: allow-list, redaction, keyring-only, state/PKCE, disconnect) green; CLI golden month-end exit 0 (file route and `--source d365 --mock` route); job registry crash-recovery test.",
-    "M4": "5-state + axe + keyboard tests on all 19 screens; token check zero-undefined; UI numbers == API fixtures; no inline strings.",
-    "M5": "Cross-artifact tie-out 100% on golden period (both layers); golden-file cell/slide tests incl. the three rectification-journal golden files; blocked-deck case.",
-    "M6": "Fresh-machine install -> sample month-end -> pack out; perf budgets met or DEC; doc 16 §4 release checklist signed with evidence links; truth audit clean.",
+    "M0": "`scripts/docs_check.py` clean (sections, links, IDs, doc/§ references, ERR/FR/settings-key doc parity, FR↔WI↔planned-test matrix, period-id notation, no retired operational multi-agent terms, gate text parity); docs 05/21/44/03/55/31/20 at implementable depth per acceptance lines; every DEC recorded (DEC-007/008/009 accepted under DEC-010); cold M0 audit with no open defects.",
+    "M1": "Schema-equality (doc 02 ↔ schema.sql, tables and columns incl. §7 deltas 1–14) green; corpus regenerates byte-identical; TB balanced per entity × period; answer key 36/19/13 asserted; ERP file and API shapes emitted; acceptance harness runs and reports 0/36 by design; all core tests green; coverage core ≥ 95%.",
+    "M2": "Acceptance gate green (doc 14 §3): recall 36/36, High 19/19, controls 0/13, suggestion exactness, extras justified, two runs identical, 28/28 wired, ERP shape parity; statement/KPI/forecast/planning oracles green; malformed corpus `expected.json` exact.",
+    "M3": "OpenAPI == doc 05 catalogue (incl. connector routes) and doc 90 fields; AI-off and connector-off socket test; connector parity bar (doc 14 §3) green against `tools/mock_d365.py` for both products incl. no-change and the five faults; connector security tests (doc 12 §8, incl. allow-list, redaction, keyring-only, state/PKCE, disconnect) green; CLI golden month-end exit 0 (file route and `fpa pull --mock`); job registry crash-recovery test; desktop shell launches the server and opens the UI placeholder.",
+    "M4": "5-state + axe + keyboard tests on all 19 screens; token check zero-undefined; UI numbers == API fixtures; no inline strings; walkthrough (doc 18 §1) passes on the sample project.",
+    "M5": "Cross-artifact tie-out 100% on golden period `2025-P07` (both layers); golden-file cell/slide tests incl. the three rectification-journal golden files; blocked-deck case; second-seed audit dataset generated and passed (doc 34 stream I).",
+    "M6": "Fresh-machine install → sample month-end → pack out; perf budgets met or DEC; doc 16 §4 release checklist signed with evidence links; truth audit clean (doc 34 stream F); full `scripts/docs_check_release.py` gate green (includes all bootstrap checks).",
 }
+
 LAYER_RANK = {"docs0": 0, "config": 0, "core": 1, "store": 2, "data": 3, "test": 4,
               "imports": 0, "calc": 1, "rules": 2, "forecast": 3, "planning": 4, "adjust": 5,
               "connectors": 0, "services": 1, "api": 2, "cli": 3, "desktop": 4, "ai": 5,
@@ -303,7 +313,7 @@ UNIVERSAL = """## How to use this plan (the sole agent reads this once per sessi
 Zero amounts / zero denominators · negative amounts and credit-normal accounts · empty input · single row · duplicate input · 250k-row posture · missing optional data (rule → not_run, export → labelled, UI → empty state) · locked period / locked version · superseded batch · expired waiver · hostile text (quotes, `=formula`, `<script>`, unicode, 10k-char description) · ambiguous dates/amounts · currency minor-unit exponent 0/2/3 · month-2 reuse (no month-1 assumptions hard-coded) · deterministic repeat run.
 
 ### Forbidden in every item
-Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or threshold · inventing an API/field/key/threshold not in the docs · a second implementation of an owned concern (doc 04 §2) · user text with "error"/"fraud" for findings · telemetry or network outside `app/ai/client.py` · hand-editing generated files (regenerate them) · committing data with real financials.
+Float on money · TODO/TBD/stub/mock-only paths · weakening a test, bar or threshold · inventing an API/field/key/threshold not in the docs · a second implementation of an owned concern (doc 04 §2) · user text with "error"/"fraud" for findings · telemetry or network outside `app/ai/client.py` and `app/connectors/transport.py` (allow-listed hosts only, user-initiated jobs only) · hand-editing generated files (regenerate them) · committing data with real financials.
 """
 
 
@@ -475,7 +485,7 @@ def main() -> None:
     (ROOT / "docs/WORK_PLAN.md").write_text("\n".join(out) + "\n", encoding="utf-8")
 
     with open(ROOT / "docs/WORK_PLAN.csv", "w", newline="", encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=["id", "path", "layer", "milestone", "depends_on", "read_first", "tests"])
+        w = csv.DictWriter(f, lineterminator="\n", fieldnames=["id", "path", "layer", "milestone", "depends_on", "read_first", "tests"])
         w.writeheader()
         for it in order:
             w.writerow({"id": it["id"], "path": it["path"], "layer": it["layer"], "milestone": it["milestone"],

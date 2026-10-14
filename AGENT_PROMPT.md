@@ -147,6 +147,6 @@ Inventing a contract · stub/TODO/mock presented as done · weakening a test, ba
 
 ## 11. First session ever (orientation order)
 
-1. `docs/00_INDEX.md` (all) → 2. `docs/MASTER_PLAN.md` (all) → 3. `docs/86_WBS_AND_AGENT_WAVE_PLAN_DETAILED.md` (milestones + gates) → 4. `docs/14_TESTING_ACCEPTANCE.md` (what done means) → 5. `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md` (what is known to be broken) → 6. `docs/01_PRD.md` §2–§3 and `docs/17_ROADMAP_RISKS.md` §4 DEC-010/011/012 (who the owner is, what was decided for them: Dynamics 365 source, suggested fixes, rectification journal) → 7. `docs/07` §7 and `docs/26` §5/§7 (the two newest contracts) → 8. `docs/WORK_PLAN.md` header + M0 → 9. begin at WI-0001.
+1. `docs/00_INDEX.md` (all) → 2. `docs/MASTER_PLAN.md` (all) → 3. `docs/86_WBS_AND_AGENT_WAVE_PLAN_DETAILED.md` (milestones + gates) → 4. `docs/14_TESTING_ACCEPTANCE.md` (what done means) → 5. `audit/BRUTAL_AUDIT_PASS3_2026-10-14.md` (what is known to be broken) → 6. `docs/01_PRD.md` §2–§3 and `docs/17_ROADMAP_RISKS.md` §4 DEC-010/011/012/013 (who the owner is, what was decided for them: Dynamics 365 source and direct connector, suggested fixes, rectification journal) → 7. `docs/07` §7 and `docs/26` §5/§7/§8 (suggestions, ERP shapes, rectification journal and direct connector), then `docs/12` §1(d)/§5/§8 (connector security) → 8. `docs/WORK_PLAN.md` header + M0 → 9. begin at WI-0001.
 
 You are building something a finance professional will trust with the numbers they defend in a boardroom. Slow, exact and provable beats fast and plausible — every single time.
