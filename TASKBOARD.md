@@ -20,16 +20,18 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 - **DEC-018** (auto): sample workspace is not pre-committed books; deletion is exact-confirmation + version + durable receipt with ≥30-day trash; start-close/unlock are deliberate versioned actions and preserve audit/old baseline. Four endpoint contracts, not runtime operations.
 - **DEC-019** (auto): CLI launch descriptor is specified outside projects/install payload with owner-only ACLs, not inside a folder that backup copies. No live credential was found/handled and no runtime protection is claimed implemented.
 
+- **DEC-020** (auto): T-09/T-10 are outcomes, not sign-off prerequisites. Three close contracts bind approval to the exact reviewed state; only High/manual-task exceptions admit override. Hard integrity/TB/forecast/pack/impact guards cannot be forced. No runtime/gate completion claimed.
+
 ## Current position
 - Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-14. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
-- DEC-016…019 checkpoints verified: **277 document tests + 9 unchanged product tests = 286 passing**; 230 definitions, 18 job kinds, 76 errors. Four lifecycle sections supplement seven health/project/period and three job-transport sections. Product code frozen; no runtime/gate claim.
-- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_lifecycle_contract_2026-10-14.md` (Exact continuation).
+- DEC-016…020 checkpoints verified: **385 document tests + 9 unchanged product tests = 394 passing**; 239 definitions, 18 job kinds, 76 errors. Three close-review/sign-off/lock contracts now supplement prior sections. Product code frozen; no runtime/gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_close_contract_2026-10-14.md` (Exact continuation).
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-018/019: four lifecycle contracts + private runtime-state correction; 286 tests pass. Full endpoint rewrite incomplete. Evidence: WI-0001_lifecycle_contract_2026-10-14.md; latest handover below. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-020: three close contracts, acyclic tasks and review-bound limited overrides; 394 tests pass. Full endpoint rewrite incomplete. Evidence: WI-0001_close_contract_2026-10-14.md; latest handover below. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -368,4 +370,11 @@ NEXT: backup/restore archive/transport/rollback/receipt safety; lock/re-lock/sig
 STATUS: in_progress, M0 open, 0/30 complete.
 BASELINE: fetch/status clean at 7b9a34f; `.venv/bin/python -m pytest -q` → 286 passed in 10.66s.
 CONTRACT: DEC-020, docs 05 §8/30 §6–§7: read-only bounded readiness, immutable explicit sign-off, separate versioned lock; no T-09/T-10 cycle or blanket hard-guard override. Doc 41 requires current impact approval, not arbitrary lock-note text. Product frozen.
-NEXT: independent DTO/token/guard tests before schema extension; evidence and full checks, then continue unresolved WI-0001 contracts.
+TESTS RUN: `.venv/bin/python -m pytest tests/docs/test_api_close_contract.py -q --tb=short` → **108 passed in 0.99s**; `.venv/bin/python -m pytest tests/docs -q --tb=short` → **385 passed in 11.73s**; `.venv/bin/python -m pytest -q --tb=short` → **394 passed in 11.51s**, earlier fresh full run same count. `git diff --check` clean. Actual red runs: 81 missing-definition assertion errors (7 standalone hash tests already green); then one zero-count ERR-011 rejection failure; then six missing static-invariant rejections. All fixed, not suppressed.
+MUTATIONS: locked response constant open; drop same_snapshot from current-signoff conjunction; response revision minimum 2→3 loses migrated-version-1 case. Same independent oracle catches all three; isolated copies only. Previous nine probes remain tested.
+EDGES: PASS for document/schema/model tests of all 16 blocker classes, soft/hard override split, exact review hashes, same-count/different-ID change, version/attest/note shapes, hostile literal notes, bounded errors and historical/current signoff distinction. TEST-ONLY for synthetic guard facts; no live financial/TB/age/expiry computation, SQL/audit/lease/replay/HTTP proof. Money arithmetic/denominators/credit accounts N/A; no 250k-row throughput claim.
+SPEC CHECKS: 30 §6/23 §7 acyclic prerequisites/limited overrides; 05 §8/24 §4 state binding including all digest components, not only counts or batch hash; 41 §5/22 non-bypassable current impact approval and proper error mapping. Evidence: evidence/WI-0001_close_contract_2026-10-14.md.
+FILES TOUCHED: docs 02/05/17/19/21/22/23/24/30/41/63/90/CHANGELOG, shared schema, new tests/docs/test_api_close_contract.py, generator/WORK_PLAN.md/.csv, TASKBOARD, evidence. Doc 21 change only aligns a repeated rule; WI-0002 not started. Product/SQL/original tests unchanged against 7b9a34f.
+DEVIATIONS: DEC-020; docs-first 2b8162a, refinement 6e5ad92. 239 definitions / 18 jobs / 76 errors, three new endpoint contracts; no new WI, dependency, bar or gate change. Regeneration repeat-identical, 267 identities stable, 7/7 gate texts equal. Old zero-count/unbounded ERR-011 corrected, not a new code.
+DECISIONS TAKEN: DEC-020 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before a real tenant pilot.
+NEXT: impact generation/approval fields/transport; task/calendar/template/history contracts; backup/restore safety; remaining endpoint families; persistence/coordination ownership in plan. Exact gaps in evidence §4. **WI-0001 in_progress; 0/30 done; M0 open.**

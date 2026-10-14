@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "urn:fpa:api:job-contract:v1",
   "title": "FPA API v1 job and shared wire contracts (docs 05/64/90, DEC-016/017)",
-  "description": "Normative documentation attachment, not an implemented API. Money is a decimal string in every schema, in project major units. Sibling arithmetic/ownership checks are specified in doc 64 and independently tested as document oracles. Doc 05 §6 owns health/project/period DTO definitions and the x-project-endpoints catalogue. Root validation remains Job; other DTOs use named definitions. Contextual NFC/ownership/calendar and lifecycle/atomicity checks are runtime obligations, not supplied by this schema. Doc 05 §7 (DEC-018) owns the lifecycle DTOs and endpoint/policy annotations; filesystem/lease/keyring/receipt/baseline guarantees require runtime verification.",
+  "description": "Normative documentation attachment, not an implemented API. Money is a decimal string in every schema, in project major units. Sibling arithmetic/ownership checks are specified in doc 64 and independently tested as document oracles. Doc 05 §6 owns health/project/period DTO definitions and the x-project-endpoints catalogue. Root validation remains Job; other DTOs use named definitions. Contextual NFC/ownership/calendar and lifecycle/atomicity checks are runtime obligations, not supplied by this schema. Doc 05 §7 (DEC-018) owns the lifecycle DTOs and endpoint/policy annotations; filesystem/lease/keyring/receipt/baseline guarantees require runtime verification. Doc 05 §8 / doc 30 §6–§7 own DEC-020 close review DTOs and policy metadata. No runtime readiness/financial/lease/audit proof is implied.",
   "$defs": {
     "Id": {
       "type": "string",
@@ -1820,15 +1820,16 @@
       "properties": {
         "n": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 1
         },
         "finding_ids": {
           "type": "array",
           "items": {
             "$ref": "#/$defs/Id"
           },
-          "minItems": 0,
-          "uniqueItems": true
+          "minItems": 1,
+          "uniqueItems": true,
+          "maxItems": 100
         }
       },
       "required": [
@@ -7980,6 +7981,736 @@
           }
         }
       ]
+    },
+    "CloseBlockerCode": {
+      "enum": [
+        "aged_corrections",
+        "audit_integrity",
+        "board_pack",
+        "busy",
+        "forecast",
+        "high_findings",
+        "manual_tasks",
+        "material_variances",
+        "no_gl",
+        "period_state",
+        "reconciliations",
+        "restatement_review",
+        "rules",
+        "statements_review",
+        "tb_tie_out",
+        "trial_balance"
+      ]
+    },
+    "CloseBlocker": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/CloseBlockerCode"
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "overridable": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "code",
+        "count",
+        "overridable"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "code": {
+                "enum": [
+                  "high_findings",
+                  "manual_tasks"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "overridable": {
+                "const": true
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "overridable": {
+                "const": false
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseReview": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "audit_head": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "snapshot_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "blocker_fingerprint": {
+          "$ref": "#/$defs/Sha256"
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "period_version",
+        "audit_head",
+        "snapshot_id",
+        "blocker_fingerprint"
+      ],
+      "additionalProperties": false
+    },
+    "CloseSignoffEvidence": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/CloseReview"
+            },
+            {
+              "properties": {
+                "snapshot_id": {
+                  "$ref": "#/$defs/Id"
+                }
+              }
+            }
+          ]
+        },
+        "snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "override_note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "overridden_blockers": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "#/$defs/CloseBlocker"
+              },
+              {
+                "properties": {
+                  "code": {
+                    "enum": [
+                      "high_findings",
+                      "manual_tasks"
+                    ]
+                  },
+                  "overridable": {
+                    "const": true
+                  }
+                }
+              }
+            ]
+          },
+          "minItems": 0,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "high_findings"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "manual_tasks"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            }
+          ]
+        }
+      },
+      "required": [
+        "review",
+        "snapshot",
+        "override_note",
+        "overridden_blockers"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "overridden_blockers": {
+                "minItems": 1
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "override_note": {
+                "$ref": "#/$defs/PeriodNote"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseSignoff": {
+      "type": "object",
+      "properties": {
+        "signoff_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "signer": {
+          "$ref": "#/$defs/ProjectName",
+          "description": "ProjectName syntax/NFC only; signer labels have no uniqueness requirement and are not authenticated identity."
+        },
+        "attestation_text": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/Text"
+            },
+            {
+              "pattern": "^I confirm the pack for [0-9]{4}-P(0[1-9]|1[0-2]) is complete and reviewed$"
+            }
+          ]
+        },
+        "at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "evidence": {
+          "$ref": "#/$defs/CloseSignoffEvidence"
+        }
+      },
+      "required": [
+        "signoff_id",
+        "project_id",
+        "period_id",
+        "signer",
+        "attestation_text",
+        "at",
+        "evidence"
+      ],
+      "additionalProperties": false
+    },
+    "CloseReadiness": {
+      "type": "object",
+      "properties": {
+        "review": {
+          "$ref": "#/$defs/CloseReview"
+        },
+        "review_token": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "period_status": {
+          "enum": [
+            "open",
+            "closing",
+            "locked"
+          ]
+        },
+        "blockers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CloseBlocker"
+          },
+          "minItems": 0,
+          "maxItems": 16,
+          "uniqueItems": true,
+          "allOf": [
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "aged_corrections"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "audit_integrity"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "board_pack"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "busy"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "forecast"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "high_findings"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "manual_tasks"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "material_variances"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "no_gl"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "period_state"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "reconciliations"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "restatement_review"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "rules"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "statements_review"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "tb_tie_out"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            },
+            {
+              "contains": {
+                "properties": {
+                  "code": {
+                    "const": "trial_balance"
+                  }
+                }
+              },
+              "minContains": 0,
+              "maxContains": 1
+            }
+          ]
+        },
+        "current_signoff": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CloseSignoff"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "ready_to_sign_off": {
+          "type": "boolean"
+        },
+        "ready_to_lock": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "review",
+        "review_token",
+        "period_status",
+        "blockers",
+        "current_signoff",
+        "ready_to_sign_off",
+        "ready_to_lock"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "ready_to_sign_off": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "period_status": {
+                "const": "closing"
+              },
+              "review": {
+                "properties": {
+                  "snapshot_id": {
+                    "$ref": "#/$defs/Id"
+                  }
+                }
+              },
+              "blockers": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "ready_to_lock": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "period_status": {
+                "const": "closing"
+              },
+              "review": {
+                "properties": {
+                  "snapshot_id": {
+                    "$ref": "#/$defs/Id"
+                  }
+                }
+              },
+              "current_signoff": {
+                "$ref": "#/$defs/CloseSignoff"
+              },
+              "blockers": {
+                "maxItems": 1,
+                "items": {
+                  "properties": {
+                    "code": {
+                      "const": "manual_tasks"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "period_status": {
+                "enum": [
+                  "open",
+                  "locked"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_signoff": {
+                "type": "null"
+              },
+              "ready_to_sign_off": {
+                "const": false
+              },
+              "ready_to_lock": {
+                "const": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "review": {
+                "properties": {
+                  "snapshot_id": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "blockers": {
+                "contains": {
+                  "properties": {
+                    "code": {
+                      "const": "board_pack"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "CloseSignoffCreate": {
+      "type": "object",
+      "properties": {
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "review_token": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "signer": {
+          "$ref": "#/$defs/ProjectName",
+          "description": "ProjectName syntax/NFC only; signer labels have no uniqueness requirement and are not authenticated identity."
+        },
+        "attest": {
+          "type": "boolean",
+          "const": true
+        },
+        "override_note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "period_id",
+        "expected_version",
+        "review_token",
+        "signer",
+        "attest",
+        "override_note"
+      ],
+      "additionalProperties": false
+    },
+    "PeriodLock": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "review_token": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "signoff_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "force": {
+          "type": "boolean"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "expected_version",
+        "review_token",
+        "signoff_id",
+        "force",
+        "note"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "force": {
+                "const": true
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "note": {
+                "$ref": "#/$defs/PeriodNote"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "LockedPeriod": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/Period"
+        },
+        {
+          "properties": {
+            "status": {
+              "const": "locked"
+            },
+            "locked_at": {
+              "$ref": "#/$defs/Timestamp"
+            },
+            "version": {
+              "type": "integer",
+              "minimum": 2
+            }
+          }
+        }
+      ]
     }
   },
   "x-job-results": {
@@ -8328,12 +9059,14 @@
     },
     "FP&A-ERR-011": {
       "code": "FP&A-ERR-011",
-      "message": "0 high-severity items are still open.",
+      "message": "1 high-severity items are still open.",
       "hint": "Review them in Exceptions, or record an override note",
       "retryable": false,
       "details": {
-        "n": 0,
-        "finding_ids": []
+        "n": 1,
+        "finding_ids": [
+          "finding_1"
+        ]
       }
     },
     "FP&A-ERR-012": {
@@ -8694,7 +9427,7 @@
     "FP&A-ERR-080": {
       "code": "FP&A-ERR-080",
       "message": "Close blockers are still open.\" (list)",
-      "hint": "Resolve them or record an override note",
+      "hint": "Refresh a changed review and resolve hard blockers; only permitted exceptions allow an override note",
       "retryable": false,
       "details": {
         "blockers": [
@@ -8727,7 +9460,7 @@
     "FP&A-ERR-083": {
       "code": "FP&A-ERR-083",
       "message": "Restating a locked period needs an approval note.",
-      "hint": "Add who approved it and why",
+      "hint": "Review the current impact report and record who approved it and why; an old approval or lock note does not count",
       "retryable": false,
       "details": {
         "reason": "approval_note_required"
@@ -9905,5 +10638,144 @@
         "to": "closing"
       }
     }
+  },
+  "x-close-endpoints": {
+    "GET /projects/{id}/periods/{period_id}/close-readiness": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "CloseReadiness",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "POST /close/sign-off": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": "CloseSignoffCreate",
+      "response": "CloseSignoff",
+      "status": "201",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "080",
+          "083",
+          "090"
+        ]
+      }
+    },
+    "POST /projects/{id}/periods/{period_id}/lock": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": "PeriodLock",
+      "response": "LockedPeriod",
+      "status": "200",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005",
+          "015"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "011",
+          "080",
+          "083",
+          "090"
+        ]
+      }
+    }
+  },
+  "x-close-policy": {
+    "prerequisite_tasks": [
+      "T-01",
+      "T-02",
+      "T-03",
+      "T-04",
+      "T-05",
+      "T-06",
+      "T-07",
+      "T-08"
+    ],
+    "outcome_tasks": [
+      "T-09",
+      "T-10"
+    ],
+    "overridable_codes": [
+      "high_findings",
+      "manual_tasks"
+    ],
+    "current_signoff_guards": [
+      "latest_project_audit",
+      "same_period_version",
+      "same_snapshot",
+      "same_blocker_fingerprint"
+    ]
   }
 }
