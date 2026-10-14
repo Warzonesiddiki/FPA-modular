@@ -8,6 +8,9 @@
 ## Health, projects and period metadata (DEC-017)
 Doc 05 §6.0 owns the field tables; §6.1–§6.7 own methods/auth/status/errors/examples. Index into `api_job_schemas.json#/$defs/`: Health, ProjectName, ProjectId, CalendarDate, PeriodNote, PageCursor, ProjectCreate, Project, CreatedProject, Period, ProjectPage, PeriodPage, FiscalYearCreate, FiscalYearPeriods, ProjectListQuery, PeriodListQuery. Project is metadata only: periods and close progress are separate resources, never unbounded embedded arrays. All server-assigned fields are rejected in create requests.
 
+## Sample/deletion and period commands (DEC-018)
+Doc 05 §7 owns fields/behaviour/examples. Attachment index: SampleProjectCreate, CreatedSampleProject, ProjectDelete, ProjectDeleted, PeriodStartClose, PeriodUnlock, ClosingPeriod. Metadata only; error money remains decimal strings. No sample corpus is pre-committed by the create response.
+
 ## Imports
 `Batch{batch_id, source_kind, period_id, file_name, file_sha256, status, row_count_in/valid/quarantined, control: {declared_debit?: string, declared_credit?: string, actual_debit: string, actual_credit: string}|null, mapping_profile_id, committed_at?}` · `QuarantineRow{row_no, sheet, reason (doc 06 §4 enum), raw: object}` · `MappingProfile{profile_id, name, version, is_default, rules: {source_column, canonical_field, transform, constant_value?}[]}` · `SuggestResponse{suggestions: {source_column, canonical_field, confidence: 0..1, basis: string}[]}`.
 

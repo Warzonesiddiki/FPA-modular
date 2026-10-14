@@ -1,5 +1,10 @@
 # Documentation Changelog (newest first)
 
+## 2026-10-14 (f) — DEC-018 lifecycle command contracts (WI-0001 in progress)
+- Doc 05 §7: sample workspace creation, typed-confirmation deletion with honest ≥30-day retention, start-close and unlock; complete field/status/error/replay/example contracts for this sub-scope. Preserve the real import path and pre-unlock baseline; do not mark sample financial work, sign-off or re-lock complete.
+- Align owning/repeating docs 12/18/19/23/30/41/42/70/90 and the generated paired-test list. Extend the existing schema attachment with independent document tests; no product code, job kind, error code, bar or milestone gate changes. Backup/restore and lock/re-lock/sign-off/impact contracts still need hardening.
+
+
 ## 2026-10-14 (e) — DEC-017 project/period API contracts (WI-0001 still in progress)
 - Expand seven health/project/period operations in doc 05 §6; move Project/Period field ownership out of doc 90 shorthand. Explicit FY creation, bounded metadata, paged periods, canonical names, currency registry and app-scoped creation receipts.
 - Align docs 02/18/19/27/90/63; document M1 metadata delta 14 and preserve all gate requirements. Correct the locked-pull HTTP example to include the required project/idempotency headers. Existing product code unchanged; sample/delete/backup/restore/transitions and other route families remain incomplete.

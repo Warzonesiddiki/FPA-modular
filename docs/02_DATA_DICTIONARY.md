@@ -5,7 +5,7 @@
 ## 1. Conventions
 - `*_minor` INTEGER NOT NULL: money in minor units. Sign convention: debit positive, credit negative in `gl_rows.amount_minor` (doc 03 owns statement sign presentation).
 - Every user-editable table carries `version INTEGER`, `created_at`, `updated_at` and writes an `audit_log` row on mutation (the actor is recorded in `audit_log.actor`; tables carry `created_by` only where listed below — `adjustments`, `report_definitions`, `close_tasks.completed_by`).
-- Soft-delete only via `is_active=0`; financial rows are never deleted — a batch is superseded (`import_batches.status='superseded'`).
+- Within an active project, soft-delete only via `is_active=0`; financial rows are never deleted — a batch is superseded (`import_batches.status='superseded'`). Explicit whole-project deletion is the separate typed-confirmation/trash/purge operation of doc 12 §2.1, not a row-deletion API (DEC-018).
 
 ## 2. Tables
 

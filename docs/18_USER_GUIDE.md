@@ -3,8 +3,8 @@
 > Written for the analyst, in plain language. This guide ships in-app (S15 Help) — screenshots are added at release (doc 16 checklist). Advisory: this tool helps you prepare and review numbers; a qualified finance professional should review the final pack before it is used outside the company.
 
 ## 1. Your first 10 minutes (sample data)
-1. Open the app → **Projects** → open **Sample Company** (fictional data, safe to explore — nothing you do here affects real work).
-2. Follow the banner **"Run your first month-end"**. It walks you: Import → Checks → Statements → Variances → Exceptions → Forecast → Exports. At the Import step you can drop the sample files **or** click **Connect to the demo ledger (local)** and **Pull this month** — that is exactly what the Dynamics 365 connection does with your real ledger, demonstrated on a pretend one that runs on your own computer.
+1. Open the app → **Projects** → create/open **Sample Company** (fictional data, safe to explore — nothing you do here affects real work). Creating it prepares a separate empty sample workspace and its fiscal years, not a finished set of books.
+2. Follow the banner **"Run your first month-end"**. It walks you: Import → Checks → Statements → Variances → Exceptions → Forecast → Exports. At the Import step, load the bundled masters first, then the GL, budget and other sample files through the normal validation/commit steps. You can drop the sample files **or** click **Connect to the demo ledger (local)** and **Pull this month** — that is exactly what the Dynamics 365 connection does with your real ledger, demonstrated on a pretend one that runs on your own computer.
 3. On each screen, try clicking a number — everything drills down to the vouchers and the exact file and row behind it. That drill is your safety net in every review meeting.
 
 ## 2. Starting a real project
@@ -56,3 +56,6 @@ This is the full list; the detailed version with exact menu names is doc 26 §8.
 3. Only if you prefer a service identity instead of the analyst's sign-in: add a client secret or certificate and register the application inside the product (F&O: *System administration → Microsoft Entra ID applications*; Business Central: *Microsoft Entra Applications*) with a read-only role. The analyst pastes the secret once; it is stored in Windows Credential Manager.
 4. Nothing to open on the firewall beyond what Office already uses: the app talks only to `login.microsoftonline.com` and your Dynamics 365 host, over HTTPS, only when the analyst clicks.
 The app never posts, edits or deletes anything in Dynamics 365, never connects in the background, and sends no telemetry.
+
+## 9. Removing a project
+Projects → Delete asks for the exact project name and refuses while work or a download is active. It signs that project out and moves the folder to private trash for at least 30 days; an offline computer purges on a later app start. The project disappears from normal lists immediately after successful deletion. Separately saved exports/backups are not erased. Deleting a sample uses the same confirmation and retention rules. If the action fails, follow the retry guidance; do not assume files or credentials were removed.

@@ -11,3 +11,6 @@ Blocker = unmet system condition for sign-off/lock; shown on S01/S16 with deep l
 
 ## 4. Sign-off record
 Attestation text ("I confirm the pack for <period> is complete and reviewed"), signer label, timestamp, snapshot ids — stored, shown on Excel Cover and S16 history. Sign-off ≠ statutory certification (advisory wording applies).
+
+## 5. Starting and reopening close (DEC-018)
+POST start-close (doc 05 §7.3) creates the period template exactly once in the open→closing transaction; GET close/S16 navigation never mutates state. It completes no attest/system task merely by creating rows. Unlock (§7.4) retains task history and the old sign-off, invalidates current readiness, and does not recreate the template. Sign-off/lock dependency and impact-review contracts still need WI-0001 expansion; this section does not resolve their T-09/T-10 dependency cycle or declare them implemented.

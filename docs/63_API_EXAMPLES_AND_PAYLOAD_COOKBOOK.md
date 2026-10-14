@@ -375,3 +375,114 @@ First creation → 201, exactly twelve periods. Repeat without a key → 200 wit
 }
 ```
 No page cursor is needed for this bounded twelve-row action result. The next GET periods still obeys limit/cursor. FY 0000 and full-year creation for 9999 are rejected before writes (ERR-002); FY0001 and FY9998 are valid creation bounds. These examples validate shapes and calendar oracles, not database atomicity or an implemented endpoint.
+
+## 9. Sample workspace, deletion, start-close and unlock (doc 05 §7)
+All examples are synthetic contract fixtures, not calls against a server. Every request carries the launch token. Project-scoped requests carry X-FPA-Project equal to their path id. Sample creation and deletion require Idempotency-Key; the period actions accept it optionally. No query parameters are accepted by these four endpoints.
+
+### 9.1 Create a separate sample workspace
+POST `/projects/sample`:
+<!-- contract: SampleProjectCreate -->
+```json
+{
+  "name": "Sample Company"
+}
+```
+HTTP 201:
+<!-- contract: CreatedSampleProject -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e2",
+  "name": "Sample Company",
+  "base_currency": "INR",
+  "currency_exponent": 2,
+  "fy_start_month": 4,
+  "calendar_type": "monthly",
+  "is_sample": true,
+  "version": 1,
+  "created_at": "2026-10-14T09:00:00Z",
+  "updated_at": "2026-10-14T09:00:00Z"
+}
+```
+
+The server has created FY2024–FY2026 (36 open periods), normal default settings/COA and a sample flag, not pre-committed books. Use normal import steps to load bundled masters first and then the financial files, or explicitly connect the local demo ledger. Project lists show this flag; it cannot be supplied on ordinary project creation or cleared by a client field.
+
+### 9.2 Delete after exact confirmation
+DELETE `/projects/prj_9f2c41aa07e1`, with matching project header and a fresh key:
+<!-- contract: ProjectDelete -->
+```json
+{
+  "expected_version": 1,
+  "confirmation": "Meridian FY27"
+}
+```
+HTTP 200, only after durable move/revocation/catalogue/audit/receipt:
+<!-- contract: ProjectDeleted -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "status": "trashed",
+  "deleted_at": "2026-10-14T09:00:00Z",
+  "purge_after": "2026-11-13T09:00:00Z"
+}
+```
+
+This is private trash, not immediate erasure. UTC October 14 + 30 days is November 13, not November 14. The app may purge later if offline. A same-key replay returns the same receipt; normal GETs return 404. A different casing or trailing space in the typed confirmation gives ERR-013, even though active-name uniqueness on creation uses casefold. The app does not delete another project's files or externally saved exports/backups.
+
+### 9.3 Enter close deliberately
+For the open version-1 April Period in §8, POST `/projects/prj_9f2c41aa07e1/periods/2026-P01/start-close`:
+<!-- contract: PeriodStartClose -->
+```json
+{
+  "expected_version": 1
+}
+```
+HTTP 200:
+<!-- contract: ClosingPeriod -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "fiscal_year": 2026,
+  "period_no": 1,
+  "start_date": "2026-04-01",
+  "end_date": "2026-04-30",
+  "status": "closing",
+  "locked_at": null,
+  "lock_note": null,
+  "version": 2,
+  "created_at": "2026-10-14T09:00:00Z",
+  "updated_at": "2026-10-14T09:00:01Z"
+}
+```
+
+The task template and audit were created in that transaction; no task was falsely marked complete. A fresh call with expected_version=2 while already closing fails ERR-016 (`action=start_close`), not a second template. Merely reading a checklist would not have produced this state.
+
+### 9.4 Reopen a locked period with a reason
+Assume April is now locked at version 3. POST `/projects/prj_9f2c41aa07e1/periods/2026-P01/unlock`:
+<!-- contract: PeriodUnlock -->
+```json
+{
+  "expected_version": 3,
+  "note": "Re-import the corrected April ledger; approved by the controller."
+}
+```
+HTTP 200:
+<!-- contract: ClosingPeriod -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "fiscal_year": 2026,
+  "period_no": 1,
+  "start_date": "2026-04-01",
+  "end_date": "2026-04-30",
+  "status": "closing",
+  "locked_at": null,
+  "lock_note": null,
+  "version": 4,
+  "created_at": "2026-10-14T09:00:00Z",
+  "updated_at": "2026-10-14T09:00:01Z"
+}
+```
+
+Old lock metadata and the immutable pre-unlock baseline are in RESTATE_OPEN history, not discarded. The current period has null lock metadata and revision 4, not open/revision 1. The previous sign-off is historical; this action does not waive impact review or approve re-lock. With a valid expected_version but missing/null/blank note, return 400 ERR-015 (`details.action=unlock`); a missing version, non-string/oversized/control-containing note or unknown field gives ERR-002. Stale version → ERR-003 before lifecycle mutation. Runtime atomicity/leases and baseline persistence remain M1/M3 verification work.

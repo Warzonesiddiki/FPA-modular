@@ -6,10 +6,10 @@
 | ID | Statement | Rule | Err | Scr | API | Test |
 |---|---|---|---|---|---|---|
 | FR-PRJ-001 | Create project | name, supported base currency (derived exponent), FY start month, monthly calendar and explicit initial fiscal_year (doc 05 §6) → project folder, DB, default thresholds (07 §1), COA template (28) | ERR-010 | S02 | projects | project_repo |
-| FR-PRJ-002 | Sample project | generated from the corpus (42), flagged `is_sample`, deletable, never mixed with real data | — | S02 | projects | e2e sample load |
+| FR-PRJ-002 | Sample project | POST /projects/sample creates a separate flagged workspace (05 §7.1), FY2024–2026; bundled corpus (42) then loads through ordinary imports, not a pre-built DB; deletable, never mixed with real projects | — | S02 | projects | e2e sample load |
 | FR-PRJ-003 | Period lifecycle | 12 periods atomically materialised for the explicit FY at project creation or POST periods (doc 05 §6); reads never create periods; `open→closing→locked→(unlock)→closing` (23 §1); lock blocked by open High findings unless `force`+note (audited); unlock requires note; locked period rejects postings (EXC-005) | ERR-011 | S13, S16 | periods lock | period_repo, routes_projects |
 | FR-PRJ-004 | Backup / restore | zip of DB+imports+manifest with SHA-256; restore verifies hash and audit chain before opening (12 §2) | ERR-012 | S13 | backup/restore | test_backup |
-| FR-PRJ-005 | Delete project | typed-name confirmation; folder moved to trash dir then purged after 30 days (12 §2) | — | S02 | projects | project_repo |
+| FR-PRJ-005 | Delete project | exact typed-name + expected_version + idempotency key; exclusive lifecycle lease, credential revocation, private trash then purge no earlier than 30×24h (12 §2.1; 05 §7.2) | — | S02 | projects | project_repo |
 | FR-PRJ-006 | Multi-entity & consolidation view (v1) | entities within one project; statements/BvA/KPI per entity or `all` (simple sum, same currency); IC/FX reserved (49 §2) | — | S06 | statements?entity_id | statements |
 | FR-PRJ-007 | Fiscal calendar | `calendar.py`: calendar months in v1 (4-4-5 reserved for Phase 2 per doc 27), FY start any month, period ids `<fy>-P<nn>`, prior-year/prior-period helpers | ERR-026 | — | — | test_calendar |
 

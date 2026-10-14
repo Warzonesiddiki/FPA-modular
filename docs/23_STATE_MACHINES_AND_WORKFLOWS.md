@@ -3,7 +3,7 @@
 > Every lifecycle in one place; code (workflow modules) implements exactly these transitions; illegal transition = ERR-040/080. All transitions write audit + history.
 
 ## 1. Period: `open → closing → locked → (unlock→) closing`
-Enter `closing` when analyst starts close checklist (S16); `locked` via lock action (FR-PRJ-003 guards). Imports into `locked` rejected; into `closing` allowed with banner.
+Enter `closing` only through POST start-close (doc 05 §7.3), not by opening S16 or reading a checklist; `locked` via lock action (FR-PRJ-003 guards). Imports into `locked` rejected; into `closing` allowed with banner. Start-close accepts only open; unlock accepts only locked and requires a note. Both require expected_version, increment it exactly once and write audit atomically (doc 05 §7). Unlock records RESTATE_OPEN and retains the immutable pre-change baseline before allowing correction; it clears current lock metadata but not history and invalidates the prior sign-off for current readiness. It does not reset or reinstantiate the task template.
 
 ## 2. Import batch: `staged → validated → committed | rejected | superseded`
 `staged` on upload; `validated` after the validation stage completes with no blocking issue (quarantine may be non-empty; ERR-022/023 keep the batch `staged`); `committed` only via atomic commit passing control totals and the TB gate (doc 06 §2 steps 6–8); `rejected` = analyst discard (staging removed, audit kept); `superseded` when the same (file-hash, period, kind) is recommitted. Crash in commit → stays `validated` (never half-committed; doc 06 §2 step 7). Re-validation after a mapping change returns the batch to `staged` first. Only `staged`/`validated` batches can be discarded; `committed` batches can only be superseded.

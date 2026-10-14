@@ -347,3 +347,9 @@ FILES TOUCHED: docs 02/05/17/18/19/27/63/86/90/CHANGELOG, shared schema attachme
 DEVIATIONS: DEC-017, spec commits 221fc3d and e6ae4bf precede schema additions. Project/period revision fields explicitly recorded as M1 delta 14 and M1 gate wording aligned; no gate/bar weakened. This remains a partial documentation checkpoint, not a WI completion.
 DECISIONS TAKEN: DEC-017 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before real tenant pilot.
 NEXT: finish project sample/delete/backup/restore and period start/lock/unlock, including doc-41 impact review; then remaining route families/field tables/examples. Reconcile the missing project_repo plan ownership before WI-0001 sign-off; frozen calendar low-year padding needs M1 verification. Details and limits: evidence/WI-0001_project_contract_2026-10-14.md. **Still WI-0001 in_progress; 0/30 done, M0 open.**
+
+## WI-0001 continuation — lifecycle commands, 2026-10-14
+STATUS: in_progress; M0 open, 0/30 completed.
+BASELINE: fetch/log/status clean at 8b00506; `.venv/bin/python -m pytest -q` → 206 passed in 10.44s.
+CONTRACT: doc 05 §7 / DEC-018: four explicit metadata commands, source-controlled sample defaults, exact-name/version delete + durable replay/30-day trash (12 §2.1), open→closing and locked→closing with atomic pre-change baseline (23/41). DTO verification is not runtime filesystem/transaction proof.
+NEXT: author independent tests before schema extension; record evidence and retain all unresolved WI-0001 scope.
