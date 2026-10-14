@@ -2,6 +2,7 @@
 
 ## 2026-10-15 (b) — DEC-024 retained source-row codec (WI-0001 in progress)
 - Specify complete retained GL/adjustment row images, origin evidence, strict canonical bytes and immutable content-addressed storage; distinguish connector content identity from actual workbook bytes.
+- Gate wording explicitly retains deltas 1–16 and adds delta 17; existing document assertions/tests remain unchanged, no prior coverage removed.
 - Separate internal integer-minor-unit schema from public money-string contracts; assign existing hashing/report_repo owners and delta 17. Full snapshots/file membership/views/finding state and lifecycle/restore remain unfinished; no runtime or WI completion.
 
 ## 2026-10-15 — DEC-023 input revisions and impact persistence (WI-0001 in progress)
