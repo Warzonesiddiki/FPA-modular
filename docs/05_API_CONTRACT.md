@@ -42,11 +42,11 @@ Auth is `X-FPA-Token` on **every** `/api/v1` operation, including `/health`, job
 Project-scoped operations require `X-FPA-Project: <project_id>`, including resource-only routes (`/imports/{batch_id}`, `/exceptions/{finding_id}`, `/mapping-profiles`, `/driver-values`, `/close/sign-off`, `/jobs/{id}` and `/diagnostics/bundle`). A project path/query/body selector must equal this header. Every nested id (batch, finding, owner, account, profile, version, run, scenario, report, job) is checked in that project before state checks; mismatch/missing/foreign → 404/ERR-001. Missing project header → 400/ERR-002. Only `/health` and `/projects` GET/POST are app-scoped (no project header). No implicit last-opened/global-current-project state exists in the API.
 
 ### 1.3 Wire types, paging and idempotency (DEC-016)
-Requests reject unknown fields, duplicate query parameters and unknown query keys (400/ERR-002). JSON bodies are UTF-8 objects, never implicit form data; file upload is explicitly multipart. Required vs nullable vs optional is distinct. Unspecified request bodies are forbidden; no-body actions send no body. Dates are `YYYY-MM-DD`; timestamps are RFC3339 UTC `Z`. Period ids are `<FY-start-year>-P<01..12>` with a four-digit Gregorian start year 0001..9999 (doc 02 §2); year 0000 is invalid. Financial decimals (money, percentages, ratios, drivers) are strings: no exponent syntax, separators, leading plus or floats; money permits 0/2/3 fraction digits according to the project's fixed exponent (doc 27), never UI arithmetic. Responses format money with exactly that exponent; input with excess precision is rejected rather than silently rounded. JSON integer fields are counts/indexes/version numbers, not money. Public `amount_minor` / `delta_minor` / `erp_minor` / `app_minor` / `rollforward_delta_minor` are replaced by `amount` / `delta` / `erp` / `app` / `rollforward_delta` decimal strings; storage is unchanged. A monetary settings key ending in `_minor` retains its key but its wire `value` is a major-unit decimal string, translated through money.py. Binary content and raw source cells have their explicit formats; they are not computed money values.
+Requests reject unknown fields, duplicate query parameters and unknown query keys (400/ERR-002). JSON bodies are UTF-8 objects with duplicate member names rejected before validation, never implicit form data; file upload is explicitly multipart. Required vs nullable vs optional is distinct. Unspecified request bodies are forbidden; no-body actions send no body. Dates are `YYYY-MM-DD`; timestamps are RFC3339 UTC `Z`. Period ids are `<FY-start-year>-P<01..12>` with a four-digit Gregorian start year 0001..9999 (doc 02 §2); year 0000 is invalid. Financial decimals (money, percentages, ratios, drivers) are strings: no exponent syntax, separators, leading plus or floats; money permits 0/2/3 fraction digits according to the project's fixed exponent (doc 27), never UI arithmetic. Responses format money with exactly that exponent; input with excess precision is rejected rather than silently rounded. JSON integer fields are counts/indexes/version numbers, not money. Public `amount_minor` / `delta_minor` / `erp_minor` / `app_minor` / `rollforward_delta_minor` are replaced by `amount` / `delta` / `erp` / `app` / `rollforward_delta` decimal strings; storage is unchanged. A monetary settings key ending in `_minor` retains its key but its wire `value` is a major-unit decimal string, translated through money.py. Binary content and raw source cells have their explicit formats; they are not computed money values.
 
 A list is `Page<T> = {items: T[], next_cursor: string|null}`. Default limit 100, allowed integer 1..1000; cursor omitted on first page, null ends traversal. Default sort is resource id ascending; temporal histories use `(at,id)` ascending; financial line grids use `(period_id,entity_id,account_id,cost_centre_id,id)` ascending with null cost centre before text. No client-defined SQL sort. Opaque signed cursors bind project, operation, selectors, normalized filters, sort and the read snapshot/revision. A tampered, wrong-scope or expired cursor → ERR-002; changed snapshot/revision → ERR-003 (restart at first page), never silent duplicated/missing rows. Multi-page financial results pin their batch/version/run snapshot for the job-history retention period (7 days). Finite computed aggregates (statement lines, a single snapshot's check list, KPI tiles) are typed bounded arrays, not mutable resource lists; no pagination parameters unless the endpoint declares them. Drill uses Page<Voucher> (not a competing `vouchers` envelope); voucher-row drill is separately paged so a giant voucher cannot defeat the 250k-row posture.
 
-`Idempotency-Key` (non-empty printable ASCII, max 128 characters) is required for all job-creating POSTs, import commit, export and suggestion consumption; optional on other mutations. Scope = project + method + canonical path + key. Canonical input covers selectors/query and JSON (sorted object keys, array order retained), upload byte hashes and chosen settings/profile versions; never stores secrets. Same key/same input returns the original status/body/job id and creates no new side effects, including after restart; same key/different input → ERR-005. Records are retained for the project lifetime (job list retention does not permit repeating a side effect); replay after job history expiry returns its original job receipt and the referenced job poll may be ERR-001. A new key starts a new action only if lifecycle guards permit it. Without a key the operation is not replay-safe unless its endpoint explicitly says so. Second suggestion consumption with a new key → ERR-046 `already_consumed`; repeated queued-journal export cannot re-consume a finding. Atomicity and ownership checks still apply on every replay, before returning cached data.
+`Idempotency-Key` (non-empty printable ASCII, max 128 characters) is required for all job-creating POSTs, import commit, export and suggestion consumption; optional on other mutations. Scope = project + method + canonical path + key (app-scoped project creation uses the installation scope in §6.0). Canonical input covers selectors/query and JSON (sorted object keys, array order retained), upload byte hashes and chosen settings/profile versions; never stores secrets. Same key/same input returns the original status/body/job id and creates no new side effects, including after restart; same key/different input → ERR-005. Records are retained for the project lifetime (job list retention does not permit repeating a side effect); replay after job history expiry returns its original job receipt and the referenced job poll may be ERR-001. A new key starts a new action only if lifecycle guards permit it. Without a key the operation is not replay-safe unless its endpoint explicitly says so. Second suggestion consumption with a new key → ERR-046 `already_consumed`; repeated queued-journal export cannot re-consume a finding. Atomicity and ownership checks still apply on every replay, before returning cached data.
 
 Editable versioned objects expose integer `version≥1`; PUT and state-changing actions on such objects require `expected_version` in their JSON body. Mismatch → ERR-003 before mutation; success increments version and writes one before/after audit event in the same transaction. Bulk actions validate **all** ids/versions before writing; no partial success. Locks are rechecked inside the write transaction, not merely at job enqueue. The identity of the local analyst is supplied by the shell context, not an untrusted request `actor` field; business attestations still carry signer labels. No financial mutation is permitted during a detected audit-chain break (ERR-090); only reads, verify, restore and diagnostics remain available.
 
@@ -57,14 +57,12 @@ Cancel: POST `/jobs/{id}/cancel`, no body, 200 `{job_id,status,cancel_requested,
 
 ## 2. Endpoints
 ### Health & projects
-| Method & path | In | Out | Errors |
-|---|---|---|---|
-| GET `/health` | — | `{status:"ok", version}` | — |
-| GET `/projects` | — | list of project summaries | — |
-| POST `/projects` | `{name, base_currency, fy_start_month, calendar_type}` | project | ERR-010 name exists |
-| GET `/projects/{id}` | — | project + period list + close progress | ERR-001 not found |
-| POST `/projects/{id}/periods/{period_id}/lock` | `{note}` | period (locked) | ERR-011 open findings high-severity (returns list; override requires `{force:true, note}` audited) |
-| POST `/projects/{id}/backup` / `/restore` | `{path}` | 202 job: backup → BackupManifest; restore → RestoreResult (doc 64) | ERR-012 path not writable |
+Health, project list/create/detail, period list/create/detail: explicit contracts in §6. These are separate methods and paths, not CRUD shorthand.
+
+Remaining project operations awaiting expansion in WI-0001:
+- Sample initialisation and typed-confirmation deletion (FR-PRJ-002/005).
+- POST `/projects/{id}/periods/{period_id}/lock`, start-close and unlock (FR-PRJ-003; docs 23/41 guards).
+- POST `/projects/{id}/backup` and POST `/projects/{id}/restore` (FR-PRJ-004; doc 64 typed jobs).
 
 ### Imports (doc 06)
 | POST `/projects/{id}/imports` (multipart file(s) + `source_kind, period_id`) | → batch staged + profile summary | ERR-020 unsupported file, ERR-021 file too large (>200MB) |
@@ -167,3 +165,93 @@ These three complete transport contracts use doc 64's closed result union; they 
 - **Failures:** 400 ERR-002/ERR-005 (invalid request / optional key reused with changed input); 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-092/ERR-093. Actual terminal cancellation is ERR-004 inside the later job poll, not a failed cancel HTTP response.
 - **Pagination:** none. Accepted cancellation requests audit the decision; repeated terminal requests do not create a new job. Completion/cancellation arbitration is atomic (doc 64), never inferred by the browser.
 - **Example:** running non-cancellable commit → 200 `{"job_id":"job_commit_0001","status":"running","cancel_requested":false,"cancellable":false}`. Queued cancellation → 200 `{"job_id":"job_commit_0001","status":"cancelled","cancel_requested":true,"cancellable":false}`; a repeated request after that returns cancelled with both flags false.
+
+## 6. Health, project metadata and fiscal-year materialisation (DEC-017)
+These seven endpoint sections replace the corresponding shorthand in §2. Sample loading, deletion, backup/restore and period transitions still require expansion; §6 does not claim that those operations are complete. Contracts are documentation only until M3. Field names below are authoritative; doc 90 is their index. JSON Schema definitions are in the existing `api_job_schemas.json` attachment (shared primitives/errors are not copied into another registry).
+
+### 6.0 Field contracts and shared behaviour
+All properties are required unless explicitly optional; nullable properties must be present. All objects are closed. Dates are validated Gregorian `YYYY-MM-DD`; timestamps use §1.3 UTC Z. No money fields occur here; any reachable error money remains a decimal string. No ledger rows, filesystem paths, connection profiles or credentials are exposed by these DTOs.
+
+| Schema | Fields, types, constraints |
+|---|---|
+| Health | `status` constant `ok`; `version` non-empty string ≤64 characters, no whitespace/control characters, exactly the installed `app.__version__` (not a database schema version). This is liveness, not a financial-integrity verdict. |
+| ProjectName | String 1..80 Unicode code points, NFC-normalised, no leading/trailing whitespace or ASCII controls (U+0000..001F, U+007F). Reject non-canonical input with ERR-002; do not silently rename it. Active names are unique under Unicode casefold after NFC. Names are display text, never folder names or markup. |
+| ProjectId | String matching `prj_` followed by exactly 12 lower-case hex characters (doc 02). Server allocates with collision retry; clients never choose it. |
+| ProjectCreate | `name`: ProjectName; `base_currency`: one code from doc 27 §1's v1 table; `fy_start_month`: integer 1..12; `calendar_type`: constant `monthly`; `fiscal_year`: integer 1..9998 (initial FY start year, not current year inferred by the server). No client `project_id`, `is_sample`, exponent, path, version or timestamps. |
+| Project | `project_id`: ProjectId; `name`: ProjectName; `base_currency`: as ProjectCreate; `currency_exponent`: derived from doc 27 §1, exactly 0/2/3 as appropriate to that code; `fy_start_month`: integer 1..12; `calendar_type`: `monthly`; `is_sample`: boolean, assigned only by the server; `version`: integer ≥1; `created_at`, `updated_at`: Timestamp, updated_at ≥ created_at. Metadata only: **no embedded periods or close_progress**. Read periods using §6.5/§6.7; close progress remains the separate `/projects/{id}/close?period_id` resource. |
+| Period | `project_id`: ProjectId; `period_id`: PeriodId (doc 02, four-digit FY); `fiscal_year`: integer 1..9999; `period_no`: integer 1..12; `start_date`, `end_date`: Date; `status`: open/closing/locked; `locked_at`: Timestamp or null; `lock_note`: string 1..500 or null; `version`: integer ≥1; `created_at`, `updated_at`: Timestamp. Exact id = zero-padded fiscal_year + `-P` + two-digit period_no. Dates must be that month's first/last day under the project's FY start month. locked status requires locked_at; open/closing have locked_at and lock_note null (older locks remain in audit). A non-null note cannot be whitespace-only or contain ASCII controls. |
+| ProjectPage | `items`: Project array, ≤ requested limit; `next_cursor`: non-empty opaque string ≤4096 or null. |
+| PeriodPage | `items`: Period array, ≤ requested limit; `next_cursor`: same cursor type. Every item belongs to the selected project. |
+| FiscalYearCreate | `fiscal_year`: integer 1..9998. This conservative full-year creation bound leaves a representable following calendar year for every FY-start month; Period's larger read bound does not authorise overflow on writes. |
+| FiscalYearPeriods | `project_id`: ProjectId; `fiscal_year`: integer 1..9998; `periods`: exactly 12 Period objects ordered P01…P12 for this project/FY, with no duplicate/missing period. This bounded action result is not a Page. |
+| ProjectListQuery | Optional `limit`: integer 1..1000, default 100; `cursor`: non-empty opaque string ≤4096; `is_sample`: boolean filter, omitted = both sample and real projects. |
+| PeriodListQuery | Optional `limit`, `cursor` as above; `fiscal_year`: integer 1..9999; `status`: open/closing/locked. Omitted filters mean all retained years/states. |
+
+Query integers use ASCII digits only on the wire; booleans are exactly `true`/`false`. No coercion of blank, `1.0`, `1e2`, `yes`, repeated keys or unknown keys. Query DTO schemas describe the parsed values; HTTP parsing needs its own M3 tests. Body integers are JSON integers, not numeric strings or booleans. The request parser must reject duplicate JSON object members before schema validation; it must not choose one silently.
+
+Shared auth is §1.2: token + exact Host/Origin. App-scoped health/project listing/creation do not select a project; a supplied project header never restricts those app-wide results. Project-scoped routes require the header equal to the path ProjectId. Missing header → ERR-002; unknown/foreign/deleted project or period → ERR-001, before state disclosure. For §6 failures the complete body is the attachment's `$defs.ErrorNNN`; e.g. ERR-002 uses Error002, not an untyped details object. HTTP→code mapping is §1.1. All responses use `Cache-Control: no-store`; a read never creates periods, runs checks or opens an external socket.
+
+App-scoped project-creation receipts are scoped to **installation + method + canonical path + key**, survive launch-token rotation/restart and atomically identify the resulting project. A retry is matched before re-deriving default settings. Project-scoped keys retain §1.3 scope. A replay must not resurrect a deleted project: retain a minimal receipt tombstone (project id + request digest, not the deleted response/name), and return 404/ERR-001. This is a necessary exception to replaying the original success body after deletion, not permission to recreate it. Filesystem publication, metadata and receipt must recover together after a crash; never return 201 for a half-created project.
+
+### 6.1 GET `/health`
+- **Auth / scope:** app-scoped; token required, no project lookup.
+- **Request:** no path variables, query or body.
+- **Response:** 200 Health (§6.0); `status=ok` says the process can serve requests, not that every project's audit chain is valid.
+- **Failures:** 400 ERR-002 (body/query supplied); 401 ERR-006; 403 ERR-007; 500 ERR-099. No database requirement for liveness.
+- **Pagination:** none.
+- **Idempotency:** read-only; no Idempotency-Key; no audit mutation or background work.
+- **Example:** GET `/api/v1/health` → 200 `{"status":"ok","version":"0.1.0"}` for an installation at that example version.
+
+### 6.2 GET `/projects`
+- **Auth / scope:** app-scoped; token required. List all active projects in this installation, not only a last-opened one.
+- **Request:** no body/path variables; ProjectListQuery (§6.0), default limit 100 and no filters.
+- **Response:** 200 ProjectPage (§6.0). Entries are full Project metadata, not a second summary shape. Trashed projects are absent; sample flags cannot be removed by a filter.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 409 ERR-003 (cursor revision unavailable/changed); 500 ERR-099; 503 ERR-092.
+- **Pagination:** project_id ascending; cursor binds installation, filters and the project-list revision. A changed/unavailable revision returns ERR-003, not silently skipped projects. A tampered/wrong-filter/expired cursor returns ERR-002.
+- **Idempotency:** read-only; no key. No DB migration, project repair, demo loading or connector action on a GET.
+- **Example:** GET `/api/v1/projects?is_sample=false&limit=100` → 200 `{"items":[],"next_cursor":null}` in a fresh installation. A nonempty page is shown in doc 63 §8.
+
+### 6.3 POST `/projects`
+- **Auth / scope:** app-scoped; token required; Idempotency-Key required.
+- **Request:** ProjectCreate (§6.0); no query/path variables. Initial fiscal_year is explicit. Reject unsupported currency/calendar and client-supplied server fields with ERR-002. Compare active names using §6.0's canonical casefold key; duplicate → ERR-010.
+- **Response:** 201 Project (§6.0), `is_sample=false`, version 1 and equal creation/update timestamps. Also atomically initialise all 12 open periods for the requested FY, doc-62 default settings, and doc-28 COA template. No GL/budget transactions, sample corpus or imported opening balance is invented. Periods are fetched separately, not silently omitted from a promised embedded list.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001 (replay target deleted); 409 ERR-010; 500 ERR-099; 503 ERR-092/ERR-093. ERR-012 remains backup/restore-specific, not reused for arbitrary create failures.
+- **Pagination:** none.
+- **Idempotency:** mandatory durable app-scoped receipt (§6.0). Same key/input → original 201/body, same timestamp/id, no duplicate files/audit/defaults. New key + duplicate active name → ERR-010. Failed creation leaves no selectable partial project; recovery finishes or removes unpublished temporary state before accepting a retry.
+- **Example:** request `{"name":"Meridian FY27","base_currency":"INR","fy_start_month":4,"calendar_type":"monthly","fiscal_year":2026}` → 201 full Project in doc 63 §2. Resulting periods are April 2026…March 2027, not FY ending in 2026. Names containing literal script/formula text remain inert display data.
+
+### 6.4 GET `/projects/{id}`
+- **Auth / scope:** token + X-FPA-Project equal to path `id` (ProjectId).
+- **Request:** no query or body.
+- **Response:** 200 Project (§6.0). No embedded period/close arrays. Deletion makes this return ERR-001 rather than leaking a trash path. Opening/reading a project does not refresh Microsoft credentials or mutate its version.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-092.
+- **Pagination:** none; related periods are §6.5, not an unbounded include option.
+- **Idempotency:** read-only; no key; no implicit FY materialisation.
+- **Example:** GET `/api/v1/projects/prj_9f2c41aa07e1` → 200 the full Project from doc 63 §2, with the same header project id.
+
+### 6.5 GET `/projects/{id}/periods`
+- **Auth / scope:** token + matching project header; path `id`: ProjectId.
+- **Request:** PeriodListQuery (§6.0); no body. An absent FY in an existing project is an empty filtered list, not a reason to create it.
+- **Response:** 200 PeriodPage (§6.0); exact field constraints and project ownership apply to each item, including locked periods. No monetary balances in the metadata list.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001 (project); 409 ERR-003 (cursor revision changed/unavailable); 500 ERR-099; 503 ERR-092.
+- **Pagination:** period_id ascending; cursor binds project, FY/status filters and period-list revision. A concurrent lifecycle change invalidating the read revision returns ERR-003; never splice states from different revisions.
+- **Idempotency:** read-only; no key. No calendar generation or lock expiry on GET.
+- **Example:** GET `/api/v1/projects/prj_9f2c41aa07e1/periods?fiscal_year=2025` → 200 `{"items":[],"next_cursor":null}` if only FY2026 exists. Nonempty example in doc 63 §8.
+
+### 6.6 POST `/projects/{id}/periods`
+- **Auth / scope:** token + matching project header; path `id`: ProjectId.
+- **Request:** FiscalYearCreate (§6.0), no query. Calendar/month/currency come from the project, never a body override. This additive operation does not edit Project metadata and has no expected_version field; it cannot reset existing Period state.
+- **Response:** 201 FiscalYearPeriods for a newly materialised FY; 200 FiscalYearPeriods if its complete 12-period set already exists. Newly created periods have status open, null lock metadata, version 1 and the same injected timestamp. Existing periods retain every status/version/timestamp/note; the response is their current state unless a receipt is replayed. A partially present or calendar-inconsistent FY is an integrity failure (ERR-099), not silently patched. Creation of 12 rows and one audit event is atomic. No transaction amounts or opening balances are created; no other missing years are auto-filled.
+- **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-092/ERR-093.
+- **Pagination:** none; exactly 12 periods is the bounded action result, even when a read-page limit is lower.
+- **Idempotency:** optional key returns original status/body on replay. Without a key, naturally repeat-safe at the FY level: first 201, subsequent 200 with no extra audit event or changed period. Concurrent requests must arbitrate uniqueness, never create 24 rows. No new project metadata version merely from adding a year.
+- **Example:** POST `/api/v1/projects/prj_9f2c41aa07e1/periods` with `{"fiscal_year":2027}` → 201 full P01…P12 result in doc 63 §8; repeat without a key → 200 with the same rows, not 409 or a reset of locks.
+
+### 6.7 GET `/projects/{id}/periods/{period_id}`
+- **Auth / scope:** token + matching project header. Path `id`: ProjectId; `period_id`: PeriodId. Identical period_id in another project is not ownership.
+- **Request:** no query or body. A valid but non-materialised period id is ERR-001, not a generated synthetic Period.
+- **Response:** 200 Period (§6.0), including version for later guarded lifecycle actions.
+- **Failures:** 400 ERR-002; 401 ERR-006; 403 ERR-007; 404 ERR-001; 500 ERR-099; 503 ERR-092.
+- **Pagination:** none.
+- **Idempotency:** read-only; no key; no audit mutation.
+- **Example:** GET `/api/v1/projects/prj_9f2c41aa07e1/periods/2026-P01` → 200 the complete April Period in doc 63 §8. A future non-materialised FY returns 404, not zero balances.

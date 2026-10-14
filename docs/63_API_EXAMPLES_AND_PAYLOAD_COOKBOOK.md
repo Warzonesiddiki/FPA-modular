@@ -7,12 +7,35 @@ All application routes are relative to `http://127.0.0.1:<port>/api/v1`; send `X
 
 Same key/same payload returns the original receipt; changed payload with that key returns 400/FP&A-ERR-005. A new key does not bypass lifecycle guards. Missing launch token returns 401/FP&A-ERR-006, and a foreign Origin/Host is 403/FP&A-ERR-007, before project lookup.
 
-## 2. Create a project
-POST `/projects`, JSON request (no project header on this app-scoped operation):
+## 2. Create a project (doc 05 §6.3)
+POST `/projects` with token and required Idempotency-Key; no project selection or query. All request fields are required, including the initial FY **start year**. This is a synthetic example, not a running endpoint.
+<!-- contract: ProjectCreate -->
 ```json
-{"name":"Meridian FY27","base_currency":"INR","fy_start_month":4,"calendar_type":"monthly"}
+{
+  "name": "Meridian FY27",
+  "base_currency": "INR",
+  "fy_start_month": 4,
+  "calendar_type": "monthly",
+  "fiscal_year": 2026
+}
 ```
-HTTP 201 response fields are Project from doc 90: project_id, name, base_currency, currency_exponent, fy_start_month, calendar_type, is_sample, periods. IDs are created by the server; no request may set is_sample to impersonate a demo project. Full per-endpoint examples are being completed in WI-0001; this section does not claim an executable endpoint.
+HTTP 201, complete Project metadata:
+<!-- contract: Project -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "name": "Meridian FY27",
+  "base_currency": "INR",
+  "currency_exponent": 2,
+  "fy_start_month": 4,
+  "calendar_type": "monthly",
+  "is_sample": false,
+  "version": 1,
+  "created_at": "2026-10-14T09:00:00Z",
+  "updated_at": "2026-10-14T09:00:00Z"
+}
+```
+The server also creates FY2026's twelve periods (Apr-2026…Mar-2027); they are a separate paged resource. No client can set is_sample, exponent, timestamps, path or id. A same-key replay returns this original 201/id/body without extra rows/audit; a deleted target is ERR-001, never recreated. JPY derives exponent 0 and KWD derives 3; unknown currencies are not guessed. Only POST periods can explicitly add another year (§8).
 
 ## 3. Commit and poll a completed import
 POST `/imports/bat_41c200000001/commit`, no body (guard and idempotency headers per §1). HTTP 202:
@@ -90,3 +113,265 @@ Do not forward upstream 429 as the local endpoint status. Asynchronous results/e
 
 ## 7. Finance boundaries and pagination
 A BvA amount is `"125000.50"`, not `125000.50`; zero-budget variance percent is null with `var_pct_reason:"zero_budget"`. Money strings adapt to the project currency's 0/2/3 exponent (doc 27); the UI formats, never computes. Drill list uses `{items:[Voucher],next_cursor:null}`. Rows within one large voucher are separately paged; do not embed 250k rows in a single voucher item. All list cursors bind the project, request filters and snapshot. Changed snapshot produces ERR-003; wrong/tampered cursor ERR-002. Statement aggregates and job summaries are not an alternate path for dumping the transaction table.
+
+## 8. Health, project reads and fiscal-year creation (doc 05 §6)
+GET `/health` with the launch token → 200 (example installed version):
+<!-- contract: Health -->
+```json
+{
+  "status": "ok",
+  "version": "0.1.0"
+}
+```
+GET `/projects?is_sample=false&limit=100` → 200:
+<!-- contract: ProjectPage -->
+```json
+{
+  "items": [
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "name": "Meridian FY27",
+      "base_currency": "INR",
+      "currency_exponent": 2,
+      "fy_start_month": 4,
+      "calendar_type": "monthly",
+      "is_sample": false,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    }
+  ],
+  "next_cursor": null
+}
+```
+GET `/projects/prj_9f2c41aa07e1` with the matching X-FPA-Project header → 200 the exact Project in §2, **not** a periods/close-progress wrapper.
+
+GET `/projects/prj_9f2c41aa07e1/periods?fiscal_year=2026&limit=1` with the same header → 200 a first page. The cursor below is a schematic opaque value; only the server issues real signed cursors and callers must not construct it:
+<!-- contract: PeriodPage -->
+```json
+{
+  "items": [
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2026-P01",
+      "fiscal_year": 2026,
+      "period_no": 1,
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    }
+  ],
+  "next_cursor": "opaque-server-issued-cursor"
+}
+```
+GET `/projects/prj_9f2c41aa07e1/periods/2026-P01` → 200:
+<!-- contract: Period -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "period_id": "2026-P01",
+  "fiscal_year": 2026,
+  "period_no": 1,
+  "start_date": "2026-04-01",
+  "end_date": "2026-04-30",
+  "status": "open",
+  "locked_at": null,
+  "lock_note": null,
+  "version": 1,
+  "created_at": "2026-10-14T09:00:00Z",
+  "updated_at": "2026-10-14T09:00:00Z"
+}
+```
+An empty filtered period list is `{"items":[],"next_cursor":null}`; GET never creates missing years. A valid but absent single period instead returns 404/ERR-001. Locked periods remain readable with locked_at populated and their current version; ensuring the FY does not reopen them.
+
+POST `/projects/prj_9f2c41aa07e1/periods` (token + matching project header; optional Idempotency-Key):
+<!-- contract: FiscalYearCreate -->
+```json
+{
+  "fiscal_year": 2027
+}
+```
+First creation → 201, exactly twelve periods. Repeat without a key → 200 with the existing state, never reset locks/timestamps. The February below intentionally exercises the leap year 2028:
+<!-- contract: FiscalYearPeriods -->
+```json
+{
+  "project_id": "prj_9f2c41aa07e1",
+  "fiscal_year": 2027,
+  "periods": [
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P01",
+      "fiscal_year": 2027,
+      "period_no": 1,
+      "start_date": "2027-04-01",
+      "end_date": "2027-04-30",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P02",
+      "fiscal_year": 2027,
+      "period_no": 2,
+      "start_date": "2027-05-01",
+      "end_date": "2027-05-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P03",
+      "fiscal_year": 2027,
+      "period_no": 3,
+      "start_date": "2027-06-01",
+      "end_date": "2027-06-30",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P04",
+      "fiscal_year": 2027,
+      "period_no": 4,
+      "start_date": "2027-07-01",
+      "end_date": "2027-07-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P05",
+      "fiscal_year": 2027,
+      "period_no": 5,
+      "start_date": "2027-08-01",
+      "end_date": "2027-08-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P06",
+      "fiscal_year": 2027,
+      "period_no": 6,
+      "start_date": "2027-09-01",
+      "end_date": "2027-09-30",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P07",
+      "fiscal_year": 2027,
+      "period_no": 7,
+      "start_date": "2027-10-01",
+      "end_date": "2027-10-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P08",
+      "fiscal_year": 2027,
+      "period_no": 8,
+      "start_date": "2027-11-01",
+      "end_date": "2027-11-30",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P09",
+      "fiscal_year": 2027,
+      "period_no": 9,
+      "start_date": "2027-12-01",
+      "end_date": "2027-12-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P10",
+      "fiscal_year": 2027,
+      "period_no": 10,
+      "start_date": "2028-01-01",
+      "end_date": "2028-01-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P11",
+      "fiscal_year": 2027,
+      "period_no": 11,
+      "start_date": "2028-02-01",
+      "end_date": "2028-02-29",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    },
+    {
+      "project_id": "prj_9f2c41aa07e1",
+      "period_id": "2027-P12",
+      "fiscal_year": 2027,
+      "period_no": 12,
+      "start_date": "2028-03-01",
+      "end_date": "2028-03-31",
+      "status": "open",
+      "locked_at": null,
+      "lock_note": null,
+      "version": 1,
+      "created_at": "2026-10-14T09:00:00Z",
+      "updated_at": "2026-10-14T09:00:00Z"
+    }
+  ]
+}
+```
+No page cursor is needed for this bounded twelve-row action result. The next GET periods still obeys limit/cursor. FY 0000 and full-year creation for 9999 are rejected before writes (ERR-002); FY0001 and FY9998 are valid creation bounds. These examples validate shapes and calendar oracles, not database atomicity or an implemented endpoint.

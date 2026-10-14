@@ -333,3 +333,9 @@ FILES TOUCHED: docs 05/07/12/17/19/22/23/26/60/63/64/81/90/CHANGELOG, schema att
 DEVIATIONS: DEC-016 authorises the document schema and paired tests within WI-0001, with docs-first commit 674dfb8. Follow-up contradictions corrected in owning docs; no product feature, formula, bar or gate changed. This is a partial docs checkpoint, not a WI completion commit.
 DECISIONS TAKEN: DEC-016 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra registration only before a real tenant pilot.
 NEXT: evidence/WI-0001_job_contract_2026-10-14.md §4. Still **WI-0001 in_progress; 0/30 complete**, M0 open. Historical DEC-015/73-code evidence above is not the current verifier.
+
+## WI-0001 continuation — project/period contracts, 2026-10-14
+STATUS: in_progress (0/30 batch items done).
+BASELINE: stale local Git metadata recovered with mixed reset to pushed fc736ff; working files unchanged. System pytest absent; system pip protected (PEP 668). Created ignored .venv and installed tests/docs/requirements.txt; `.venv/bin/python -m pytest -q` → 129 passed in 8.83s.
+CONTRACT: doc 05 §6 / DEC-017: seven explicit health/project/period endpoints; closed metadata DTOs, fixed currency exponents (27), initial FY and repeat-safe atomic 12-period creation (02), no reads creating data, scoped durable receipt, no server-controlled create fields. Doc 02 revision metadata delta 14 is M1 work; frozen app code untouched.
+NEXT: author independent schema/example tests before implementing the attachment extension; WI-0001 still first unfinished item.
