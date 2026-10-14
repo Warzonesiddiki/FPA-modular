@@ -15,17 +15,18 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **Batch request (2026-10-14):** owner requested the next 30 items; track WI-0001…0030 in plan order. No gate bypass, no bulk done marking. Current item remains WI-0001.
 - **DEC-016** (auto): shared API protocol and job-schema ownership fixed in docs before implementation; details doc 17 §4. No owner approval needed.
+- **DEC-017** (auto): explicit FY creation, bounded Project metadata and paged Period reads; fixed currency registry and canonical names; durable app-scoped creation receipt. Doc 02 delta 14 records missing revision metadata for M1, not a product change now. Seven endpoints expanded, no WI/gate completed.
 
 ## Current position
 - Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-14. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
-- DEC-016 shared protocol + job transport/schema sub-scope verified: **120 document tests + 9 unchanged product tests = 129 passing**; 207 definitions, 18 job kinds, 76 errors. App code frozen; no API runtime or M0 gate claim.
-- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_job_contract_2026-10-14.md` §4.
+- DEC-016/017 checkpoints verified: **197 document tests + 9 unchanged product tests = 206 passing**; 223 definitions, 18 job kinds, 76 errors. Seven health/project/period endpoint sections now supplement the three job-transport sections. App code frozen; no API runtime or M0 gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_project_contract_2026-10-14.md` (Exact continuation).
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-016 shared protocol + job schema/transport sub-scope: 129 tests pass; full remaining endpoint expansion incomplete. Evidence: WI-0001_job_contract_2026-10-14.md; latest handover below. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-017: seven more explicit endpoints; 206 tests pass. Full endpoint expansion incomplete. Evidence: WI-0001_project_contract_2026-10-14.md; latest handover below. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -338,4 +339,11 @@ NEXT: evidence/WI-0001_job_contract_2026-10-14.md §4. Still **WI-0001 in_progre
 STATUS: in_progress (0/30 batch items done).
 BASELINE: stale local Git metadata recovered with mixed reset to pushed fc736ff; working files unchanged. System pytest absent; system pip protected (PEP 668). Created ignored .venv and installed tests/docs/requirements.txt; `.venv/bin/python -m pytest -q` → 129 passed in 8.83s.
 CONTRACT: doc 05 §6 / DEC-017: seven explicit health/project/period endpoints; closed metadata DTOs, fixed currency exponents (27), initial FY and repeat-safe atomic 12-period creation (02), no reads creating data, scoped durable receipt, no server-controlled create fields. Doc 02 revision metadata delta 14 is M1 work; frozen app code untouched.
-NEXT: author independent schema/example tests before implementing the attachment extension; WI-0001 still first unfinished item.
+TESTS RUN: `.venv/bin/python -m pytest tests/docs/test_api_project_contract.py -q --tb=short` → **77 passed in 1.31s**; `.venv/bin/python -m pytest tests/docs -q --tb=short` → **197 passed in 9.46s**; `.venv/bin/python -m pytest -q --tb=short` → **206 passed in 9.78s**. `git diff --check` clean. Evidence records test-first failures, parser correction, creation-response restriction and missing HTTP-header regression.
+MUTATIONS: allow server-controlled request fields; drop currency/exponent constraint; FY upper-bound off-by-one → all caught by the same independent oracle. Existing three job-schema probes still pass; isolated copies only.
+EDGES: schema/oracle PASS for currency 0/2/3, empty/single/capped pages, unknown/missing fields, partial/duplicate FY, lock-state shape, Unicode/control/oversized names, leap/year/date boundaries and relational negative controls. N/A to financial arithmetic/denominators/credit accounts/superseded batches/waivers here. Actual HTTP parsing/ownership, persistence, locks, deletion/restore and escaping remain M1/M3 work; no runtime/perf claim.
+SPEC CHECKS: docs 05 §6/27 §1 server-controlled fields + exact exponent registry; docs 02/05 §6 twelve-period dates/identity/ownership and readable locked shapes; docs 05/22 method/path/scope/response/error transport parity. Six schema mutation probes across the two modules; 267 WI identities unchanged, seven gate strings equal, plan regeneration byte-identical.
+FILES TOUCHED: docs 02/05/17/18/19/27/63/86/90/CHANGELOG, shared schema attachment, new tests/docs/test_api_project_contract.py, generator/WORK_PLAN.md/.csv, TASKBOARD, evidence/WI-0001_project_contract_2026-10-14.md. App/original tests unchanged against fc736ff.
+DEVIATIONS: DEC-017, spec commits 221fc3d and e6ae4bf precede schema additions. Project/period revision fields explicitly recorded as M1 delta 14 and M1 gate wording aligned; no gate/bar weakened. This remains a partial documentation checkpoint, not a WI completion.
+DECISIONS TAKEN: DEC-017 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before real tenant pilot.
+NEXT: finish project sample/delete/backup/restore and period start/lock/unlock, including doc-41 impact review; then remaining route families/field tables/examples. Reconcile the missing project_repo plan ownership before WI-0001 sign-off; frozen calendar low-year padding needs M1 verification. Details and limits: evidence/WI-0001_project_contract_2026-10-14.md. **Still WI-0001 in_progress; 0/30 done, M0 open.**

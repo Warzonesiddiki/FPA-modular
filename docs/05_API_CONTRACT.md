@@ -28,6 +28,8 @@ Example, a locked connector pull rejected before any job or network request:
 POST /api/v1/projects/prj_9f2c41aa07e1/connector/pull
 Content-Type: application/json
 X-FPA-Token: <per-launch token>
+X-FPA-Project: prj_9f2c41aa07e1
+Idempotency-Key: locked-pull-2025-P07-1
 
 {"period_id":"2025-P07","sources":["gl"]}
 ```
@@ -61,8 +63,8 @@ Health, project list/create/detail, period list/create/detail: explicit contract
 
 Remaining project operations awaiting expansion in WI-0001:
 - Sample initialisation and typed-confirmation deletion (FR-PRJ-002/005).
-- POST `/projects/{id}/periods/{period_id}/lock`, start-close and unlock (FR-PRJ-003; docs 23/41 guards).
-- POST `/projects/{id}/backup` and POST `/projects/{id}/restore` (FR-PRJ-004; doc 64 typed jobs).
+- POST `/projects/{id}/periods/{period_id}/lock`: legacy request `{note, force?}` → Period; ERR-011 for open High findings unless forced with an audited note. Start-close/unlock and the full version/restatement guards remain to expand (FR-PRJ-003; docs 23/41).
+- POST `/projects/{id}/backup` and POST `/projects/{id}/restore`: legacy request `{path}` → 202 JobReceipt; results BackupManifest / RestoreResult (doc 64), ERR-012 for unavailable paths. Full input/root-selection/integrity contracts remain to expand (FR-PRJ-004).
 
 ### Imports (doc 06)
 | POST `/projects/{id}/imports` (multipart file(s) + `source_kind, period_id`) | → batch staged + profile summary | ERR-020 unsupported file, ERR-021 file too large (>200MB) |
