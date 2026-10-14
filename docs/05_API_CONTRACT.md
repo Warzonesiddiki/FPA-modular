@@ -217,7 +217,7 @@ App-scoped project-creation receipts are scoped to **installation + method + can
 ### 6.3 POST `/projects`
 - **Auth / scope:** app-scoped; token required; Idempotency-Key required.
 - **Request:** ProjectCreate (§6.0); no query/path variables. Initial fiscal_year is explicit. Reject unsupported currency/calendar and client-supplied server fields with ERR-002. Compare active names using §6.0's canonical casefold key; duplicate → ERR-010.
-- **Response:** 201 CreatedProject (§6.0), `is_sample=false`, version 1 and equal creation/update timestamps. Also atomically initialise all 12 open periods for the requested FY, doc-62 default settings, and doc-28 COA template. No GL/budget transactions, sample corpus or imported opening balance is invented. Periods are fetched separately, not silently omitted from a promised embedded list.
+- **Response:** 201 CreatedProject (§6.0), `is_sample=false`, version 1 and equal creation/update timestamps. Also atomically initialise all 12 open periods for the requested FY, doc-62 default settings, and doc-28 COA template. Initialise the internal input_revisions row to (1,1,1) in this creation transaction (doc 24 §5); no input event is fabricated for initialisation. No GL/budget transactions, sample corpus or imported opening balance is invented. Periods are fetched separately, not silently omitted from a promised embedded list.
 - **Failures:** 400 ERR-002/ERR-005; 401 ERR-006; 403 ERR-007; 404 ERR-001 (replay target deleted); 409 ERR-010; 500 ERR-099; 503 ERR-092/ERR-093.
 - **Error distinction:** ERR-012 remains backup/restore-specific, not reused for arbitrary create failures.
 - **Pagination:** none.
@@ -522,7 +522,7 @@ Live task pages bind project, period, limit, ordering, project audit head and ev
 
 
 ## 11. Persistence fence obligations behind §§7–10 (DEC-023)
-No new endpoint or caller field is introduced here. Docs 02 §5 and 24 §5 define server-only InputRevisions/InputRevisionAdvance, SnapshotInputBinding, ForecastInputBinding, InputInvalidation and retained baseline/impact/change/approval record layouts. Runtime routes must not accept these as arbitrary requests. Existing error codes and DTO fields are unchanged.
+No new endpoint or caller field is introduced here. Docs 02 §5 and 24 §5 define server-only InputRevisions/InputRevisionAdvance, SnapshotInputBinding, ForecastInputBinding, InputInvalidation and retained baseline/impact/change/approval record layouts. Runtime routes must not accept these as arbitrary requests. Existing error codes and DTO fields are unchanged. For revision mismatches ERR-003 details are exactly `{expected_version: captured relevant counter, actual_version: current relevant counter}` (synchronous HTTP 409, or failed accepted-job envelope); doc 24 §5.2 owns the publication recheck.
 
 A newly generated forecast is published only against the captured forecast_revision (ERR-003 with captured/current revisions on mismatch); publishing its result advances pack_revision, **not** forecast_revision. Pack/impact publication similarly fences the captured pack_revision under the project write boundary, in addition to all existing ownership/state/manifest/content guards. Input writes advance normalised counters once, append permanent impact invalidation and mark statement attestations stale in the same transaction; no post-commit repair. Integrity, busy, note/attestation and scope failures retain their earlier precedence and codes. Counter overflow or unknown internal mutation category is ERR-099 with no surviving effects, never a new public error code.
 

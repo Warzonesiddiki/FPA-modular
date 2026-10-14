@@ -414,6 +414,6 @@ NEXT: still WI-0001: complete retained statement/financial manifests, impact sto
 
 ## WI-0001 continuation — durable input revision/impact records, 2026-10-15
 STATUS: in_progress; M0 open (0/8); batch 0/30 complete.
-BASELINE: clean assigned branch at 6d68929; `.venv/bin/python -m pytest -q` → 694 passed in 21.18s before edits. No checker exists.
+BASELINE: restored files matched pushed 6d68929 byte-for-byte despite stale local metadata at 4257b5a. Fetched the assigned branch, verified every retained tracked file, mixed-reset metadata only, reverified bytes. Recreated ignored .venv; `.venv/bin/python -m pytest -q` → 694 passed in 18.90s before edits. No checker exists.
 CONTRACT: DEC-023 docs 02 §5 / 24 §5 / 05 §11: trusted three-domain effect union, one atomic advance per input command, permanent first impact invalidation, statement-only stale marks, immutable baseline/impact/change/approval records with typed bindings. Correct watermark-only cache contradiction. Full snapshot/view/finding codecs, legacy repair and project lifecycle/receipts/restore epoch remain explicit open scope.
 NEXT: write independent document fixtures/model oracles before schemas, run red, implement closed layouts, adversarial verification and evidence. No product code or WI completion.
