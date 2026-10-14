@@ -26,16 +26,18 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **DEC-022** (auto): task/template/calendar and outcome-history transport; future-only period copies, protected system/outcome tasks, statement-only T-04 binding. Doc 02 delta 15 and explicit existing storage/service/calendar owners added; M1 schema gate strengthened, never closed. Evidence: `evidence/WI-0001_task_contract_2026-10-14.md`.
 
+- **DEC-023** (auto): durable statement/forecast/pack revisions, atomic invalidation requirements and immutable impact persistence shapes; watermark-only cache rejected. Existing module owners and M1 delta 16 explicit. No product SQL/runtime/gate completion. Evidence: `evidence/WI-0001_revision_contract_2026-10-15.md`.
+
 ## Current position
-- Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-14. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
-- DEC-016…022 checkpoints verified: **685 document tests + 9 unchanged product tests = 694 passing**; 276 definitions, 18 job kinds, 76 errors. Eight task/calendar/template/history contracts added; product code frozen, no runtime/gate claim.
-- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_task_contract_2026-10-14.md` §4 (Exact continuation).
+- Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-15. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
+- DEC-016…023 checkpoints verified: **858 document tests + 9 unchanged product tests = 867 passing**; 285 definitions, 18 job kinds, 76 errors. Latest bounded revision/impact-storage document slice verified; full retention/lifecycle still incomplete. Product code frozen, no runtime/gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_revision_contract_2026-10-15.md` §4 (Exact continuation).
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-022: eight task/calendar/history contracts; 694 tests pass. Full endpoint rewrite and snapshot/lifecycle persistence coordination incomplete. Evidence: WI-0001_task_contract_2026-10-14.md; latest handover below. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-023: revision/invalidation and impact storage document slice; 867 tests pass. Full endpoint rewrite, snapshot/view codecs and lifecycle/receipt coordination incomplete. Evidence: WI-0001_revision_contract_2026-10-15.md; latest handover below. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -416,4 +418,11 @@ NEXT: still WI-0001: complete retained statement/financial manifests, impact sto
 STATUS: in_progress; M0 open (0/8); batch 0/30 complete.
 BASELINE: restored files matched pushed 6d68929 byte-for-byte despite stale local metadata at 4257b5a. Fetched the assigned branch, verified every retained tracked file, mixed-reset metadata only, reverified bytes. Recreated ignored .venv; `.venv/bin/python -m pytest -q` → 694 passed in 18.90s before edits. No checker exists.
 CONTRACT: DEC-023 docs 02 §5 / 24 §5 / 05 §11: trusted three-domain effect union, one atomic advance per input command, permanent first impact invalidation, statement-only stale marks, immutable baseline/impact/change/approval records with typed bindings. Correct watermark-only cache contradiction. Full snapshot/view/finding codecs, legacy repair and project lifecycle/receipts/restore epoch remain explicit open scope.
-NEXT: write independent document fixtures/model oracles before schemas, run red, implement closed layouts, adversarial verification and evidence. No product code or WI completion.
+TESTS RUN: initial red `.venv/bin/python -m pytest tests/docs/test_api_revision_contract.py -q --tb=short` → 17 passed/75 missing-contract errors; final paired 173 passed in 1.79s, repeat 1.73s. `.venv/bin/python -m pytest tests/docs -q --tb=short` → 858 passed in 20.66s; `.venv/bin/python -m pytest -q --tb=short` → 867 passed in 19.93s, repeat 21.10s. `git diff --check` clean. No checker exists.
+MUTATIONS: forecast binding revision constant 1; remove same_pack_revision conjunct; first ordinal minimum 0→1 → independent oracle catches each isolated schema/model mutation. No runtime mutation claim.
+EDGES: 173 schema/model tests cover counter boundaries/overflow, effect closure/union-once/replay/reversion, first invalidation, cross-scope/period/hash/ordinal/count/audit bindings, bad ids/digests, decimal-string money, month-2 records and synthetic time guards. 250k repeated declarations are not a DB/performance test. Full checklist and limitations in evidence §3.
+SPEC CHECKS: 24 §5 forecast/pack/impact acyclic counter oracle; 02 §5.1 / 24 §5.1 permanent first marker and immutable records; 05 §11 / 24 §5.2–§5.3 exact error fields, conjunctive currentness, no watermark-only cache authority. Document evidence only; no SQL/HTTP/financial/filesystem/Windows-security guarantee.
+FILES TOUCHED: docs 02/04/05/17/24/30/41/61/86/90/CHANGELOG; schema; new tests/docs/test_api_revision_contract.py; generator/WORK_PLAN md/csv; TASKBOARD; evidence/WI-0001_revision_contract_2026-10-15.md. All product/SQL/prior tests byte-unchanged from 6d68929.
+DEVIATIONS: DEC-023 docs-first dc15d23/b9f36cf/ddd2fd2. 9 new definitions, all 276 previous definitions/top-level metadata unchanged. 267 WI identities stable; WI-0152 adds report_repo/forecast_repo dependencies. M1 gate delta coverage strengthens 1–15→1–16, other clauses/gates preserved; seven gate texts match doc 86; regeneration byte-identical.
+DECISIONS TAKEN: DEC-023 (auto) · OWNER-ONLY ITEMS: none for this scope.
+NEXT: still WI-0001: full snapshot/view/finding codecs and retained drill, exact statement/viewer/layer fingerprint and authentic legacy repair, project lifecycle/receipt coordinator/control-plane schema and safe backup/restore epoch fencing, remaining endpoint families/annual planning/doc-90 migration. Exact continuation: evidence §4. **M0 open (0/8), batch 0/30 complete.**

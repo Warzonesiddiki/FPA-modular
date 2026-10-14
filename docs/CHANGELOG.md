@@ -1,6 +1,7 @@
 # Documentation Changelog (newest first)
 
 ## 2026-10-15 — DEC-023 input revisions and impact persistence (WI-0001 in progress)
+- Verified **173 new document tests; 867 full tests passing** (858 docs + 9 unchanged product), repeat green; three caught schema/model mutations. 285 definitions/18 jobs/76 errors. Evidence: `evidence/WI-0001_revision_contract_2026-10-15.md`. No WI/gate or runtime completion.
 - Replace watermark-only cache authority with statement/forecast/pack revision fences and exact manifest identity; specify union-once atomic invalidation and immutable impact/baseline/approval storage. Derived outputs cannot stale their own inputs.
 - Clarify existing ERR-003 detail field mapping, initial project counters and immutable-table metadata exceptions and required composite FK parent uniques; index internal policy/effect/storage metadata without introducing caller-set guards.
 - Add doc-02 delta 16 and explicit existing-module ownership/acceptance obligations; strengthen only M1 schema delta coverage. Product/SQL/original tests remain frozen. Full manifest/view/finding codecs and project lifecycle/control-plane/restore fencing remain unfinished.

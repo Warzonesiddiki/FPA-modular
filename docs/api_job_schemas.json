@@ -11804,6 +11804,251 @@
         "next_cursor"
       ],
       "additionalProperties": false
+    },
+    "InputRevisions": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "statement_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "forecast_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        },
+        "pack_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "project_id",
+        "statement_revision",
+        "forecast_revision",
+        "pack_revision"
+      ],
+      "additionalProperties": false
+    },
+    "InputRevisionAdvance": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "effects": {
+          "enum": [
+            [
+              "pack_inputs"
+            ],
+            [
+              "forecast_inputs",
+              "pack_inputs"
+            ],
+            [
+              "statement_inputs",
+              "forecast_inputs",
+              "pack_inputs"
+            ]
+          ]
+        },
+        "before": {
+          "$ref": "#/$defs/InputRevisions"
+        },
+        "after": {
+          "$ref": "#/$defs/InputRevisions"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "effects",
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    },
+    "SnapshotInputBinding": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "snapshot_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "revisions": {
+          "$ref": "#/$defs/InputRevisions"
+        },
+        "manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "statements_fingerprint": {
+          "$ref": "#/$defs/Sha256"
+        }
+      },
+      "required": [
+        "project_id",
+        "snapshot_id",
+        "period_id",
+        "revisions",
+        "manifest_sha256",
+        "statements_fingerprint"
+      ],
+      "additionalProperties": false
+    },
+    "ForecastInputBinding": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "forecast_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "project_id",
+        "run_id",
+        "forecast_revision"
+      ],
+      "additionalProperties": false
+    },
+    "InputInvalidation": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pack_revision": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9223372036854775807
+        }
+      },
+      "required": [
+        "project_id",
+        "impact_id",
+        "audit_id",
+        "pack_revision"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedBaselineRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "$ref": "#/$defs/RestatementBaseline"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "record"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedImpactRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "$ref": "#/$defs/ImpactReport"
+        },
+        "after_binding": {
+          "$ref": "#/$defs/SnapshotInputBinding"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "record",
+        "after_binding"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedImpactChange": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "record": {
+          "$ref": "#/$defs/ImpactChange"
+        }
+      },
+      "required": [
+        "project_id",
+        "impact_id",
+        "ordinal",
+        "record"
+      ],
+      "additionalProperties": false
+    },
+    "RetainedApprovalRecord": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "audit_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "record": {
+          "$ref": "#/$defs/ImpactApproval"
+        }
+      },
+      "required": [
+        "project_id",
+        "audit_id",
+        "record"
+      ],
+      "additionalProperties": false
     }
   },
   "x-job-results": {
@@ -14427,5 +14672,155 @@
         ]
       }
     }
+  },
+  "x-revision-effects": {
+    "committed_source": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "adjustment_change": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "statement_mapping": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "statement_settings": [
+      "statement_inputs",
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "forecast_assumptions": [
+      "forecast_inputs",
+      "pack_inputs"
+    ],
+    "forecast_publication": [
+      "pack_inputs"
+    ],
+    "finding_change": [
+      "pack_inputs"
+    ],
+    "commentary_change": [
+      "pack_inputs"
+    ],
+    "pack_configuration": [
+      "pack_inputs"
+    ],
+    "project_display": [
+      "pack_inputs"
+    ],
+    "pack_publication": [],
+    "impact_publication": [],
+    "close_metadata": [],
+    "staging_only": [],
+    "job_control": [],
+    "read_only": []
+  },
+  "x-revision-storage": {
+    "input_revisions": {
+      "columns": [
+        "project_id",
+        "statement_revision",
+        "forecast_revision",
+        "pack_revision"
+      ],
+      "owner": "app/store/db.py"
+    },
+    "input_revision_events": {
+      "columns": [
+        "project_id",
+        "audit_id",
+        "advance_json"
+      ],
+      "owner": "app/store/db.py"
+    },
+    "snapshot_input_bindings": {
+      "columns": [
+        "project_id",
+        "snapshot_id",
+        "period_id",
+        "binding_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "forecast_input_bindings": {
+      "columns": [
+        "project_id",
+        "run_id",
+        "forecast_revision"
+      ],
+      "owner": "app/store/forecast_repo.py"
+    },
+    "restatement_baselines": {
+      "columns": [
+        "project_id",
+        "baseline_id",
+        "period_id",
+        "unlock_version",
+        "before_snapshot_id",
+        "audit_id",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "restatement_impacts": {
+      "columns": [
+        "project_id",
+        "impact_id",
+        "period_id",
+        "period_version",
+        "baseline_id",
+        "after_snapshot_id",
+        "audit_id",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "restatement_changes": {
+      "columns": [
+        "project_id",
+        "impact_id",
+        "ordinal",
+        "kind",
+        "change_key",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "restatement_approvals": {
+      "columns": [
+        "project_id",
+        "approval_id",
+        "impact_id",
+        "audit_id",
+        "record_json"
+      ],
+      "owner": "app/store/report_repo.py"
+    },
+    "impact_invalidations": {
+      "columns": [
+        "project_id",
+        "impact_id",
+        "audit_id",
+        "pack_revision"
+      ],
+      "owner": "app/store/db.py"
+    }
+  },
+  "x-revision-policy": {
+    "required_revision_facts": [
+      "same_project",
+      "same_pack_revision",
+      "no_invalidation",
+      "content_verified",
+      "current_cycle",
+      "current_period_version",
+      "current_checked_pack",
+      "time_guards"
+    ]
   }
 }
