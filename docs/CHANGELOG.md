@@ -2,6 +2,7 @@
 
 ## 2026-10-14 (h) — DEC-020 close review and lock contracts
 - Resolve T-09/T-10 self-dependency, limit overrides to explicit soft checks, bind immutable sign-off to reviewed snapshot/audit/blocker identities, and specify three readiness/sign-off/lock endpoints. No unchecked generic override can bypass integrity/restatement review.
+- Clarify locked-history versus current sign-off, exclude the caller's own lease from busy, and reject zero-count/unbounded ERR-011 examples.
 - Align owning/repeating docs and register a document-only paired test; no product/SQL or gate changes, no new error/job/WI. Impact/task/calendar and backup/restore contracts remain unfinished.
 
 
