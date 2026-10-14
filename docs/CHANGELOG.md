@@ -1,9 +1,10 @@
 # Documentation Changelog (newest first)
 
 ## 2026-10-14 (i) — DEC-021 impact review transport (WI-0001 in progress)
+- Verified **145 new impact document tests; 539 full tests passing** (530 docs + 9 unchanged product), including three new caught mutations. Evidence: `evidence/WI-0001_impact_contract_2026-10-14.md`. No runtime or milestone completion.
 - Specify immutable baseline/report/approval bindings, seven scoped endpoints, paged monetary/finding/stale-forecast/superseded-report changes, currentness/invalidation and durable replay. No lock note or boolean replaces impact approval; report generation does not stale its checked pack.
 - Specify durable audit append order (not wall-clock/id order) for current report/approval selection and a historical baseline read.
-- Align docs 30/41/24/90, add cookbook examples and register independent document tests. Product code/SQL/original tests frozen; persistence/manifest ownership remains unfinished, no WI/gate completed.
+- Align docs 22/30/41/24/90, add cookbook examples and register independent document tests. Product code/SQL/original tests frozen; persistence/manifest ownership remains unfinished, no WI/gate completed.
 
 ## 2026-10-14 (h) — DEC-020 close review and lock contracts
 - Verified checkpoint: 108 new close-contract tests; full **394 passing** (385 docs + 9 unchanged product), including three additional caught mutations. Evidence: `evidence/WI-0001_close_contract_2026-10-14.md`. WI-0001 remains in progress.

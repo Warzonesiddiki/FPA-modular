@@ -8711,6 +8711,946 @@
           }
         }
       ]
+    },
+    "RestatementBaseline": {
+      "type": "object",
+      "properties": {
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "unlock_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "before_snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "before_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "locked_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "lock_note": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/PeriodNote"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signoff_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "opened_at": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "reason": {
+          "$ref": "#/$defs/PeriodNote"
+        }
+      },
+      "required": [
+        "baseline_id",
+        "project_id",
+        "period_id",
+        "unlock_version",
+        "before_snapshot",
+        "before_manifest_sha256",
+        "locked_at",
+        "lock_note",
+        "signoff_id",
+        "opened_at",
+        "reason"
+      ],
+      "additionalProperties": false
+    },
+    "RestatementState": {
+      "type": "object",
+      "properties": {
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "period_status": {
+          "enum": [
+            "open",
+            "closing",
+            "locked"
+          ]
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RestatementBaseline"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_impact_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "current_approval_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "project_id",
+        "period_id",
+        "period_version",
+        "period_status",
+        "baseline",
+        "current_impact_id",
+        "current_approval_id"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "period_status": {
+                "enum": [
+                  "open",
+                  "locked"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_impact_id": {
+                "type": "null"
+              },
+              "current_approval_id": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "baseline": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_impact_id": {
+                "type": "null"
+              },
+              "current_approval_id": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "current_impact_id": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "current_approval_id": {
+                "type": "null"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactCreate": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "after_snapshot_id": {
+          "$ref": "#/$defs/Id"
+        }
+      },
+      "required": [
+        "expected_version",
+        "baseline_id",
+        "after_snapshot_id"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactCounts": {
+      "type": "object",
+      "properties": {
+        "statement": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "bva": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "finding": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "forecast": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "report": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "statement",
+        "bva",
+        "finding",
+        "forecast",
+        "report"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactReport": {
+      "type": "object",
+      "properties": {
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "before_snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "after_snapshot": {
+          "$ref": "#/$defs/SnapshotRef"
+        },
+        "before_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "after_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "changes_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "counts": {
+          "$ref": "#/$defs/ImpactCounts"
+        },
+        "created_at": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "impact_id",
+        "project_id",
+        "period_id",
+        "period_version",
+        "baseline_id",
+        "before_snapshot",
+        "after_snapshot",
+        "before_manifest_sha256",
+        "after_manifest_sha256",
+        "changes_sha256",
+        "counts",
+        "created_at"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactValue": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "unavailable_reason": {
+          "enum": [
+            "absent",
+            "not_available",
+            null
+          ]
+        },
+        "drill_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "value",
+        "unavailable_reason",
+        "drill_key"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "value": {
+                "type": "null"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "unavailable_reason": {
+                "enum": [
+                  "absent",
+                  "not_available"
+                ]
+              },
+              "drill_key": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "unavailable_reason": {
+                "type": "null"
+              },
+              "drill_key": {
+                "$ref": "#/$defs/Id"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactMoneyChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "statement",
+            "bva"
+          ]
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "statement": {
+          "enum": [
+            "pl",
+            "bs",
+            "cf",
+            null
+          ]
+        },
+        "line_key": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "entity_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "account_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "cost_centre_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "measure": {
+          "enum": [
+            "amount",
+            "actual",
+            "budget",
+            "forecast",
+            "py",
+            "var_abs"
+          ]
+        },
+        "before": {
+          "$ref": "#/$defs/ImpactValue"
+        },
+        "after": {
+          "$ref": "#/$defs/ImpactValue"
+        },
+        "delta": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Money"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "statement",
+        "line_key",
+        "entity_id",
+        "account_id",
+        "cost_centre_id",
+        "measure",
+        "before",
+        "after",
+        "delta"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "statement"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "statement": {
+                "enum": [
+                  "pl",
+                  "bs",
+                  "cf"
+                ]
+              },
+              "line_key": {
+                "$ref": "#/$defs/Id"
+              },
+              "entity_id": {
+                "type": "null"
+              },
+              "account_id": {
+                "type": "null"
+              },
+              "cost_centre_id": {
+                "type": "null"
+              },
+              "measure": {
+                "const": "amount"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "statement": {
+                "type": "null"
+              },
+              "line_key": {
+                "type": "null"
+              },
+              "entity_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "account_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "measure": {
+                "enum": [
+                  "actual",
+                  "budget",
+                  "forecast",
+                  "py",
+                  "var_abs"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "before": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "after": {
+                    "properties": {
+                      "value": {
+                        "type": "null"
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "delta": {
+                "type": "null"
+              }
+            }
+          },
+          "else": {
+            "properties": {
+              "delta": {
+                "$ref": "#/$defs/Money"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactFindingChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "finding"
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "finding_key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 512,
+          "not": {
+            "pattern": "[\u0000-\u001f]"
+          }
+        },
+        "change": {
+          "enum": [
+            "added",
+            "removed",
+            "changed"
+          ]
+        },
+        "before_finding_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after_finding_id": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Id"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "before_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "after_sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "finding_key",
+        "change",
+        "before_finding_id",
+        "after_finding_id",
+        "before_sha256",
+        "after_sha256"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "change": {
+                "const": "added"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "before_finding_id": {
+                "type": "null"
+              },
+              "before_sha256": {
+                "type": "null"
+              },
+              "after_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "after_sha256": {
+                "$ref": "#/$defs/Sha256"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "change": {
+                "const": "removed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "before_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "before_sha256": {
+                "$ref": "#/$defs/Sha256"
+              },
+              "after_finding_id": {
+                "type": "null"
+              },
+              "after_sha256": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "change": {
+                "const": "changed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "before_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "before_sha256": {
+                "$ref": "#/$defs/Sha256"
+              },
+              "after_finding_id": {
+                "$ref": "#/$defs/Id"
+              },
+              "after_sha256": {
+                "$ref": "#/$defs/Sha256"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "ImpactForecastChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "forecast"
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "change": {
+          "const": "stale"
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "run_id",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactReportChange": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "const": "report"
+        },
+        "key": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "report_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "change": {
+          "const": "superseded"
+        }
+      },
+      "required": [
+        "kind",
+        "key",
+        "report_id",
+        "change"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactChange": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/ImpactMoneyChange"
+        },
+        {
+          "$ref": "#/$defs/ImpactFindingChange"
+        },
+        {
+          "$ref": "#/$defs/ImpactForecastChange"
+        },
+        {
+          "$ref": "#/$defs/ImpactReportChange"
+        }
+      ]
+    },
+    "ImpactChangeQuery": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "enum": [
+            "statement",
+            "bva",
+            "finding",
+            "forecast",
+            "report"
+          ]
+        },
+        "limit": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        },
+        "cursor": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    },
+    "ImpactChangePage": {
+      "type": "object",
+      "properties": {
+        "items": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ImpactChange"
+          },
+          "maxItems": 1000
+        },
+        "next_cursor": {
+          "$ref": "#/$defs/PageCursor"
+        }
+      },
+      "required": [
+        "items",
+        "next_cursor"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactApprovalCreate": {
+      "type": "object",
+      "properties": {
+        "expected_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "signer": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "attest": {
+          "type": "boolean",
+          "const": true
+        },
+        "note": {
+          "$ref": "#/$defs/PeriodNote"
+        }
+      },
+      "required": [
+        "expected_version",
+        "signer",
+        "attest",
+        "note"
+      ],
+      "additionalProperties": false
+    },
+    "ImpactApproval": {
+      "type": "object",
+      "properties": {
+        "approval_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "project_id": {
+          "$ref": "#/$defs/ProjectId"
+        },
+        "period_id": {
+          "$ref": "#/$defs/PeriodId"
+        },
+        "period_version": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "impact_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "baseline_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "before_snapshot_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "after_snapshot_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "before_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "after_manifest_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "changes_sha256": {
+          "$ref": "#/$defs/Sha256"
+        },
+        "signer": {
+          "$ref": "#/$defs/ProjectName"
+        },
+        "attestation_text": {
+          "type": "string",
+          "pattern": "^I reviewed the restatement impact for [0-9]{4}-P(0[1-9]|1[0-2]) and approve these changes$",
+          "not": {
+            "pattern": "[\r\n]"
+          }
+        },
+        "note": {
+          "$ref": "#/$defs/PeriodNote"
+        },
+        "at": {
+          "$ref": "#/$defs/Timestamp"
+        }
+      },
+      "required": [
+        "approval_id",
+        "project_id",
+        "period_id",
+        "period_version",
+        "impact_id",
+        "baseline_id",
+        "before_snapshot_id",
+        "after_snapshot_id",
+        "before_manifest_sha256",
+        "after_manifest_sha256",
+        "changes_sha256",
+        "signer",
+        "attestation_text",
+        "note",
+        "at"
+      ],
+      "additionalProperties": false
     }
   },
   "x-job-results": {
@@ -10777,5 +11717,262 @@
       "same_snapshot",
       "same_blocker_fingerprint"
     ]
+  },
+  "x-impact-policy": {
+    "current_report_guards": [
+      "closing",
+      "same_scope",
+      "same_cycle",
+      "same_period_version",
+      "same_before_snapshot",
+      "same_before_manifest",
+      "same_after_snapshot",
+      "same_after_manifest",
+      "checked_pack",
+      "never_invalidated",
+      "latest_qualifying_report"
+    ],
+    "approval_binding_fields": [
+      "project_id",
+      "period_id",
+      "period_version",
+      "impact_id",
+      "baseline_id",
+      "before_snapshot_id",
+      "after_snapshot_id",
+      "before_manifest_sha256",
+      "after_manifest_sha256",
+      "changes_sha256"
+    ],
+    "financial_mutation_invalidates_permanently": true,
+    "generation_changes_financial_inputs": false,
+    "approval_changes_financial_inputs": false,
+    "period_version_increment": 0,
+    "current_record_order": "project_audit_append"
+  },
+  "x-impact-endpoints": {
+    "GET /projects/{id}/periods/{period_id}/restatement": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "RestatementState",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "POST /projects/{id}/periods/{period_id}/impacts": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": "ImpactCreate",
+      "response": "ImpactReport",
+      "status": "201",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "080",
+          "090"
+        ]
+      }
+    },
+    "GET /impacts/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "ImpactReport",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "GET /impacts/{id}/changes": {
+      "scope": "project",
+      "token_required": true,
+      "query": "ImpactChangeQuery",
+      "request": null,
+      "response": "ImpactChangePage",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "POST /impacts/{id}/approve": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": "ImpactApprovalCreate",
+      "response": "ImpactApproval",
+      "status": "201",
+      "idempotency": "required",
+      "errors": {
+        "400": [
+          "002",
+          "005"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "092",
+          "093"
+        ],
+        "409": [
+          "003",
+          "016"
+        ],
+        "422": [
+          "083",
+          "090"
+        ]
+      }
+    },
+    "GET /impact-approvals/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "ImpactApproval",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    },
+    "GET /restatement-baselines/{id}": {
+      "scope": "project",
+      "token_required": true,
+      "query": null,
+      "request": null,
+      "response": "RestatementBaseline",
+      "status": "200",
+      "idempotency": "none",
+      "errors": {
+        "400": [
+          "002"
+        ],
+        "401": [
+          "006"
+        ],
+        "403": [
+          "007"
+        ],
+        "404": [
+          "001"
+        ],
+        "500": [
+          "099"
+        ],
+        "503": [
+          "093"
+        ]
+      }
+    }
   }
 }

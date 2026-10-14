@@ -63,7 +63,7 @@ Health, project list/create/detail, period list/create/detail: explicit contract
 
 Remaining project operations awaiting expansion in WI-0001:
 - Sample workspace creation, typed-confirmation deletion and start-close/unlock: §7 (FR-PRJ-002/003/005). Financial sample loading still uses the ordinary import pipeline.
-- Close readiness/sign-off/lock: §8. Version, review binding and current sign-off are mandatory; force is limited. Impact generation/approval transport remains to expand (docs 30/41).
+- Close readiness/sign-off/lock: §8. Version, review binding and current sign-off are mandatory; force is limited. Impact generation/approval, paged changes and retained baseline reads: §9 (docs 30/41). Snapshot persistence/ownership still requires verification.
 - POST `/projects/{id}/backup` and POST `/projects/{id}/restore`: legacy request `{path}` → 202 JobReceipt; results BackupManifest / RestoreResult (doc 64), ERR-012 for unavailable paths. Full input/root-selection/integrity contracts remain to expand (FR-PRJ-004).
 
 ### Imports (doc 06)

@@ -22,16 +22,18 @@ Statuses: `queued` · `in_progress` · `done` (evidence pasted) · `blocked` (cl
 
 - **DEC-020** (auto): T-09/T-10 are outcomes, not sign-off prerequisites. Three close contracts bind approval to the exact reviewed state; only High/manual-task exceptions admit override. Hard integrity/TB/forecast/pack/impact guards cannot be forced. No runtime/gate completion claimed.
 
+- **DEC-021** (auto): seven impact/baseline/approval transport contracts, immutable paged comparison and exact current-cycle binding; durable audit ordering, no generation-induced forecast staleness or lock-note bypass. Snapshot/invalidation persistence ownership still unfinished. Evidence: `evidence/WI-0001_impact_contract_2026-10-14.md`.
+
 ## Current position
 - Milestone: **M0** (gate open, 0/8 done) · In progress: **WI-0001** · Current checkpoint: 2026-10-14. Requested batch **WI-0001…0030: 0/30 complete**. Plan remains **267 WIs** — M0 8 · M1 53 · M2 75 · M3 44 · M4 51 · M5 26 · M6 10.
-- DEC-016…020 checkpoints verified: **385 document tests + 9 unchanged product tests = 394 passing**; 239 definitions, 18 job kinds, 76 errors. Three close-review/sign-off/lock contracts now supplement prior sections. Product code frozen; no runtime/gate claim.
-- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_close_contract_2026-10-14.md` (Exact continuation).
+- DEC-016…021 checkpoints verified: **530 document tests + 9 unchanged product tests = 539 passing**; 254 definitions, 18 job kinds, 76 errors. Seven impact transport sections now supplement the close contracts. Product code frozen; no runtime/gate claim.
+- **Resume WI-0001**, not WI-0002: expand every remaining endpoint and request/response/error/example; finish doc 90 as index. Exact next work and limitations: `evidence/WI-0001_impact_contract_2026-10-14.md` §4 (Exact continuation).
 
 ## Items
 
 | WI | Path | Milestone | Status | Evidence / note |
 |---|---|---|---|---|
-| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-020: three close contracts, acyclic tasks and review-bound limited overrides; 394 tests pass. Full endpoint rewrite incomplete. Evidence: WI-0001_close_contract_2026-10-14.md; latest handover below. |
+| WI-0001 | `docs/05_API_CONTRACT.md` | M0 | in_progress | DEC-021: seven impact transport contracts; 539 tests pass. Full endpoint rewrite and snapshot/persistence ownership incomplete. Evidence: WI-0001_impact_contract_2026-10-14.md; latest handover below. |
 | WI-0002 | `docs/21_SCREEN_SPEC_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0003 | `docs/44_RULE_ALGORITHMS_DETAILED.md` | M0 | exists-unverified |  |
 | WI-0004 | `docs/03_CALCULATION_SPEC.md` | M0 | exists-unverified |  |
@@ -384,4 +386,11 @@ NEXT: impact generation/approval fields/transport; task/calendar/template/histor
 STATUS: in_progress; M0 open, 0/30 complete.
 BASELINE: clean assigned branch arena/5165fe46-fpa-modular at merge 4257b5a; ignored .venv installed from pinned requirements; full suite 394 passed in 11.94s before edits. No checker exists.
 CONTRACT: DEC-021, docs 05 §9 / 41 §6: seven scoped endpoints; immutable baseline/current pack/report/approval; paged typed changes; explicit human attest+note; exact cycle/version/manifest binding and permanent input-change invalidation. No generation-induced financial staleness or implicit sign-off/lock. Product remains frozen; persistence ownership/schema verification still unfinished.
-NEXT: independent test-first fixtures, missing-contract red, schema implementation, adversarial verification and exact evidence. This is not WI completion.
+TESTS RUN: `.venv/bin/python -m pytest tests/docs/test_api_impact_contract.py -q --tb=short` → **145 passed in 3.13s**; `.venv/bin/python -m pytest tests/docs -q --tb=short` → **530 passed in 14.53s**; `.venv/bin/python -m pytest -q --tb=short` → **539 passed in 14.78s**, repeat **539 passed in 14.75s**. `git diff --check` clean. Initial red: 11 standalone passed, 103 missing-contract assertion errors; refinement red: 2 failed/142 passed before seventh route/audit-order metadata.
+MUTATIONS: constant forecast change stale→fresh; drop same_cycle conjunct; minimum unlocked version 2→3 → same independent oracle catches each isolated mutation. Prior twelve probes remain green; no runtime logic mutated.
+EDGES: schema/model PASS for absent-vs-zero, decimal strings, closed/injected fields, null/locked/history shapes, page bounds, counts, stable hashes/identity changes, note bounds/hostile literals, P02 reuse. TEST-ONLY for synthetic freshness flags; no live snapshot/audit/replay/HTTP/financial/250k-row throughput proof. Percent denominators/waivers N/A to this transport; prior close tests retained. Full checklist in evidence §3.
+SPEC CHECKS: 41 §5–§6 / 05 §9 exact cycle/manifest/approval binding and acyclic sequence; 03 §1/§5 / 41 §6 presented delta and absent-not-zero literal oracles; 05 §1/§9 / 22 / 90 route/field/status/error/index parity. These are document checks, not implemented runtime guards.
+FILES TOUCHED: docs 05/17/22/24/30/41/63/90/CHANGELOG; schema attachment; new tests/docs/test_api_impact_contract.py; generator/WORK_PLAN md/csv; TASKBOARD and evidence/WI-0001_impact_contract_2026-10-14.md. Product/SQL/original tests unchanged from 4257b5a.
+DEVIATIONS: DEC-021 docs-first e811c38/6d2bcef. 254 definitions/18 jobs/76 errors; 239 prior definitions unchanged. 267 WI identities/dependencies stable, all seven gates unchanged/equal, regeneration byte-identical. Synchronous generation performance/persistence are not proved; no bar weakened.
+DECISIONS TAKEN: DEC-021 (auto) · OWNER-ONLY ITEMS: none for this work; existing Entra setup only before real tenant pilot.
+NEXT: still WI-0001: task/calendar/template + sign-off/lock history contracts; impact/snapshot/invalidation and project lifecycle persistence ownership/schema depth; backup/restore safety; remaining families/doc-90 migration. Exact limits/order in evidence §4. **M0 open (0/8), batch 0/30 complete.**
